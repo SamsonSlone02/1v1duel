@@ -34,8 +34,8 @@ typedef Flt	Matrix[4][4];
 #define VecCopy(a,b) (b)[0]=(a)[0];(b)[1]=(a)[1];(b)[2]=(a)[2]
 #define VecDot(a,b)	((a)[0]*(b)[0]+(a)[1]*(b)[1]+(a)[2]*(b)[2])
 #define VecSub(a,b,c) (c)[0]=(a)[0]-(b)[0]; \
-						(c)[1]=(a)[1]-(b)[1]; \
-						(c)[2]=(a)[2]-(b)[2]
+			     (c)[1]=(a)[1]-(b)[1]; \
+(c)[2]=(a)[2]-(b)[2]
 //constants
 const float timeslice = 1.0f;
 const float gravity = -0.2f;
@@ -56,255 +56,266 @@ extern double timeDiff(struct timespec *start, struct timespec *end);
 extern void timeCopy(struct timespec *dest, struct timespec *source);
 //-----------------------------------------------------------------------------
 
+
 class Global {
-public:
-	int xres, yres;
-	char keys[65536];
-	Global() {
-		xres = 640;
-		yres = 480;
-		memset(keys, 0, 65536);
-	}
+	public:
+		int xres, yres;
+		char keys[65536];
+		Global() {
+			xres = 640;
+			yres = 480;
+			memset(keys, 0, 65536);
+		}
 } gl;
 
 class Ship {
-public:
-	Vec pos;
-	Vec dir;
-	Vec vel;
-	Vec acc;
-	float angle;
-	float color[3];
-public:
-	Ship() {
-		pos[0] = (Flt)(gl.xres/2);
-		pos[1] = (Flt)(gl.yres/2);
-		pos[2] = 0.0f;
-		VecZero(dir);
-		VecZero(vel);
-		VecZero(acc);
-		angle = 0.0;
-		color[0] = color[1] = color[2] = 1.0;
-	}
+	public:
+		Vec pos;
+		Vec dir;
+		Vec vel;
+		Vec acc;
+		float angle;
+		float color[3];
+	public:
+		Ship() {
+			//added rand to have every new player spawn randomly within the region of the arena
+			pos[0] = (Flt)(rand() % gl.xres);
+			pos[1] = (Flt)(rand() % gl.yres);
+			pos[2] = 0.0f;
+			VecZero(dir);
+			VecZero(vel);
+			VecZero(acc);
+			angle = 0.0;
+			//generates a random color on every ship initialization
+			color[0] = (float)(rand() % 100) / 100;	
+			color[1] = (float)(rand() % 100) / 100;	
+			color[2] = (float)(rand() % 100) / 100;	
+
+		}
 };
 
 class Bullet {
-public:
-	Vec pos;
-	Vec vel;
-	float color[3];
-	struct timespec time;
-public:
-	Bullet() { }
+	public:
+		Vec pos;
+		Vec vel;
+		float color[3];
+		struct timespec time;
+	public:
+		Bullet() { }
 };
 
 class Asteroid {
-public:
-	Vec pos;
-	Vec vel;
-	int nverts;
-	Flt radius;
-	Vec vert[8];
-	float angle;
-	float rotate;
-	float color[3];
-	struct Asteroid *prev;
-	struct Asteroid *next;
-public:
-	Asteroid() {
-		prev = NULL;
-		next = NULL;
-	}
+	public:
+		Vec pos;
+		Vec vel;
+		int nverts;
+		Flt radius;
+		Vec vert[8];
+		float angle;
+		float rotate;
+		float color[3];
+		struct Asteroid *prev;
+		struct Asteroid *next;
+	public:
+		Asteroid() {
+			prev = NULL;
+			next = NULL;
+		}
 };
 
 class Game {
-public:
-	Ship ship;
-	Asteroid *ahead;
-	Bullet *barr;
-	int nasteroids;
-	int nbullets;
-	struct timespec bulletTimer;
-	struct timespec mouseThrustTimer;
-	bool mouseThrustOn;
-public:
-	Game() {
-		ahead = NULL;
-		barr = new Bullet[MAX_BULLETS];
-		nasteroids = 0;
-		nbullets = 0;
-		mouseThrustOn = false;
-		//build 10 asteroids...
-		for (int j=0; j<10; j++) {
-			Asteroid *a = new Asteroid;
-			a->nverts = 8;
-			a->radius = rnd()*80.0 + 40.0;
-			Flt r2 = a->radius / 2.0;
-			Flt angle = 0.0f;
-			Flt inc = (PI * 2.0) / (Flt)a->nverts;
-			for (int i=0; i<a->nverts; i++) {
-				a->vert[i][0] = sin(angle) * (r2 + rnd() * a->radius);
-				a->vert[i][1] = cos(angle) * (r2 + rnd() * a->radius);
-				angle += inc;
+	public:
+		Ship  ships[2];
+		Ship ship;
+
+		Asteroid *ahead;
+		Bullet *barr;
+		int nasteroids;
+		int nbullets;
+		struct timespec bulletTimer;
+		struct timespec mouseThrustTimer;
+		bool mouseThrustOn;
+	public:
+		Game() {
+			ahead = NULL;
+			barr = new Bullet[MAX_BULLETS];
+			nasteroids = 0;
+			nbullets = 0;
+			mouseThrustOn = false;
+			//initialize two ships
+			ships[0] = Ship();
+			ships[1] = Ship();
+			//build 10 asteroids...
+			for (int j=0; j<10; j++) {
+				Asteroid *a = new Asteroid;
+				a->nverts = 8;
+				a->radius = rnd()*80.0 + 40.0;
+				Flt r2 = a->radius / 2.0;
+				Flt angle = 0.0f;
+				Flt inc = (PI * 2.0) / (Flt)a->nverts;
+				for (int i=0; i<a->nverts; i++) {
+					a->vert[i][0] = sin(angle) * (r2 + rnd() * a->radius);
+					a->vert[i][1] = cos(angle) * (r2 + rnd() * a->radius);
+					angle += inc;
+				}
+				a->pos[0] = (Flt)(rand() % gl.xres);
+				a->pos[1] = (Flt)(rand() % gl.yres);
+				a->pos[2] = 0.0f;
+				a->angle = 0.0;
+				a->rotate = rnd() * 4.0 - 2.0;
+				a->color[0] = 0.8;
+				a->color[1] = 0.8;
+				a->color[2] = 0.7;
+				a->vel[0] = (Flt)(rnd()*2.0-1.0);
+				a->vel[1] = (Flt)(rnd()*2.0-1.0);
+				//std::cout << "asteroid" << std::endl;
+				//add to front of linked list
+				a->next = ahead;
+				if (ahead != NULL)
+					ahead->prev = a;
+				ahead = a;
+				++nasteroids;
 			}
-			a->pos[0] = (Flt)(rand() % gl.xres);
-			a->pos[1] = (Flt)(rand() % gl.yres);
-			a->pos[2] = 0.0f;
-			a->angle = 0.0;
-			a->rotate = rnd() * 4.0 - 2.0;
-			a->color[0] = 0.8;
-			a->color[1] = 0.8;
-			a->color[2] = 0.7;
-			a->vel[0] = (Flt)(rnd()*2.0-1.0);
-			a->vel[1] = (Flt)(rnd()*2.0-1.0);
-			//std::cout << "asteroid" << std::endl;
-			//add to front of linked list
-			a->next = ahead;
-			if (ahead != NULL)
-				ahead->prev = a;
-			ahead = a;
-			++nasteroids;
+			clock_gettime(CLOCK_REALTIME, &bulletTimer);
 		}
-		clock_gettime(CLOCK_REALTIME, &bulletTimer);
-	}
-	~Game() {
-		delete [] barr;
-	}
+		~Game() {
+			delete [] barr;
+		}
 } g;
 
 //X Windows variables
 class X11_wrapper {
-private:
-	Display *dpy;
-	Window win;
-	GLXContext glc;
-public:
-	X11_wrapper() { }
-	X11_wrapper(int w, int h) {
-		GLint att[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, GLX_DOUBLEBUFFER, None };
-		//GLint att[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, None };
-		XSetWindowAttributes swa;
-		setup_screen_res(gl.xres, gl.yres);
-		dpy = XOpenDisplay(NULL);
-		if (dpy == NULL) {
-			std::cout << "\n\tcannot connect to X server" << std::endl;
-			exit(EXIT_FAILURE);
+	private:
+		Display *dpy;
+		Window win;
+		GLXContext glc;
+	public:
+		X11_wrapper() { }
+		X11_wrapper(int w, int h) {
+			GLint att[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, GLX_DOUBLEBUFFER, None };
+			//GLint att[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, None };
+			XSetWindowAttributes swa;
+			setup_screen_res(gl.xres, gl.yres);
+			dpy = XOpenDisplay(NULL);
+			if (dpy == NULL) {
+				std::cout << "\n\tcannot connect to X server" << std::endl;
+				exit(EXIT_FAILURE);
+			}
+			Window root = DefaultRootWindow(dpy);
+			XWindowAttributes getWinAttr;
+			XGetWindowAttributes(dpy, root, &getWinAttr);
+			int fullscreen = 0;
+			gl.xres = w;
+			gl.yres = h;
+			if (!w && !h) {
+				//Go to fullscreen.
+				gl.xres = getWinAttr.width;
+				gl.yres = getWinAttr.height;
+				//When window is fullscreen, there is no client window
+				//so keystrokes are linked to the root window.
+				XGrabKeyboard(dpy, root, False,
+						GrabModeAsync, GrabModeAsync, CurrentTime);
+				fullscreen=1;
+			}
+			XVisualInfo *vi = glXChooseVisual(dpy, 0, att);
+			if (vi == NULL) {
+				std::cout << "\n\tno appropriate visual found\n" << std::endl;
+				exit(EXIT_FAILURE);
+			} 
+			Colormap cmap = XCreateColormap(dpy, root, vi->visual, AllocNone);
+			swa.colormap = cmap;
+			swa.event_mask = ExposureMask | KeyPressMask | KeyReleaseMask |
+				PointerMotionMask | MotionNotify | ButtonPress | ButtonRelease |
+				StructureNotifyMask | SubstructureNotifyMask;
+			unsigned int winops = CWBorderPixel|CWColormap|CWEventMask;
+			if (fullscreen) {
+				winops |= CWOverrideRedirect;
+				swa.override_redirect = True;
+			}
+			win = XCreateWindow(dpy, root, 0, 0, gl.xres, gl.yres, 0,
+					vi->depth, InputOutput, vi->visual, winops, &swa);
+			//win = XCreateWindow(dpy, root, 0, 0, gl.xres, gl.yres, 0,
+			//vi->depth, InputOutput, vi->visual, CWColormap | CWEventMask, &swa);
+			set_title();
+			glc = glXCreateContext(dpy, vi, NULL, GL_TRUE);
+			glXMakeCurrent(dpy, win, glc);
+			show_mouse_cursor(0);
 		}
-		Window root = DefaultRootWindow(dpy);
-		XWindowAttributes getWinAttr;
-		XGetWindowAttributes(dpy, root, &getWinAttr);
-		int fullscreen = 0;
-		gl.xres = w;
-		gl.yres = h;
-		if (!w && !h) {
-			//Go to fullscreen.
-			gl.xres = getWinAttr.width;
-			gl.yres = getWinAttr.height;
-			//When window is fullscreen, there is no client window
-			//so keystrokes are linked to the root window.
-			XGrabKeyboard(dpy, root, False,
-				GrabModeAsync, GrabModeAsync, CurrentTime);
-			fullscreen=1;
+		~X11_wrapper() {
+			XDestroyWindow(dpy, win);
+			XCloseDisplay(dpy);
 		}
-		XVisualInfo *vi = glXChooseVisual(dpy, 0, att);
-		if (vi == NULL) {
-			std::cout << "\n\tno appropriate visual found\n" << std::endl;
-			exit(EXIT_FAILURE);
-		} 
-		Colormap cmap = XCreateColormap(dpy, root, vi->visual, AllocNone);
-		swa.colormap = cmap;
-		swa.event_mask = ExposureMask | KeyPressMask | KeyReleaseMask |
-			PointerMotionMask | MotionNotify | ButtonPress | ButtonRelease |
-			StructureNotifyMask | SubstructureNotifyMask;
-		unsigned int winops = CWBorderPixel|CWColormap|CWEventMask;
-		if (fullscreen) {
-			winops |= CWOverrideRedirect;
-			swa.override_redirect = True;
+		void set_title() {
+			//Set the window title bar.
+			XMapWindow(dpy, win);
+			XStoreName(dpy, win, "Asteroids template");
 		}
-		win = XCreateWindow(dpy, root, 0, 0, gl.xres, gl.yres, 0,
-			vi->depth, InputOutput, vi->visual, winops, &swa);
-		//win = XCreateWindow(dpy, root, 0, 0, gl.xres, gl.yres, 0,
-		//vi->depth, InputOutput, vi->visual, CWColormap | CWEventMask, &swa);
-		set_title();
-		glc = glXCreateContext(dpy, vi, NULL, GL_TRUE);
-		glXMakeCurrent(dpy, win, glc);
-		show_mouse_cursor(0);
-	}
-	~X11_wrapper() {
-		XDestroyWindow(dpy, win);
-		XCloseDisplay(dpy);
-	}
-	void set_title() {
-		//Set the window title bar.
-		XMapWindow(dpy, win);
-		XStoreName(dpy, win, "Asteroids template");
-	}
-	void check_resize(XEvent *e) {
-		//The ConfigureNotify is sent by the
-		//server if the window is resized.
-		if (e->type != ConfigureNotify)
-			return;
-		XConfigureEvent xce = e->xconfigure;
-		if (xce.width != gl.xres || xce.height != gl.yres) {
-			//Window size did change.
-			reshape_window(xce.width, xce.height);
+		void check_resize(XEvent *e) {
+			//The ConfigureNotify is sent by the
+			//server if the window is resized.
+			if (e->type != ConfigureNotify)
+				return;
+			XConfigureEvent xce = e->xconfigure;
+			if (xce.width != gl.xres || xce.height != gl.yres) {
+				//Window size did change.
+				reshape_window(xce.width, xce.height);
+			}
 		}
-	}
-	void reshape_window(int width, int height) {
-		//window has been resized.
-		setup_screen_res(width, height);
-		glViewport(0, 0, (GLint)width, (GLint)height);
-		glMatrixMode(GL_PROJECTION); glLoadIdentity();
-		glMatrixMode(GL_MODELVIEW); glLoadIdentity();
-		glOrtho(0, gl.xres, 0, gl.yres, -1, 1);
-		set_title();
-	}
-	void setup_screen_res(const int w, const int h) {
-		gl.xres = w;
-		gl.yres = h;
-	}
-	void swapBuffers() {
-		glXSwapBuffers(dpy, win);
-	}
-	bool getXPending() {
-		return XPending(dpy);
-	}
-	XEvent getXNextEvent() {
-		XEvent e;
-		XNextEvent(dpy, &e);
-		return e;
-	}
-	void set_mouse_position(int x, int y) {
-		XWarpPointer(dpy, None, win, 0, 0, 0, 0, x, y);
-	}
-	void show_mouse_cursor(const int onoff) {
-		if (onoff) {
-			//this removes our own blank cursor.
-			XUndefineCursor(dpy, win);
-			return;
+		void reshape_window(int width, int height) {
+			//window has been resized.
+			setup_screen_res(width, height);
+			glViewport(0, 0, (GLint)width, (GLint)height);
+			glMatrixMode(GL_PROJECTION); glLoadIdentity();
+			glMatrixMode(GL_MODELVIEW); glLoadIdentity();
+			glOrtho(0, gl.xres, 0, gl.yres, -1, 1);
+			set_title();
 		}
-		//vars to make blank cursor
-		Pixmap blank;
-		XColor dummy;
-		char data[1] = {0};
-		Cursor cursor;
-		//make a blank cursor
-		blank = XCreateBitmapFromData (dpy, win, data, 1, 1);
-		if (blank == None)
-			std::cout << "error: out of memory." << std::endl;
-		cursor = XCreatePixmapCursor(dpy, blank, blank, &dummy, &dummy, 0, 0);
-		XFreePixmap(dpy, blank);
-		//this makes the cursor. then set it using this function
-		XDefineCursor(dpy, win, cursor);
-		//after you do not need the cursor anymore use this function.
-		//it will undo the last change done by XDefineCursor
-		//(thus do only use ONCE XDefineCursor and then XUndefineCursor):
-	}
+		void setup_screen_res(const int w, const int h) {
+			gl.xres = w;
+			gl.yres = h;
+		}
+		void swapBuffers() {
+			glXSwapBuffers(dpy, win);
+		}
+		bool getXPending() {
+			return XPending(dpy);
+		}
+		XEvent getXNextEvent() {
+			XEvent e;
+			XNextEvent(dpy, &e);
+			return e;
+		}
+		void set_mouse_position(int x, int y) {
+			XWarpPointer(dpy, None, win, 0, 0, 0, 0, x, y);
+		}
+		void show_mouse_cursor(const int onoff) {
+			if (onoff) {
+				//this removes our own blank cursor.
+				XUndefineCursor(dpy, win);
+				return;
+			}
+			//vars to make blank cursor
+			Pixmap blank;
+			XColor dummy;
+			char data[1] = {0};
+			Cursor cursor;
+			//make a blank cursor
+			blank = XCreateBitmapFromData (dpy, win, data, 1, 1);
+			if (blank == None)
+				std::cout << "error: out of memory." << std::endl;
+			cursor = XCreatePixmapCursor(dpy, blank, blank, &dummy, &dummy, 0, 0);
+			XFreePixmap(dpy, blank);
+			//this makes the cursor. then set it using this function
+			XDefineCursor(dpy, win, cursor);
+			//after you do not need the cursor anymore use this function.
+			//it will undo the last change done by XDefineCursor
+			//(thus do only use ONCE XDefineCursor and then XUndefineCursor):
+		}
 } x11(gl.xres, gl.yres);
 // ---> for fullscreen x11(0, 0);
 
 //function prototypes
-void init_opengl(void);
+void init_opengl(void);keys[xk
 void check_mouse(XEvent *e);
 int check_keys(XEvent *e);
 void physics();
@@ -315,6 +326,8 @@ void render();
 //==========================================================================
 int main()
 {
+
+	srand(time(NULL));
 	logOpen();
 	init_opengl();
 	srand(time(NULL));
@@ -326,7 +339,7 @@ int main()
 		while (x11.getXPending()) {
 			XEvent e = x11.getXNextEvent();
 			x11.check_resize(&e);
-			check_mouse(&e);
+			//	check_mouse(&e);
 			done = check_keys(&e);
 		}
 		clock_gettime(CLOCK_REALTIME, &timeCurrent);
@@ -379,104 +392,104 @@ void normalize2d(Vec v)
 	v[0] *= len;
 	v[1] *= len;
 }
-
-void check_mouse(XEvent *e)
-{
-	//Did the mouse move?
-	//Was a mouse button clicked?
-	static int savex = 0;
-	static int savey = 0;
-	//
-	static int ct=0;
-	//std::cout << "m" << std::endl << std::flush;
-	if (e->type == ButtonRelease) {
-		return;
-	}
-	if (e->type == ButtonPress) {
-		if (e->xbutton.button==1) {
-			//Left button is down
-			//a little time between each bullet
-			struct timespec bt;
-			clock_gettime(CLOCK_REALTIME, &bt);
-			double ts = timeDiff(&g.bulletTimer, &bt);
-			if (ts > 0.1) {
-				timeCopy(&g.bulletTimer, &bt);
-				//shoot a bullet...
-				if (g.nbullets < MAX_BULLETS) {
-					Bullet *b = &g.barr[g.nbullets];
-					timeCopy(&b->time, &bt);
-					b->pos[0] = g.ship.pos[0];
-					b->pos[1] = g.ship.pos[1];
-					b->vel[0] = g.ship.vel[0];
-					b->vel[1] = g.ship.vel[1];
-					//convert ship angle to radians
-					Flt rad = ((g.ship.angle+90.0) / 360.0f) * PI * 2.0;
-					//convert angle to a vector
-					Flt xdir = cos(rad);
-					Flt ydir = sin(rad);
-					b->pos[0] += xdir*20.0f;
-					b->pos[1] += ydir*20.0f;
-					b->vel[0] += xdir*6.0f + rnd()*0.1;
-					b->vel[1] += ydir*6.0f + rnd()*0.1;
-					b->color[0] = 1.0f;
-					b->color[1] = 1.0f;
-					b->color[2] = 1.0f;
-					++g.nbullets;
-				}
-			}
-		}
-		if (e->xbutton.button==3) {
-			//Right button is down
-		}
-	}
-	//keys[XK_Up] = 0;
-	if (savex != e->xbutton.x || savey != e->xbutton.y) {
-		//Mouse moved
-		int xdiff = savex - e->xbutton.x;
-		int ydiff = savey - e->xbutton.y;
-		if (++ct < 10)
-			return;		
-		//std::cout << "savex: " << savex << std::endl << std::flush;
-		//std::cout << "e->xbutton.x: " << e->xbutton.x << std::endl <<
-		//std::flush;
-		if (xdiff > 0) {
-			//std::cout << "xdiff: " << xdiff << std::endl << std::flush;
-			g.ship.angle += 0.05f * (float)xdiff;
-			if (g.ship.angle >= 360.0f)
-				g.ship.angle -= 360.0f;
-		}
-		else if (xdiff < 0) {
-			//std::cout << "xdiff: " << xdiff << std::endl << std::flush;
-			g.ship.angle += 0.05f * (float)xdiff;
-			if (g.ship.angle < 0.0f)
-				g.ship.angle += 360.0f;
-		}
-		if (ydiff > 0) {
-			//apply thrust
-			//convert ship angle to radians
-			Flt rad = ((g.ship.angle+90.0) / 360.0f) * PI * 2.0;
-			//convert angle to a vector
-			Flt xdir = cos(rad);
-			Flt ydir = sin(rad);
-			g.ship.vel[0] += xdir * (float)ydiff * 0.01f;
-			g.ship.vel[1] += ydir * (float)ydiff * 0.01f;
-			Flt speed = sqrt(g.ship.vel[0]*g.ship.vel[0]+
-												g.ship.vel[1]*g.ship.vel[1]);
-			if (speed > 10.0f) {
-				speed = 10.0f;
-				normalize2d(g.ship.vel);
-				g.ship.vel[0] *= speed;
-				g.ship.vel[1] *= speed;
-			}
-			g.mouseThrustOn = true;
-			clock_gettime(CLOCK_REALTIME, &g.mouseThrustTimer);
-		}
-		x11.set_mouse_position(100,100);
-		savex = 100;
-		savey = 100;
-	}
+/*
+   void check_mouse(XEvent *e)
+   {
+//Did the mouse move?
+//Was a mouse button clicked?
+static int savex = 0;
+static int savey = 0;
+//
+static int ct=0;
+//std::cout << "m" << std::endl << std::flush;
+if (e->type == ButtonRelease) {
+return;
 }
-
+if (e->type == ButtonPress) {
+if (e->xbutton.button==1) {
+//Left button is down
+//a little time between each bullet
+struct timespec bt;
+clock_gettime(CLOCK_REALTIME, &bt);
+double ts = timeDiff(&g.bulletTimer, &bt);
+if (ts > 0.1) {
+timeCopy(&g.bulletTimer, &bt);
+//shoot a bullet...
+if (g.nbullets < MAX_BULLETS) {
+Bullet *b = &g.barr[g.nbullets];
+timeCopy(&b->time, &bt);
+b->pos[0] = g.ship.pos[0];
+b->pos[1] = g.ship.pos[1];
+b->vel[0] = g.ship.vel[0];
+b->vel[1] = g.ship.vel[1];
+//convert ship angle to radians
+Flt rad = ((g.ship.angle+90.0) / 360.0f) * PI * 2.0;
+//convert angle to a vector
+Flt xdir = cos(rad);
+Flt ydir = sin(rad);
+b->pos[0] += xdir*20.0f;
+b->pos[1] += ydir*20.0f;
+b->vel[0] += xdir*6.0f + rnd()*0.1;
+b->vel[1] += ydir*6.0f + rnd()*0.1;
+b->color[0] = 1.0f;
+b->color[1] = 1.0f;
+b->color[2] = 1.0f;
+++g.nbullets;
+}
+}
+}
+if (e->xbutton.button==3) {
+//Right button is down
+}
+}
+//keys[XK_Up] = 0;
+if (savex != e->xbutton.x || savey != e->xbutton.y) {
+//Mouse moved
+int xdiff = savex - e->xbutton.x;
+int ydiff = savey - e->xbutton.y;
+if (++ct < 10)
+return;		
+//std::cout << "savex: " << savex << std::endl << std::flush;
+//std::cout << "e->xbutton.x: " << e->xbutton.x << std::endl <<
+//std::flush;
+if (xdiff > 0) {
+//std::cout << "xdiff: " << xdiff << std::endl << std::flush;
+g.ship.angle += 0.05f * (float)xdiff;
+if (g.ship.angle >= 360.0f)
+g.ship.angle -= 360.0f;
+}
+else if (xdiff < 0) {
+//std::cout << "xdiff: " << xdiff << std::endl << std::flush;
+g.ship.angle += 0.05f * (float)xdiff;
+if (g.ship.angle < 0.0f)
+g.ship.angle += 360.0f;
+}
+if (ydiff > 0) {
+	//apply thrust
+	//convert ship angle to radians
+	Flt rad = ((g.ship.angle+90.0) / 360.0f) * PI * 2.0;
+	//convert angle to a vector
+	Flt xdir = cos(rad);
+	Flt ydir = sin(rad);
+	g.ship.vel[0] += xdir * (float)ydiff * 0.01f;
+	g.ship.vel[1] += ydir * (float)ydiff * 0.01f;
+	Flt speed = sqrt(g.ship.vel[0]*g.ship.vel[0]+
+			g.ship.vel[1]*g.ship.vel[1]);
+	if (speed > 10.0f) {
+		speed = 10.0f;
+		normalize2d(g.ship.vel);
+		g.ship.vel[0] *= speed;
+		g.ship.vel[1] *= speed;
+	}
+	g.mouseThrustOn = true;
+	clock_gettime(CLOCK_REALTIME, &g.mouseThrustTimer);
+}
+x11.set_mouse_position(100,100);
+savex = 100;
+savey = 100;
+}
+}
+	*/
 int check_keys(XEvent *e)
 {
 	static int shift=0;
@@ -558,7 +571,7 @@ void buildAsteroidFragment(Asteroid *ta, Asteroid *a)
 		ta->vert[i][1] = cos(angle) * (r2 + rnd() * ta->radius);
 		angle += inc;
 	}
-	ta->pos[0] = a->pos[0] + rnd()*10.0-5.0;
+	ta->pos[0] = a->pos[0]keys[xk + rnd()*10.0-5.0;
 	ta->pos[1] = a->pos[1] + rnd()*10.0-5.0;
 	ta->pos[2] = 0.0f;
 	ta->angle = 0.0;
@@ -574,21 +587,26 @@ void buildAsteroidFragment(Asteroid *ta, Asteroid *a)
 void physics()
 {
 	Flt d0,d1,dist;
-	//Update ship position
-	g.ship.pos[0] += g.ship.vel[0];
-	g.ship.pos[1] += g.ship.vel[1];
-	//Check for collision with window edges
-	if (g.ship.pos[0] < 0.0) {
-		g.ship.pos[0] += (float)gl.xres;
-	}
-	else if (g.ship.pos[0] > (float)gl.xres) {
-		g.ship.pos[0] -= (float)gl.xres;
-	}
-	else if (g.ship.pos[1] < 0.0) {
-		g.ship.pos[1] += (float)gl.yres;
-	}
-	else if (g.ship.pos[1] > (float)gl.yres) {
-		g.ship.pos[1] -= (float)gl.yres;
+
+	for(int i = 0; i < 2; i++)
+	{
+		//Update ship position
+		g.ships[i].pos[0] += g.ships[i].vel[0];
+		g.ships[i].pos[1] += g.ships[i].vel[1];
+		//Check for collision with window edges
+		if (g.ships[i].pos[0] < 0.0) {
+			g.ships[i].pos[0] += (float)gl.xres;
+		}
+		else if (g.ships[i].pos[0] > (float)gl.xres) {
+			g.ships[i].pos[0] -= (float)gl.xres;
+		}
+		else if (g.ships[i].pos[1] < 0.0) {
+			g.ships[i].pos[1] += (float)gl.yres;
+		}
+		else if (g.ships[i].pos[1] > (float)gl.yres) {
+			g.ships[i].pos[1] -= (float)gl.yres;
+		}
+
 	}
 	//
 	//
@@ -603,7 +621,7 @@ void physics()
 		if (ts > 2.5) {
 			//time to delete the bullet.
 			memcpy(&g.barr[i], &g.barr[g.nbullets-1],
-				sizeof(Bullet));
+					sizeof(Bullet));
 			g.nbullets--;
 			//do not increment i.
 			continue;
@@ -707,63 +725,76 @@ void physics()
 	}
 	//---------------------------------------------------
 	//check keys pressed now
-	if (gl.keys[XK_Left]) {
-		g.ship.angle += 4.0;
-		if (g.ship.angle >= 360.0f)
-			g.ship.angle -= 360.0f;
-	}
-	if (gl.keys[XK_Right]) {
-		g.ship.angle -= 4.0;
-		if (g.ship.angle < 0.0f)
-			g.ship.angle += 360.0f;
-	}
-	if (gl.keys[XK_Up]) {
-		//apply thrust
-		//convert ship angle to radians
-		Flt rad = ((g.ship.angle+90.0) / 360.0f) * PI * 2.0;
-		//convert angle to a vector
-		Flt xdir = cos(rad);
-		Flt ydir = sin(rad);
-		g.ship.vel[0] += xdir*0.02f;
-		g.ship.vel[1] += ydir*0.02f;
-		Flt speed = sqrt(g.ship.vel[0]*g.ship.vel[0]+
-				g.ship.vel[1]*g.ship.vel[1]);
-		if (speed > 10.0f) {
-			speed = 10.0f;
-			normalize2d(g.ship.vel);
-			g.ship.vel[0] *= speed;
-			g.ship.vel[1] *= speed;
+	for(int i =0; i < 2;i++)
+	{
+		if (gl.keys[XK_Left]) {
+			g.ships[i].angle += 6.0;
+			if (g.ships[i].angle >= 360.0f)
+				g.ships[i].angle -= 360.0f;
 		}
-	}
-	if (gl.keys[XK_space]) {
-		//a little time between each bullet
-		struct timespec bt;
-		clock_gettime(CLOCK_REALTIME, &bt);
-		double ts = timeDiff(&g.bulletTimer, &bt);
-		if (ts > 0.1) {
-			timeCopy(&g.bulletTimer, &bt);
-			if (g.nbullets < MAX_BULLETS) {
-				//shoot a bullet...
-				//Bullet *b = new Bullet;
-				Bullet *b = &g.barr[g.nbullets];
-				timeCopy(&b->time, &bt);
-				b->pos[0] = g.ship.pos[0];
-				b->pos[1] = g.ship.pos[1];
-				b->vel[0] = g.ship.vel[0];
-				b->vel[1] = g.ship.vel[1];
-				//convert ship angle to radians
-				Flt rad = ((g.ship.angle+90.0) / 360.0f) * PI * 2.0;
-				//convert angle to a vector
-				Flt xdir = cos(rad);
-				Flt ydir = sin(rad);
-				b->pos[0] += xdir*20.0f;
-				b->pos[1] += ydir*20.0f;
-				b->vel[0] += xdir*6.0f + rnd()*0.1;
-				b->vel[1] += ydir*6.0f + rnd()*0.1;
-				b->color[0] = 1.0f;
-				b->color[1] = 1.0f;
-				b->color[2] = 1.0f;
-				g.nbullets++;
+		if (gl.keys[XK_Right]) {
+			g.ships[i].angle -= 6.0;
+			if (g.ships[i].angle < 0.0f)
+				g.ships[i].angle += 360.0f;
+		}
+		if (gl.keys[XK_Up]) {
+			//apply thrust
+			//convert ship angle to radians
+			Flt rad = ((g.ships[i].angle+90.0) / 360.0f) * PI * 2.0;
+			//convert angle to a vector
+			Flt xdir = cos(rad);
+			Flt ydir = sin(rad);
+			//g.ship.vel[0] += xdir*0.02f;
+			//g.ship.vel[1] += ydir*0.02f;
+			g.ships[i].vel[0] += xdir;
+			g.ships[i].vel[1] += ydir;
+			Flt speed = sqrt(g.ships[i].vel[0]*g.ships[i].vel[0]+
+					g.ships[i].vel[1]*g.ships[i].vel[1]);
+			if (speed > 3.0f) {
+				speed = 3.0f;
+				normalize2d(g.ships[i].vel);
+				g.ships[i].vel[0] *= speed;
+				g.ships[i].vel[1] *= speed;
+			}
+		}
+		else
+		{
+
+
+			g.ships[i].vel[0] = 0;
+			g.ships[i].vel[1] = 0;
+
+		}
+		if (gl.keys[XK_space]) {
+			//a little time between each bullet
+			struct timespec bt;
+			clock_gettime(CLOCK_REALTIME, &bt);
+			double ts = timeDiff(&g.bulletTimer, &bt);
+			if (ts > 0.1) {
+				timeCopy(&g.bulletTimer, &bt);
+				if (g.nbullets < MAX_BULLETS) {
+					//shoot a bullet...
+					//Bullet *b = new Bullet;
+					Bullet *b = &g.barr[g.nbullets];
+					timeCopy(&b->time, &bt);
+					b->pos[0] = g.ship.pos[0];
+					b->pos[1] = g.ship.pos[1];
+					b->vel[0] = g.ship.vel[0];
+					b->vel[1] = g.ship.vel[1];
+					//convert ship angle to radians
+					Flt rad = ((g.ship.angle+90.0) / 360.0f) * PI * 2.0;
+					//convert angle to a vector
+					Flt xdir = cos(rad);
+					Flt ydir = sin(rad);
+					b->pos[0] += xdir*20.0f;
+					b->pos[1] += ydir*20.0f;
+					b->vel[0] += xdir*6.0f + rnd()*0.1;
+					b->vel[1] += ydir*6.0f + rnd()*0.1;
+					b->color[0] = 1.0f;
+					b->color[1] = 1.0f;
+					b->color[2] = 1.0f;
+					g.nbullets++;
+				}
 			}
 		}
 	}
@@ -776,6 +807,7 @@ void physics()
 		if (tdif < -0.3)
 			g.mouseThrustOn = false;
 	}
+
 }
 
 void render()
@@ -791,9 +823,36 @@ void render()
 	ggprint8b(&r, 16, 0x00ffff00, "n asteroids: %i", g.nasteroids);
 	//-------------------------------------------------------------------------
 	//Draw the ship
-	glColor3fv(g.ship.color);
-	glPushMatrix();
-	glTranslatef(g.ship.pos[0], g.ship.pos[1], g.ship.pos[2]);
+
+	for(int i =0; i < 2; i++)
+	{
+		glColor3fv(g.ships[i].color);
+		glPushMatrix();
+		glTranslatef(g.ships[i].pos[0], g.ships[i].pos[1], g.ships[i].pos[2]);
+		//float angle = atan2(ship.dir[1], ship.dir[0]);
+		glRotatef(g.ships[i].angle, 0.0f, 0.0f, 1.0f);
+		glBegin(GL_TRIANGLES);
+		//glVertex2f(-10.0f, -10.0f);
+		//glVertex2f(  0.0f, 20.0f);
+		//glVertex2f( 10.0f, -10.0f);
+		glVertex2f(-12.0f, -10.0f);
+		glVertex2f(  0.0f,  20.0f);
+		glVertex2f(  0.0f,  -6.0f);
+		glVertex2f(  0.0f,  -6.0f);
+		glVertex2f(  0.0f,  20.0f);
+		glVertex2f( 12.0f, -10.0f);
+		glEnd();
+		glColor3f(1.0f, 0.0f, 0.0f);
+		glBegin(GL_POINTS);
+		glVertex2f(0.0f, 0.0f);
+		glEnd();
+		glPopMatrix();
+	}
+
+	/*
+	   glColor3fv(g.ship.color);
+	   glPushMatrix();
+	   glTranslatef(g.ship.pos[0], g.ship.pos[1], g.ship.pos[2]);
 	//float angle = atan2(ship.dir[1], ship.dir[0]);
 	glRotatef(g.ship.angle, 0.0f, 0.0f, 1.0f);
 	glBegin(GL_TRIANGLES);
@@ -812,6 +871,8 @@ void render()
 	glVertex2f(0.0f, 0.0f);
 	glEnd();
 	glPopMatrix();
+	*/
+
 	if (gl.keys[XK_Up] || g.mouseThrustOn) {
 		int i;
 		//draw thrust
