@@ -79,8 +79,8 @@ class Ship {
 	public:
 		Ship() {
 			//added rand to have every new player spawn randomly within the region of the arena
-			pos[0] = (Flt)(rand() % gl.xres);
-			pos[1] = (Flt)(rand() % gl.yres);
+			pos[0] = (float)(rand() % gl.xres);
+			pos[1] = (float)(rand() % gl.yres);
 			pos[2] = 0.0f;
 			VecZero(dir);
 			VecZero(vel);
@@ -139,6 +139,8 @@ class Game {
 		Game() {
 			ahead = NULL;
 			barr = new Bullet[MAX_BULLETS];
+		
+			srand(time(NULL));
 			nasteroids = 0;
 			nbullets = 0;
 			mouseThrustOn = false;
@@ -330,7 +332,6 @@ int main()
 	srand(time(NULL));
 	logOpen();
 	init_opengl();
-	srand(time(NULL));
 	clock_gettime(CLOCK_REALTIME, &timePause);
 	clock_gettime(CLOCK_REALTIME, &timeStart);
 	x11.set_mouse_position(100,100);
