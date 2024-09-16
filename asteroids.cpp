@@ -315,7 +315,7 @@ class X11_wrapper {
 // ---> for fullscreen x11(0, 0);
 
 //function prototypes
-void init_opengl(void);keys[xk
+void init_opengl(void);
 void check_mouse(XEvent *e);
 int check_keys(XEvent *e);
 void physics();
@@ -571,7 +571,7 @@ void buildAsteroidFragment(Asteroid *ta, Asteroid *a)
 		ta->vert[i][1] = cos(angle) * (r2 + rnd() * ta->radius);
 		angle += inc;
 	}
-	ta->pos[0] = a->pos[0]keys[xk + rnd()*10.0-5.0;
+	ta->pos[0] = a->pos[0] + rnd()*10.0-5.0;
 	ta->pos[1] = a->pos[1] + rnd()*10.0-5.0;
 	ta->pos[2] = 0.0f;
 	ta->angle = 0.0;
