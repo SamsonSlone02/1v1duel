@@ -20,7 +20,7 @@
 #include <GL/glx.h>
 #include "log.h"
 #include "fonts.h"
-
+#include "sslone.h"
 //defined types
 typedef float Flt;
 typedef float Vec[3];
@@ -55,7 +55,6 @@ extern double timeSpan;
 extern double timeDiff(struct timespec *start, struct timespec *end);
 extern void timeCopy(struct timespec *dest, struct timespec *source);
 //-----------------------------------------------------------------------------
-
 
 class Global {
 	public:
@@ -125,10 +124,10 @@ class Asteroid {
 
 class Game {
 	public:
-		Ship  ships[2];
+		//Ship  ships[2];
 		Ship ship;
-
 		Asteroid *ahead;
+		Player players[2];
 		Bullet *barr;
 		int nasteroids;
 		int nbullets;
@@ -139,14 +138,16 @@ class Game {
 		Game() {
 			ahead = NULL;
 			barr = new Bullet[MAX_BULLETS];
-		
+
 			srand(time(NULL));
 			nasteroids = 0;
 			nbullets = 0;
 			mouseThrustOn = false;
 			//initialize two ships
-			ships[0] = Ship();
-			ships[1] = Ship();
+			players[0] = Player();
+			players[0].ship = new Ship();
+			players[1] = Player();
+			players[1].ship = new Ship();
 			//build 10 asteroids...
 			for (int j=0; j<10; j++) {
 				Asteroid *a = new Asteroid;
@@ -592,20 +593,20 @@ void physics()
 	for(int i = 0; i < 2; i++)
 	{
 		//Update ship position
-		g.ships[i].pos[0] += g.ships[i].vel[0];
-		g.ships[i].pos[1] += g.ships[i].vel[1];
+		g.players[i].ship->pos[0] += g.players[i].ship->vel[0];
+		g.players[i].ship->pos[1] += g.players[i].ship->vel[1];
 		//Check for collision with window edges
-		if (g.ships[i].pos[0] < 0.0) {
-			g.ships[i].pos[0] += (float)gl.xres;
+		if (g.players[i].ship->pos[0] < 0.0) {
+			g.players[i].ship->pos[0] += (float)gl.xres;
 		}
-		else if (g.ships[i].pos[0] > (float)gl.xres) {
-			g.ships[i].pos[0] -= (float)gl.xres;
+		else if (g.players[i].ship->pos[0] > (float)gl.xres) {
+			g.players[i].ship->pos[0] -= (float)gl.xres;
 		}
-		else if (g.ships[i].pos[1] < 0.0) {
-			g.ships[i].pos[1] += (float)gl.yres;
+		else if (g.players[i].ship->pos[1] < 0.0) {
+			g.players[i].ship->pos[1] += (float)gl.yres;
 		}
-		else if (g.ships[i].pos[1] > (float)gl.yres) {
-			g.ships[i].pos[1] -= (float)gl.yres;
+		else if (g.players[i].ship->pos[1] > (float)gl.yres) {
+			g.players[i].ship->pos[1] -= (float)gl.yres;
 		}
 
 	}
@@ -726,44 +727,47 @@ void physics()
 	}
 	//---------------------------------------------------
 	//check keys pressed now
+
+	g.players[0].setKeys(XK_Up,XK_Down,XK_Left,XK_Right,XK_o);
+	g.players[1].setKeys(XK_w,XK_s,XK_a,XK_d,XK_space);
 	for(int i =0; i < 2;i++)
 	{
-		if (gl.keys[XK_Left]) {
-			g.ships[i].angle += 6.0;
-			if (g.ships[i].angle >= 360.0f)
-				g.ships[i].angle -= 360.0f;
+		if (gl.keys[g.players[i].left]) {
+			g.players[i].ship->angle += 6.0;
+			if (g.players[i].ship->angle >= 360.0f)
+				g.players[i].ship->angle -= 360.0f;
 		}
-		if (gl.keys[XK_Right]) {
-			g.ships[i].angle -= 6.0;
-			if (g.ships[i].angle < 0.0f)
-				g.ships[i].angle += 360.0f;
+		if (gl.keys[g.players[i].right]) {
+			g.players[i].ship->angle -= 6.0;
+			if (g.players[i].ship->angle < 0.0f)
+				g.players[i].ship->angle += 360.0f;
 		}
-		if (gl.keys[XK_Up]) {
+		if (gl.keys[g.players[i].up]) {
 			//apply thrust
 			//convert ship angle to radians
-			Flt rad = ((g.ships[i].angle+90.0) / 360.0f) * PI * 2.0;
+			Flt rad = ((g.players[i].ship->angle+90.0) / 360.0f) * PI * 2.0;
 			//convert angle to a vector
 			Flt xdir = cos(rad);
 			Flt ydir = sin(rad);
 			//g.ship.vel[0] += xdir*0.02f;
 			//g.ship.vel[1] += ydir*0.02f;
-			g.ships[i].vel[0] += xdir;
-			g.ships[i].vel[1] += ydir;
-			Flt speed = sqrt(g.ships[i].vel[0]*g.ships[i].vel[0]+
-					g.ships[i].vel[1]*g.ships[i].vel[1]);
+			g.players[i].ship->vel[0] += xdir;
+			g.players[i].ship->vel[1] += ydir;
+			Flt speed = sqrt(g.players[i].ship->vel[0]*g.players[i].ship->vel[0]+
+					g.players[i].ship->vel[1]*g.players[i].ship->vel[1]);
 			if (speed > 3.0f) {
 				speed = 3.0f;
-				normalize2d(g.ships[i].vel);
-				g.ships[i].vel[0] *= speed;
-				g.ships[i].vel[1] *= speed;
+				normalize2d(g.players[i].ship->vel);
+				g.players[i].ship->vel[0] *= speed;
+				g.players[i].ship->vel[1] *= speed;
 			}
 		}
 		else
 		{
 
 
-			g.ships[i].vel[0] = 0;
-			g.ships[i].vel[1] = 0;
+			g.players[i].ship->vel[0] = 0;
+			g.players[i].ship->vel[1] = 0;
 
 		}
 		if (gl.keys[XK_space]) {
@@ -827,11 +831,11 @@ void render()
 
 	for(int i =0; i < 2; i++)
 	{
-		glColor3fv(g.ships[i].color);
+		glColor3fv(g.players[i].ship->color);
 		glPushMatrix();
-		glTranslatef(g.ships[i].pos[0], g.ships[i].pos[1], g.ships[i].pos[2]);
+		glTranslatef(g.players[i].ship->pos[0], g.players[i].ship->pos[1], g.players[i].ship->pos[2]);
 		//float angle = atan2(ship.dir[1], ship.dir[0]);
-		glRotatef(g.ships[i].angle, 0.0f, 0.0f, 1.0f);
+		glRotatef(g.players[i].ship->angle, 0.0f, 0.0f, 1.0f);
 		glBegin(GL_TRIANGLES);
 		//glVertex2f(-10.0f, -10.0f);
 		//glVertex2f(  0.0f, 20.0f);
