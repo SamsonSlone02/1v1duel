@@ -635,18 +635,12 @@ void physics()
 	//move the bullet
 	b->pos[0] += b->vel[0];
 	b->pos[1] += b->vel[1];
-	//Check for collision with window edges
-	if (b->pos[0] < 0.0) {
-	    b->pos[0] += (float)gl.xres;
+	//Check for collision with window edges if so bounce bullets.
+	if (b->pos[0] < 0.0 || b->pos[0] > (float)gl.xres) {
+		b->vel[0] *= -1;
 	}
-	else if (b->pos[0] > (float)gl.xres) {
-	    b->pos[0] -= (float)gl.xres;
-	}
-	else if (b->pos[1] < 0.0) {
-	    b->pos[1] += (float)gl.yres;
-	}
-	else if (b->pos[1] > (float)gl.yres) {
-	    b->pos[1] -= (float)gl.yres;
+	if (b->pos[1] < 0.0 || b->pos[1] > (float)gl.yres) {
+                b->vel[1] *= -1;	      
 	}
 	++i;
     }
