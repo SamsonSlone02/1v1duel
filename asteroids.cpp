@@ -102,7 +102,7 @@ class Bullet {
 	public:
 		Bullet() { }
 };
-
+/*
 class Asteroid {
 	public:
 		Vec pos;
@@ -121,26 +121,26 @@ class Asteroid {
 			next = NULL;
 		}
 };
-
+*/
 class Game {
 	public:
 		//Ship  ships[2];
 		Ship ship;
-		Asteroid *ahead;
+	//	Asteroid *ahead;
 		Player players[2];
 		Bullet *barr;
-		int nasteroids;
+	//	int nasteroids;
 		int nbullets;
 		struct timespec bulletTimer;
 		struct timespec mouseThrustTimer;
 		bool mouseThrustOn;
 	public:
 		Game() {
-			ahead = NULL;
+			//ahead = NULL;
 			barr = new Bullet[MAX_BULLETS];
 
 			srand(time(NULL));
-			nasteroids = 0;
+			//nasteroids = 0;
 			nbullets = 0;
 			mouseThrustOn = false;
 			//initialize two ships
@@ -149,6 +149,7 @@ class Game {
 			players[1] = Player();
 			players[1].ship = new Ship();
 			//build 10 asteroids...
+			/*
 			for (int j=0; j<10; j++) {
 				Asteroid *a = new Asteroid;
 				a->nverts = 8;
@@ -179,6 +180,7 @@ class Game {
 				ahead = a;
 				++nasteroids;
 			}
+			*/
 			clock_gettime(CLOCK_REALTIME, &bulletTimer);
 		}
 		~Game() {
@@ -337,6 +339,8 @@ int main()
 	clock_gettime(CLOCK_REALTIME, &timeStart);
 	x11.set_mouse_position(100,100);
 	int done=0;
+	g.players[0].setKeys(XK_Up,XK_Down,XK_Left,XK_Right,XK_Return);
+	g.players[1].setKeys(XK_w,XK_s,XK_a,XK_d,XK_space);
 	while (!done) {
 		while (x11.getXPending()) {
 			XEvent e = x11.getXNextEvent();
@@ -532,7 +536,7 @@ int check_keys(XEvent *e)
 	}
 	return 0;
 }
-
+/*
 void deleteAsteroid(Game *g, Asteroid *node)
 {
 	//Remove a node from doubly-linked list
@@ -585,10 +589,10 @@ void buildAsteroidFragment(Asteroid *ta, Asteroid *a)
 	ta->vel[1] = a->vel[1] + (rnd()*2.0-1.0);
 	//std::cout << "frag" << std::endl;
 }
-
+*/
 void physics()
 {
-	Flt d0,d1,dist;
+//	Flt d0,d1,dist;
 
 	for(int i = 0; i < 2; i++)
 	{
@@ -648,6 +652,7 @@ void physics()
 	}
 	//
 	//Update asteroid positions
+/*
 	Asteroid *a = g.ahead;
 	while (a) {
 		a->pos[0] += a->vel[0];
@@ -725,11 +730,11 @@ void physics()
 			break;
 		a = a->next;
 	}
-	//---------------------------------------------------
+
+*/
+//---------------------------------------------------
 	//check keys pressed now
 
-	g.players[0].setKeys(XK_Up,XK_Down,XK_Left,XK_Right,XK_o);
-	g.players[1].setKeys(XK_w,XK_s,XK_a,XK_d,XK_space);
 	for(int i =0; i < 2;i++)
 	{
 		if (gl.keys[g.players[i].left]) {
@@ -770,24 +775,24 @@ void physics()
 			g.players[i].ship->vel[1] = 0;
 
 		}
-		if (gl.keys[XK_space]) {
+		if (gl.keys[g.players[i].attack]) {
 			//a little time between each bullet
 			struct timespec bt;
 			clock_gettime(CLOCK_REALTIME, &bt);
 			double ts = timeDiff(&g.bulletTimer, &bt);
-			if (ts > 0.1) {
+			if (ts > .8) {
 				timeCopy(&g.bulletTimer, &bt);
 				if (g.nbullets < MAX_BULLETS) {
 					//shoot a bullet...
 					//Bullet *b = new Bullet;
 					Bullet *b = &g.barr[g.nbullets];
 					timeCopy(&b->time, &bt);
-					b->pos[0] = g.ship.pos[0];
-					b->pos[1] = g.ship.pos[1];
-					b->vel[0] = g.ship.vel[0];
-					b->vel[1] = g.ship.vel[1];
+					b->pos[0] = g.players[i].ship->pos[0];
+					b->pos[1] = g.players[i].ship->pos[1];
+					b->vel[0] = g.players[i].ship->vel[0];
+					b->vel[1] = g.players[i].ship->vel[1];
 					//convert ship angle to radians
-					Flt rad = ((g.ship.angle+90.0) / 360.0f) * PI * 2.0;
+					Flt rad = ((g.players[i].ship->angle+90.0) / 360.0f) * PI * 2.0;
 					//convert angle to a vector
 					Flt xdir = cos(rad);
 					Flt ydir = sin(rad);
@@ -825,7 +830,7 @@ void render()
 	r.center = 0;
 	ggprint8b(&r, 16, 0x00ff0000, "3350 - Asteroids");
 	ggprint8b(&r, 16, 0x00ffff00, "n bullets: %i", g.nbullets);
-	ggprint8b(&r, 16, 0x00ffff00, "n asteroids: %i", g.nasteroids);
+	//ggprint8b(&r, 16, 0x00ffff00, "n asteroids: %i", g.nasteroids);
 	//-------------------------------------------------------------------------
 	//Draw the ship
 
@@ -901,6 +906,7 @@ void render()
 	}
 	//-------------------------------------------------------------------------
 	//Draw the asteroids
+	/*
 	{
 		Asteroid *a = g.ahead;
 		while (a) {
@@ -925,8 +931,10 @@ void render()
 			glVertex2f(a->pos[0], a->pos[1]);
 			glEnd();
 			a = a->next;
-		}
+	
+			}
 	}
+	*/
 	//-------------------------------------------------------------------------
 	//Draw the bullets
 	for (int i=0; i<g.nbullets; i++) {
