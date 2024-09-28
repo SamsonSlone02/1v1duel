@@ -1,14 +1,136 @@
+#include <ctime>
+#include<iostream>
+#include<cstring>
+#include <GL/glx.h>
+#include<cmath>
+class Player;
+class Bullet;
+class Global;
 
-class Ship;
+typedef float Vec[3];
+typedef float Flt;
+extern double timeDiff(struct timespec *start, struct timespec *end);
+extern void timeCopy(struct timespec *dest, struct timespec *source);
+//macros
+#define rnd() (((Flt)rand())/(Flt)RAND_MAX)
+#define random(a) (rand()%a)
+#define VecZero(v) (v)[0]=0.0,(v)[1]=0.0,(v)[2]=0.0
+#define MakeVector(x, y, z, v) (v)[0]=(x),(v)[1]=(y),(v)[2]=(z)
+#define VecCopy(a,b) (b)[0]=(a)[0];(b)[1]=(a)[1];(b)[2]=(a)[2]
+#define VecDot(a,b)     ((a)[0]*(b)[0]+(a)[1]*(b)[1]+(a)[2]*(b)[2])
+#define VecSub(a,b,c) (c)[0]=(a)[0]-(b)[0]; \
+                             (c)[1]=(a)[1]-(b)[1]; \
+(c)[2]=(a)[2]-(b)[2]
+
+
+//constants
+const float timeslice = 1.0f;
+const float gravity = -0.2f;
+#define PI 3.141592653589793
+#define ALPHA 1
+const int MAX_BULLETS = 11;
+const Flt MINIMUM_ASTEROID_SIZE = 60.0;
+//constants
+class Global {
+    public:
+        int xres, yres;
+        char keys[65536];
+        Global();
+};
+
+
+class Ship {
+    public:
+        Vec pos;
+        Vec dir;
+        Vec vel;
+        Vec acc;
+        float angle;
+        float color[3];
+        Ship();
+	void setColor(int r, int g, int b);
+};
+
+
+class Weapon;
+class Bullet {
+    public:
+        Vec pos;
+        Vec vel;
+ 	Flt angle;
+ 	int yBounce;
+	int xBounce;
+	float color[3];
+ 	float initX;
+	float initY;
+	float initRot;
+ 	struct timespec time;
+	Weapon * bulletParent;
+    public:
+        Bullet(Weapon * in_bulletParent);
+};
+
 class Player
 {
 
 	private:
-		
-	public:
 
-		Ship *ship;
+
+	public:
+		Weapon * currentWeapon;		
+		Ship * ship;
 		void test();
-		void setKeys(int in_up, int in_down, int in_left, int in_right, int in_attack);
+		Player();
 		int up,down,left,right,attack;
+		void setKeys(int in_up, int in_down, int in_left, int in_right, int in_attack);
+
+		void getWeapon();
+		void setWeapon();
+};
+
+class Weapon
+{
+
+	private:
+		int rate;
+	public:
+		Weapon(int in_rate, Player * in_parent);
+		Player * parent;
+		virtual void fireWeapon();
+		virtual void updatePosition();
+		virtual void draw();
+
+};
+
+
+class Boomerang: public Weapon
+{
+	private:
+		Vec pos;
+		Vec vel;
+		float color[3];
+		Bullet * barr;
+		struct timespec bulletTimer;
+		int nbullets;
+
+	public:
+		Boomerang(int in_rate, Player * in_parent);
+		~Boomerang();
+		void fireWeapon();
+		void updatePosition();
+		void draw();
+	
+};
+
+class Bomb: public Weapon
+{
+
+
+};
+
+class Sniper: public Weapon
+{
+
+
+
 };
