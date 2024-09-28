@@ -74,7 +74,7 @@ class Player
 {
 
 	private:
-
+		
 
 	public:
 		Weapon * currentWeapon;		
@@ -83,8 +83,7 @@ class Player
 		Player();
 		int up,down,left,right,attack;
 		void setKeys(int in_up, int in_down, int in_left, int in_right, int in_attack);
-
-		void getWeapon();
+		std::string getWeapon();
 		void setWeapon();
 };
 
@@ -93,9 +92,12 @@ class Weapon
 
 	private:
 		int rate;
+		std::string type = "weapon";
 	public:
 		Weapon(int in_rate, Player * in_parent);
+		virtual ~Weapon();
 		Player * parent;
+		virtual std:: string getWeapon();
 		virtual void fireWeapon();
 		virtual void updatePosition();
 		virtual void draw();
@@ -112,10 +114,12 @@ class Boomerang: public Weapon
 		Bullet * barr;
 		struct timespec bulletTimer;
 		int nbullets;
+		std::string type = "boomerang";
 
 	public:
 		Boomerang(int in_rate, Player * in_parent);
 		~Boomerang();
+		std::string getWeapon();
 		void fireWeapon();
 		void updatePosition();
 		void draw();
@@ -124,13 +128,19 @@ class Boomerang: public Weapon
 
 class Bomb: public Weapon
 {
-
-
+	private:
+		std::string type = "Bomb";
+	public:
+		std::string getWeapon();
 };
 
 class Sniper: public Weapon
 {
 
+	private:
 
+		std::string type = "Sniper";
+	public:
+		std::string getWeapon();
 
 };

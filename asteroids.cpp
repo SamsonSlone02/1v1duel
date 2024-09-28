@@ -74,15 +74,19 @@ class Game {
 			players[0].ship = new Ship();
 			players[1].ship = new Ship();
 
-			players[0].ship->setColor(100,90,240);
+			players[0].ship->setColor(100/2,90/2,240/2);
 			players[1].ship->setColor(100,90,240);
-
+	
 			players[0].currentWeapon = new Boomerang(10,&players[0]);
 			players[1].currentWeapon = new Boomerang(10,&players[1]);
+			
+			players[0].setWeapon();
 
 			cout << players[0].currentWeapon->parent << endl;
 			cout << players[1].currentWeapon->parent << endl;
-
+			
+			cout << players[0].getWeapon() << endl;
+			cout << players[1].getWeapon() << endl;
 
 		}
 		~Game() {

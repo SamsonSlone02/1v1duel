@@ -55,6 +55,11 @@ Weapon::Weapon(int in_rate = 10, Player * in_parent = NULL)
 	parent = in_parent;
 	cout << "weap" <<parent << endl;
 }
+Weapon::~Weapon(){}
+string Weapon::getWeapon()
+{
+	return this->type;
+}
 void Weapon::fireWeapon(){}
 void Weapon::updatePosition(){}
 void Weapon::draw(){}
@@ -72,7 +77,12 @@ Boomerang::Boomerang(int in_rate = 10, Player * in_parent = NULL)
 }
 Boomerang::~Boomerang()
 {
+	cout << "barr del!"<< endl;
 	delete [] barr;
+}
+string Boomerang::getWeapon()
+{
+	return this->type;
 }
 
 void Boomerang::fireWeapon()
@@ -108,6 +118,9 @@ void Boomerang::fireWeapon()
 			b->color[0] = 28.0f/255.0f;
 			b->color[1] = 200.0f/255.0f;
 			b->color[2] = 90.0f/255.0f;
+			
+			b->xBounce = 1;
+			b->yBounce = 1;
 			nbullets++;
 		}
 
@@ -211,6 +224,15 @@ void Boomerang::draw()
 
 }
 
+string Sniper::getWeapon()
+{
+	return this->type;
+}
+string Bomb::getWeapon()
+{
+	return this->type;
+}
+
 Player::Player()
 {
 
@@ -227,12 +249,17 @@ void Player::setKeys(int in_up, int in_down, int in_left, int in_right, int in_a
 	right = in_right;
 	attack = in_attack;
 }
-void Player::getWeapon()
-{
 
+string Player::getWeapon()
+{
+	return this->currentWeapon->getWeapon();
 }
 void Player::setWeapon()
 {
+	//remove current weapon
+	delete this->currentWeapon;
+	//set empty weapon
+	this->currentWeapon = new Weapon();
 
 }
 
