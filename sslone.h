@@ -91,15 +91,16 @@ class Weapon
 {
 
 	private:
+
 		int rate;
-		std::string type = "weapon";
+		std::string type = "Weapon";
 	public:
 		Weapon(int in_rate, Player * in_parent);
 		virtual ~Weapon();
 		Player * parent;
 		virtual std:: string getWeapon();
 		virtual void fireWeapon();
-		virtual void updatePosition();
+		virtual void render();
 		virtual void draw();
 
 };
@@ -121,7 +122,7 @@ class Boomerang: public Weapon
 		~Boomerang();
 		std::string getWeapon();
 		void fireWeapon();
-		void updatePosition();
+		void render();
 		void draw();
 	
 };
@@ -138,9 +139,17 @@ class Sniper: public Weapon
 {
 
 	private:
+		float startPosL[2];
+		float startPosR[2];
+	        float endPosL[2];
+	        float endPosR[2];
 
 		std::string type = "Sniper";
 	public:
+		Sniper(int in_rate, Player * in_parent);
 		std::string getWeapon();
+		void fireWeapon();
+		void render();
+		void draw();
 
 };

@@ -61,7 +61,7 @@ string Weapon::getWeapon()
 	return this->type;
 }
 void Weapon::fireWeapon(){}
-void Weapon::updatePosition(){}
+void Weapon::render(){}
 void Weapon::draw(){}
 Boomerang::Boomerang(int in_rate = 10, Player * in_parent = NULL)
 { 
@@ -115,9 +115,9 @@ void Boomerang::fireWeapon()
 			b->pos[0] += xdir*20.0f;
 			b->pos[1] += ydir*20.0f;
 
-			b->color[0] = 28.0f/255.0f;
-			b->color[1] = 200.0f/255.0f;
-			b->color[2] = 90.0f/255.0f;
+			b->color[0] = 0.0f/255.0f;
+			b->color[1] = 0.0f/255.0f;
+			b->color[2] = 0.0f/255.0f;
 			
 			b->xBounce = 1;
 			b->yBounce = 1;
@@ -131,7 +131,7 @@ void Boomerang::fireWeapon()
 
 }
 
-void Boomerang::updatePosition()
+void Boomerang::render()
 {
 
 	Global gl;
@@ -161,11 +161,11 @@ void Boomerang::updatePosition()
 
 		Flt theta = (b->angle + b->initRot - PI/4);
 
-		float scaler = 13;
-		scaler = scaler/ttl;
+		float scalar = 13;
+		scalar = scalar/ttl;
 
-		b->vel[0] = scaler * (cos(theta)* cos(theta - b->initRot) - sin(theta) * sin(theta - b->initRot));
-		b->vel[1] = scaler * (cos(theta)* sin(theta - b->initRot) + sin(theta) * cos(theta - b->initRot));
+		b->vel[0] = scalar * (cos(theta)* cos(theta - b->initRot) - sin(theta) * sin(theta - b->initRot));
+		b->vel[1] = scalar * (cos(theta)* sin(theta - b->initRot) + sin(theta) * cos(theta - b->initRot));
 
 		//wall collision
 		if(b->pos[0] < 0.0)
@@ -183,7 +183,6 @@ void Boomerang::updatePosition()
 		if(b->pos[1] < 0.0)
 		{
 			b->yBounce *= -1;
-
 			b->pos[1] = 5;
 		}
 		if(b->pos[1] > (float)gl.yres)
@@ -223,11 +222,55 @@ void Boomerang::draw()
 	}
 
 }
+Sniper::Sniper(int in_rate = 10, Player * in_parent = NULL)
+{
+        Weapon(in_rate, in_parent);
+        this->parent = in_parent;
 
+}
 string Sniper::getWeapon()
 {
 	return this->type;
 }
+void Sniper::fireWeapon()
+{
+	Flt rad = ((parent->ship->angle+90.0) / 360.0f) * PI * 2.0;
+	float xdir = cos(rad - PI/2);
+	float ydir = sin(rad - PI/2);
+	float r = 10;
+	
+	//hitscan should be a single frame operation, all logic and collision detection should be contained within this single function call
+	startPosL[0] = parent->ship->pos[0] + r *(xdir);
+	startPosL[1] = parent->ship->pos[1] + r *(ydir);
+	
+	startPosR[0] = parent->ship->pos[0] - r *(xdir);
+	startPosR[1] = parent->ship->pos[1] - r *(ydir);
+
+	cout << "fire" << endl;
+	
+	xdir = cos(rad);
+	ydir = sin(rad);
+	
+	endPosL[0] = startPosL[0] + (1000 * xdir);
+	endPosL[1] = startPosL[1] + (1000 * ydir);
+
+	endPosR[0] = startPosR[0] + (1000 * xdir);
+	endPosR[1] = startPosR[1] + (1000 * ydir);
+
+};
+void Sniper::render(){};
+void Sniper::draw()
+{
+	glBegin(GL_LINES);
+		glVertex2f(startPosL[0],startPosL[1]);
+		glVertex2f(endPosL[0],endPosL[1]);
+		glVertex2f(startPosR[0],startPosR[1]);
+		glVertex2f(endPosR[0],endPosR[1]);
+	glEnd();
+		
+};
+
+
 string Bomb::getWeapon()
 {
 	return this->type;

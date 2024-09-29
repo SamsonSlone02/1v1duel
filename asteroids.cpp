@@ -76,15 +76,15 @@ class Game {
 
 			players[0].ship->setColor(100/2,90/2,240/2);
 			players[1].ship->setColor(100,90,240);
-	
+
 			players[0].currentWeapon = new Boomerang(10,&players[0]);
-			players[1].currentWeapon = new Boomerang(10,&players[1]);
-			
-			players[0].setWeapon();
+			players[1].currentWeapon = new Sniper(10,&players[1]);
+
+			//		players[0].setWeapon();
 
 			cout << players[0].currentWeapon->parent << endl;
 			cout << players[1].currentWeapon->parent << endl;
-			
+
 			cout << players[0].getWeapon() << endl;
 			cout << players[1].getWeapon() << endl;
 
@@ -249,6 +249,9 @@ int main()
 
 	while (!done) {
 
+
+
+
 		while (x11.getXPending()) {
 			XEvent e = x11.getXNextEvent();
 			x11.check_resize(&e);
@@ -375,67 +378,68 @@ void physics()
 
 
 		//cout << "Updating Position" << endl;
-		g.players[i].currentWeapon->updatePosition();
+		g.players[i].currentWeapon->render();
 		//cout << "Position Updated" << endl;
 	}
-//---------------------------------------------------
-//check keys pressed now
+	//---------------------------------------------------
+	//check keys pressed now
 
-for(int i =0; i < 2;i++)
-{
-
-	if (gl.keys[g.players[i].left]) {
-		g.players[i].ship->angle += 6.0;
-		if (g.players[i].ship->angle >= 360.0f)
-			g.players[i].ship->angle -= 360.0f;
-	}
-	if (gl.keys[g.players[i].right]) {
-		g.players[i].ship->angle -= 6.0;
-		if (g.players[i].ship->angle < 0.0f)
-			g.players[i].ship->angle += 360.0f;
-	}
-	if (gl.keys[g.players[i].up]) {
-
-		//apply thrust
-		//convert ship angle to radians
-		Flt rad = ((g.players[i].ship->angle+90.0) / 360.0f) * PI * 2.0;
-		//convert angle to a vector
-		Flt xdir = cos(rad);
-		Flt ydir = sin(rad);
-		//g.ship.vel[0] += xdir*0.02f;
-		//g.ship.vel[1] += ydir*0.02f;
-		g.players[i].ship->vel[0] += xdir;
-		g.players[i].ship->vel[1] += ydir;
-		Flt speed = sqrt(g.players[i].ship->vel[0]*g.players[i].ship->vel[0]+
-				g.players[i].ship->vel[1]*g.players[i].ship->vel[1]);
-		if (speed > 3.0f) {
-			speed = 3.0f;
-			normalize2d(g.players[i].ship->vel);
-			g.players[i].ship->vel[0] *= speed;
-			g.players[i].ship->vel[1] *= speed;
-		}
-	}
-	else
+	for(int i =0; i < 2;i++)
 	{
+		double rSpeed = 6.0;
+
+		if (gl.keys[g.players[i].left]) {
+			g.players[i].ship->angle += rSpeed;
+			if (g.players[i].ship->angle >= 360.0f)
+				g.players[i].ship->angle -= 360.0f;
+		}
+		if (gl.keys[g.players[i].right]) {
+			g.players[i].ship->angle -= rSpeed;
+			if (g.players[i].ship->angle < 0.0f)
+				g.players[i].ship->angle += 360.0f;
+		}
+		if (gl.keys[g.players[i].up]) {
+
+			//apply thrust
+			//convert ship angle to radians
+			Flt rad = ((g.players[i].ship->angle+90.0) / 360.0f) * PI * 2.0;
+			//convert angle to a vector
+			Flt xdir = cos(rad);
+			Flt ydir = sin(rad);
+			//g.ship.vel[0] += xdir*0.02f;
+			//g.ship.vel[1] += ydir*0.02f;
+			g.players[i].ship->vel[0] += xdir;
+			g.players[i].ship->vel[1] += ydir;
+			Flt speed = sqrt(g.players[i].ship->vel[0]*g.players[i].ship->vel[0]+
+					g.players[i].ship->vel[1]*g.players[i].ship->vel[1]);
+			if (speed > 3.0f) {
+				speed = 3.0f;
+				normalize2d(g.players[i].ship->vel);
+				g.players[i].ship->vel[0] *= speed;
+				g.players[i].ship->vel[1] *= speed;
+			}
+		}
+		else
+		{
 
 
-		g.players[i].ship->vel[0] = 0;
-		g.players[i].ship->vel[1] = 0;
+			g.players[i].ship->vel[0] = 0;
+			g.players[i].ship->vel[1] = 0;
+
+		}
+		if (gl.keys[g.players[i].attack]) {
+			g.players[i].currentWeapon->fireWeapon();
+		}
 
 	}
-	if (gl.keys[g.players[i].attack]) {
-		g.players[i].currentWeapon->fireWeapon();
+	if (g.mouseThrustOn) {
+		//should thrust be turned off
+		struct timespec mtt;
+		clock_gettime(CLOCK_REALTIME, &mtt);
+		double tdif = timeDiff(&mtt, &g.mouseThrustTimer);
+		if (tdif < -0.3)
+			g.mouseThrustOn = false;
 	}
-
-}
-if (g.mouseThrustOn) {
-	//should thrust be turned off
-	struct timespec mtt;
-	clock_gettime(CLOCK_REALTIME, &mtt);
-	double tdif = timeDiff(&mtt, &g.mouseThrustTimer);
-	if (tdif < -0.3)
-		g.mouseThrustOn = false;
-}
 
 }
 
@@ -446,8 +450,24 @@ void render()
 	r.bot = gl.yres - 20;
 	r.left = 10;
 	r.center = 0;
+
+	//--draws background
+	glColor3f(255/255.0,255/255.0,255/255.0);
+	glBegin(GL_POLYGON);
+	glVertex2i(0,0);
+	glVertex2i(gl.xres,0);
+	glVertex2i(gl.xres,gl.yres);
+	glVertex2i(0,gl.yres);
+	glEnd();
+	//--
+
 	ggprint8b(&r, 16, 0x00ff0000, "Player 1 - w a s d space");
 	ggprint8b(&r, 16, 0x00ffff00, "Player 2 - up down left right enter");
+
+
+
+
+
 	//Draw the ship
 	for(int i =0; i < 2; i++)
 	{
