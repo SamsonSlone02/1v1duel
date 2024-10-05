@@ -61,8 +61,8 @@ string Weapon::getWeapon()
 	return this->type;
 }
 void Weapon::fireWeapon(){}
+void Weapon::physics(){}
 void Weapon::render(){}
-void Weapon::draw(){}
 Boomerang::Boomerang(int in_rate = 10, Player * in_parent = NULL)
 { 
 	Weapon(in_rate, in_parent);
@@ -131,7 +131,7 @@ void Boomerang::fireWeapon()
 
 }
 
-void Boomerang::render()
+void Boomerang::physics()
 {
 
 	Global gl;
@@ -201,7 +201,7 @@ void Boomerang::render()
 
 }
 
-void Boomerang::draw()
+void Boomerang::render()
 {
 
 	for (int i=0; i< nbullets; i++) {
@@ -258,8 +258,8 @@ void Sniper::fireWeapon()
 	endPosR[1] = startPosR[1] + (1000 * ydir);
 
 };
-void Sniper::render(){};
-void Sniper::draw()
+void Sniper::physics(){};
+void Sniper::render()
 {
 	glBegin(GL_LINES);
 		glVertex2f(startPosL[0],startPosL[1]);

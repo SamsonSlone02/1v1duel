@@ -378,7 +378,7 @@ void physics()
 
 
 		//cout << "Updating Position" << endl;
-		g.players[i].currentWeapon->render();
+		g.players[i].currentWeapon->physics();
 		//cout << "Position Updated" << endl;
 	}
 	//---------------------------------------------------
@@ -464,9 +464,18 @@ void render()
 	ggprint8b(&r, 16, 0x00ff0000, "Player 1 - w a s d space");
 	ggprint8b(&r, 16, 0x00ffff00, "Player 2 - up down left right enter");
 
+		glColor3ub(0,0,0);
 
 
-
+		glPushMatrix();
+		glTranslatef((gl.xres/2)-50, (gl.yres/2)-50, 1);
+	glBegin(GL_POLYGON);
+	glVertex2f(0.0f, 100.0f);
+	glVertex2f(  0.0f,  0.0f);
+	glVertex2f(  100.0f,  0.0f);
+	glVertex2f(100.0f, 100.0f);
+	glEnd();
+		glPopMatrix();
 
 	//Draw the ship
 	for(int i =0; i < 2; i++)
@@ -520,7 +529,7 @@ void render()
 	// cout << "Drawing bulelts" << endl;
 	for(int count =0;count < 2;count++)
 	{ 
-		g.players[count].currentWeapon->draw();
+		g.players[count].currentWeapon->render();
 	}
 }
 

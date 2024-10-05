@@ -100,8 +100,8 @@ class Weapon
 		Player * parent;
 		virtual std:: string getWeapon();
 		virtual void fireWeapon();
+		virtual void physics();
 		virtual void render();
-		virtual void draw();
 
 };
 
@@ -122,8 +122,8 @@ class Boomerang: public Weapon
 		~Boomerang();
 		std::string getWeapon();
 		void fireWeapon();
+		void physics();
 		void render();
-		void draw();
 	
 };
 
@@ -149,7 +149,7 @@ class Sniper: public Weapon
 		Sniper(int in_rate, Player * in_parent);
 		std::string getWeapon();
 		void fireWeapon();
+		void physics();
 		void render();
-		void draw();
 
 };
