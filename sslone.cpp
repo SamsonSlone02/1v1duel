@@ -48,12 +48,40 @@ Bullet::Bullet(Weapon * in_bulletParent = NULL)
 	cout << "TIME ADDRESS ";
 	cout << &time << endl;
 }
+//PASSIVE ABILITIES
+Passive::Passive(Player * in_parent= NULL)
+{
+	parent = in_parent;
+}
+Passive::~Passive(){}
+void Passive::update(){}
+void Passive::render(){}
+
+Shield::Shield(Player * in_parent= NULL){
+	Passive();
+	this->parent = in_parent;
+	parent->setHealth(parent->getHealth() + 1);
+}
+Shield::~Shield(){}
+void Shield::update(){}
+void Shield::render(){}
+
+Speed::Speed(Player * in_parent = NULL){
+	Passive();
+	this->parent = in_parent;
+	parent->setSpeed(3.8);
+}
+Speed::~Speed(){}
+void Speed::update(){}
+void Speed::render(){}
+
 
 Weapon::Weapon(int in_rate = 10, Player * in_parent = NULL)
 {
 	rate = in_rate;
 	parent = in_parent;
 	cout << "weap" <<parent << endl;
+
 }
 Weapon::~Weapon(){}
 string Weapon::getWeapon()
@@ -118,7 +146,7 @@ void Boomerang::fireWeapon()
 			b->color[0] = 0.0f/255.0f;
 			b->color[1] = 0.0f/255.0f;
 			b->color[2] = 0.0f/255.0f;
-			
+
 			b->xBounce = 1;
 			b->yBounce = 1;
 			nbullets++;
@@ -155,7 +183,7 @@ void Boomerang::physics()
 			//do not increment i.
 			continue;
 		}
-		
+
 		b->angle = fmod(ts/ttl,(PI));
 		b->angle = (b->angle * (PI));
 
@@ -176,7 +204,7 @@ void Boomerang::physics()
 		if(b->pos[0] > (float)gl.xres)
 		{
 			b->xBounce *= -1;
-			
+
 			b->pos[0] =(float)gl.xres - 5;
 		}
 
@@ -191,7 +219,7 @@ void Boomerang::physics()
 			b->pos[1] =(float)gl.yres - 5;
 
 		}
-		
+
 		//updates bullet position
 		b->pos[1] += b->vel[1] * b->yBounce;
 		b->pos[0] += b->vel[0] * b->xBounce;
@@ -224,8 +252,8 @@ void Boomerang::render()
 }
 Sniper::Sniper(int in_rate = 10, Player * in_parent = NULL)
 {
-        Weapon(in_rate, in_parent);
-        this->parent = in_parent;
+	Weapon(in_rate, in_parent);
+	this->parent = in_parent;
 
 }
 string Sniper::getWeapon()
@@ -238,19 +266,19 @@ void Sniper::fireWeapon()
 	float xdir = cos(rad - PI/2);
 	float ydir = sin(rad - PI/2);
 	float r = 10;
-	
+
 	//hitscan should be a single frame operation, all logic and collision detection should be contained within this single function call
 	startPosL[0] = parent->ship->pos[0] + r *(xdir);
 	startPosL[1] = parent->ship->pos[1] + r *(ydir);
-	
+
 	startPosR[0] = parent->ship->pos[0] - r *(xdir);
 	startPosR[1] = parent->ship->pos[1] - r *(ydir);
 
 	cout << "fire" << endl;
-	
+
 	xdir = cos(rad);
 	ydir = sin(rad);
-	
+
 	endPosL[0] = startPosL[0] + (1000 * xdir);
 	endPosL[1] = startPosL[1] + (1000 * ydir);
 
@@ -262,12 +290,12 @@ void Sniper::physics(){};
 void Sniper::render()
 {
 	glBegin(GL_LINES);
-		glVertex2f(startPosL[0],startPosL[1]);
-		glVertex2f(endPosL[0],endPosL[1]);
-		glVertex2f(startPosR[0],startPosR[1]);
-		glVertex2f(endPosR[0],endPosR[1]);
+	glVertex2f(startPosL[0],startPosL[1]);
+	glVertex2f(endPosL[0],endPosL[1]);
+	glVertex2f(startPosR[0],startPosR[1]);
+	glVertex2f(endPosR[0],endPosR[1]);
 	glEnd();
-		
+
 };
 
 
@@ -276,9 +304,18 @@ string Bomb::getWeapon()
 	return this->type;
 }
 
-Player::Player()
+double Player::getRSpeed()
 {
+	return rSpeed;
+}
+double Player::getSpeed()
+{
+	return speed;
+}
 
+int Player::getHealth()
+{
+	return health;
 }
 void Player::test()
 {
@@ -286,11 +323,11 @@ void Player::test()
 }
 void Player::setKeys(int in_up, int in_down, int in_left, int in_right, int in_attack)
 {
-	up = in_up;
-	down = in_down;
-	left = in_left;
-	right = in_right;
-	attack = in_attack;
+	this->up = in_up;
+	this->attack = in_attack;
+	this->down = in_down;
+	this->left = in_left;
+	this->right = in_right;
 }
 
 string Player::getWeapon()
@@ -302,7 +339,33 @@ void Player::setWeapon()
 	//remove current weapon
 	delete this->currentWeapon;
 	//set empty weapon
-	this->currentWeapon = new Weapon();
+	//unfinised, will eventually figure out how i want weapons to be assigned via arguments
+	this->currentWeapon = new Weapon(10,this);
 
 }
 
+void Player::setRSpeed(double in_rSpeed)
+{
+	this->rSpeed = in_rSpeed;
+
+}
+void Player::setSpeed(double in_speed)
+{
+
+	this->speed = in_speed;
+}
+void Player::setHealth(int in_health)
+{
+	this->health = in_health;
+}
+
+Player::Player(int in_health, double in_speed, double in_rSpeed)
+{
+	this->setSpeed(in_speed);
+	this->setRSpeed(in_rSpeed);
+
+	this->health = in_health;
+	this->currentWeapon = new Weapon(10,this);
+	this->currentPassive = new Passive(this);
+	this->ship = new Ship();
+}

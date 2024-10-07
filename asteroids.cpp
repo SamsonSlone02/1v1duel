@@ -60,33 +60,38 @@ extern void timeCopy(struct timespec *dest, struct timespec *source);
 Global gl;
 class Game {
 	public:
-		Ship ship;
-		Player *players;
+		Player *players[2];
 		struct timespec mouseThrustTimer;
 		bool mouseThrustOn;
 	public:
 		Game() {
-			players = new Player[2];
+			players[0] = new Player(1,3,6);
+			players[1] = new Player(1,3,6);
 			srand(time(NULL));
 			mouseThrustOn = false;
 
 			//initialize two ships
-			players[0].ship = new Ship();
-			players[1].ship = new Ship();
+		//	players[0].ship = new Ship();
+		//	players[1].ship = new Ship();
 
-			players[0].ship->setColor(100/2,90/2,240/2);
-			players[1].ship->setColor(100,90,240);
 
-			players[0].currentWeapon = new Boomerang(10,&players[0]);
-			players[1].currentWeapon = new Sniper(10,&players[1]);
+			//temporary, setting passive and weapons for both players for testing
+			players[0]->currentPassive = new Speed(players[0]);
+			players[1]->currentPassive = new Shield(players[1]);
+			players[0]->currentWeapon = new Boomerang(10,players[0]);		
+			players[1]->currentWeapon = new Sniper(10,players[1]);
+		
+			players[0]->ship->setColor(100/2,90/2,240/2);
+			players[1]->ship->setColor(100,90,240);
 
 			//		players[0].setWeapon();
 
-			cout << players[0].currentWeapon->parent << endl;
-			cout << players[1].currentWeapon->parent << endl;
+		//	cout << players[0]->currentWeapon->parent << endl;
+	//		cout << players[1]->currentWeapon->parent << endl;
 
-			cout << players[0].getWeapon() << endl;
-			cout << players[1].getWeapon() << endl;
+			cout << players[0]->getWeapon() << endl;
+			cout << players[1]->getWeapon() << endl;
+			cout << players[1]->left << endl;
 
 		}
 		~Game() {
@@ -244,8 +249,9 @@ int main()
 	clock_gettime(CLOCK_REALTIME, &timeStart);
 	x11.set_mouse_position(100,100);
 	int count,done=0;
-	g.players[0].setKeys(XK_Up,XK_Down,XK_Left,XK_Right,XK_Return);
-	g.players[1].setKeys(XK_w,XK_s,XK_a,XK_d,XK_space);
+	
+	g.players[0]->setKeys(XK_Up,XK_Down,XK_Left,XK_Right,XK_Return);
+	g.players[1]->setKeys(XK_w,XK_s,XK_a,XK_d,XK_space);
 
 	while (!done) {
 
@@ -268,7 +274,9 @@ int main()
 			physics();
 			physicsCountdown -= physicsRate;
 		}
+
 		render();
+	
 		x11.swapBuffers();
 	}
 
@@ -357,28 +365,28 @@ void physics()
 
 	for(int i = 0; i < 2; i++)
 	{
-		g.players[0].setKeys(XK_Up,XK_Down,XK_Left,XK_Right,XK_Return);
-		g.players[1].setKeys(XK_w,XK_s,XK_a,XK_d,XK_space);
+		//g.players[0].setKeys(XK_Up,XK_Down,XK_Left,XK_Right,XK_Return);
+		//g.players[1].setKeys(XK_w,XK_s,XK_a,XK_d,XK_space);
 		//Update ship position
-		g.players[i].ship->pos[0] += g.players[i].ship->vel[0];
-		g.players[i].ship->pos[1] += g.players[i].ship->vel[1];
+		g.players[i]->ship->pos[0] += g.players[i]->ship->vel[0];
+		g.players[i]->ship->pos[1] += g.players[i]->ship->vel[1];
 		//Check for collision with window edges
-		if (g.players[i].ship->pos[0] < 0.0) {
-			g.players[i].ship->pos[0] += (float)gl.xres;
+		if (g.players[i]->ship->pos[0] < 0.0) {
+			g.players[i]->ship->pos[0] += (float)gl.xres;
 		}
-		else if (g.players[i].ship->pos[0] > (float)gl.xres) {
-			g.players[i].ship->pos[0] -= (float)gl.xres;
+		else if (g.players[i]->ship->pos[0] > (float)gl.xres) {
+			g.players[i]->ship->pos[0] -= (float)gl.xres;
 		}
-		else if (g.players[i].ship->pos[1] < 0.0) {
-			g.players[i].ship->pos[1] += (float)gl.yres;
+		else if (g.players[i]->ship->pos[1] < 0.0) {
+			g.players[i]->ship->pos[1] += (float)gl.yres;
 		}
-		else if (g.players[i].ship->pos[1] > (float)gl.yres) {
-			g.players[i].ship->pos[1] -= (float)gl.yres;
+		else if (g.players[i]->ship->pos[1] > (float)gl.yres) {
+			g.players[i]->ship->pos[1] -= (float)gl.yres;
 		}
 
 
 		//cout << "Updating Position" << endl;
-		g.players[i].currentWeapon->physics();
+		g.players[i]->currentWeapon->physics();
 		//cout << "Position Updated" << endl;
 	}
 	//---------------------------------------------------
@@ -386,49 +394,49 @@ void physics()
 
 	for(int i =0; i < 2;i++)
 	{
-		double rSpeed = 6.0;
+		double rSpeed = g.players[i]->getRSpeed();
 
-		if (gl.keys[g.players[i].left]) {
-			g.players[i].ship->angle += rSpeed;
-			if (g.players[i].ship->angle >= 360.0f)
-				g.players[i].ship->angle -= 360.0f;
+		if (gl.keys[g.players[i]->left]) {
+			g.players[i]->ship->angle += rSpeed;
+			if (g.players[i]->ship->angle >= 360.0f)
+				g.players[i]->ship->angle -= 360.0f;
 		}
-		if (gl.keys[g.players[i].right]) {
-			g.players[i].ship->angle -= rSpeed;
-			if (g.players[i].ship->angle < 0.0f)
-				g.players[i].ship->angle += 360.0f;
+		if (gl.keys[g.players[i]->right]) {
+			g.players[i]->ship->angle -= rSpeed;
+			if (g.players[i]->ship->angle < 0.0f)
+				g.players[i]->ship->angle += 360.0f;
 		}
-		if (gl.keys[g.players[i].up]) {
+		if (gl.keys[g.players[i]->up]) {
 
 			//apply thrust
-			//convert ship angle to radians
-			Flt rad = ((g.players[i].ship->angle+90.0) / 360.0f) * PI * 2.0;
+			//convert->ship angle to radians
+			Flt rad = ((g.players[i]->ship->angle+90.0) / 360.0f) * PI * 2.0;
 			//convert angle to a vector
 			Flt xdir = cos(rad);
 			Flt ydir = sin(rad);
 			//g.ship.vel[0] += xdir*0.02f;
 			//g.ship.vel[1] += ydir*0.02f;
-			g.players[i].ship->vel[0] += xdir;
-			g.players[i].ship->vel[1] += ydir;
-			Flt speed = sqrt(g.players[i].ship->vel[0]*g.players[i].ship->vel[0]+
-					g.players[i].ship->vel[1]*g.players[i].ship->vel[1]);
-			if (speed > 3.0f) {
-				speed = 3.0f;
-				normalize2d(g.players[i].ship->vel);
-				g.players[i].ship->vel[0] *= speed;
-				g.players[i].ship->vel[1] *= speed;
+			g.players[i]->ship->vel[0] += xdir * g.players[i]->getSpeed();
+			g.players[i]->ship->vel[1] += ydir * g.players[i]->getSpeed();
+			Flt speed = sqrt(g.players[i]->ship->vel[0]*g.players[i]->ship->vel[0]+
+					g.players[i]->ship->vel[1]*g.players[i]->ship->vel[1]);
+			if (speed > g.players[i]->getSpeed()) {
+				speed = g.players[i]->getSpeed();
+				normalize2d(g.players[i]->ship->vel);
+				g.players[i]->ship->vel[0] *= speed;
+				g.players[i]->ship->vel[1] *= speed;
 			}
 		}
 		else
 		{
 
 
-			g.players[i].ship->vel[0] = 0;
-			g.players[i].ship->vel[1] = 0;
+			g.players[i]->ship->vel[0] = 0;
+			g.players[i]->ship->vel[1] = 0;
 
 		}
-		if (gl.keys[g.players[i].attack]) {
-			g.players[i].currentWeapon->fireWeapon();
+		if (gl.keys[g.players[i]->attack]) {
+			g.players[i]->currentWeapon->fireWeapon();
 		}
 
 	}
@@ -480,10 +488,10 @@ void render()
 	//Draw the ship
 	for(int i =0; i < 2; i++)
 	{
-		glColor3fv(g.players[i].ship->color);
+		glColor3fv(g.players[i]->ship->color);
 		glPushMatrix();
-		glTranslatef(g.players[i].ship->pos[0], g.players[i].ship->pos[1], g.players[i].ship->pos[2]);
-		glRotatef(g.players[i].ship->angle, 0.0f, 0.0f, 1.0f);
+		glTranslatef(g.players[i]->ship->pos[0], g.players[i]->ship->pos[1], g.players[i]->ship->pos[2]);
+		glRotatef(g.players[i]->ship->angle, 0.0f, 0.0f, 1.0f);
 		glBegin(GL_TRIANGLES);
 		glVertex2f(-12.0f, -10.0f);
 		glVertex2f(  0.0f,  20.0f);
@@ -501,9 +509,9 @@ void render()
 
 	for(int i = 0; i < 2;i++)
 	{
-		if (gl.keys[g.players[i].up] || g.mouseThrustOn) {
+		if (gl.keys[g.players[i]->up] || g.mouseThrustOn) {
 			//draw thrust
-			Flt rad = ((g.players[i].ship->angle+90.0) / 360.0f) * PI * 2.0;
+			Flt rad = ((g.players[i]->ship->angle+90.0) / 360.0f) * PI * 2.0;
 			//convert angle to a vector
 			Flt xdir = cos(rad);
 			Flt ydir = sin(rad);
@@ -516,8 +524,8 @@ void render()
 				xe = -xdir * r + rnd() * 18.0 - 9.0;
 				ye = -ydir * r + rnd() * 18.0 - 9.0;
 				glColor3f(rnd()*.3+.7, rnd()*.3+.7, 0);
-				glVertex2f(g.players[i].ship->pos[0]+xs,g.players[i].ship->pos[1]+ys);
-				glVertex2f(g.players[i].ship->pos[0]+xe,g.players[i].ship->pos[1]+ye);
+				glVertex2f(g.players[i]->ship->pos[0]+xs,g.players[i]->ship->pos[1]+ys);
+				glVertex2f(g.players[i]->ship->pos[0]+xe,g.players[i]->ship->pos[1]+ye);
 			}
 
 			glEnd();
@@ -526,10 +534,10 @@ void render()
 	}
 
 
-	// cout << "Drawing bulelts" << endl;
+	// cout << "Drawing Weapons" << endl;
 	for(int count =0;count < 2;count++)
 	{ 
-		g.players[count].currentWeapon->render();
+		g.players[count]->currentWeapon->render();
 	}
 }
 

@@ -19,7 +19,7 @@ extern void timeCopy(struct timespec *dest, struct timespec *source);
 #define VecCopy(a,b) (b)[0]=(a)[0];(b)[1]=(a)[1];(b)[2]=(a)[2]
 #define VecDot(a,b)     ((a)[0]*(b)[0]+(a)[1]*(b)[1]+(a)[2]*(b)[2])
 #define VecSub(a,b,c) (c)[0]=(a)[0]-(b)[0]; \
-                             (c)[1]=(a)[1]-(b)[1]; \
+			     (c)[1]=(a)[1]-(b)[1]; \
 (c)[2]=(a)[2]-(b)[2]
 
 
@@ -32,59 +32,108 @@ const int MAX_BULLETS = 11;
 const Flt MINIMUM_ASTEROID_SIZE = 60.0;
 //constants
 class Global {
-    public:
-        int xres, yres;
-        char keys[65536];
-        Global();
+	public:
+		int xres, yres;
+		char keys[65536];
+		Global();
 };
 
 
 class Ship {
-    public:
-        Vec pos;
-        Vec dir;
-        Vec vel;
-        Vec acc;
-        float angle;
-        float color[3];
-        Ship();
-	void setColor(int r, int g, int b);
+	public:
+		Vec pos;
+		Vec dir;
+		Vec vel;
+		Vec acc;
+		float angle;
+		float color[3];
+		Ship();
+		void setColor(int r, int g, int b);
+};
+class Player;
+class Passive
+{
+	private:
+		std::string type = "None";
+
+	public:
+		Player * parent;
+		Passive(Player * in_parent);
+		~Passive();
+		virtual void update();
+		virtual void render();
+
+};
+
+class Shield: public Passive
+{
+
+	private:
+		std::string type = "Shield";
+	public:
+		Shield(Player * in_parent);
+		void update();
+		void render();
+		~Shield();
+};
+class Speed: public Passive
+{
+
+	private:
+		std::string type = "Speed";
+	public:
+		Speed(Player * in_parent);
+		void update();
+		void render();
+		~Speed();
 };
 
 
 class Weapon;
 class Bullet {
-    public:
-        Vec pos;
-        Vec vel;
- 	Flt angle;
- 	int yBounce;
-	int xBounce;
-	float color[3];
- 	float initX;
-	float initY;
-	float initRot;
- 	struct timespec time;
-	Weapon * bulletParent;
-    public:
-        Bullet(Weapon * in_bulletParent);
+	public:
+		Vec pos;
+		Vec vel;
+		Flt angle;
+		int yBounce;
+		int xBounce;
+		float color[3];
+		float initX;
+		float initY;
+		float initRot;
+		struct timespec time;
+		Weapon * bulletParent;
+	public:
+		Bullet(Weapon * in_bulletParent);
 };
 
 class Player
 {
 
 	private:
-		
-
+		int health;
+		double speed;	
+		double rSpeed;
 	public:
+		int up,down,left,right,attack;
+		Passive * currentPassive;
 		Weapon * currentWeapon;		
 		Ship * ship;
 		void test();
-		Player();
-		int up,down,left,right,attack;
+		Player(int in_health,double in_speed, double in_rSpeed);
 		void setKeys(int in_up, int in_down, int in_left, int in_right, int in_attack);
 		std::string getWeapon();
 		void setWeapon();
+
+		double getRSpeed();
+		void setRSpeed(double in_rSpeed);
+
+		double getSpeed();
+		void setSpeed(double in_speed);
+
+		int getHealth();
+		void setHealth(int in_health);
+		//void setPassive();
 };
 
 class Weapon
@@ -124,7 +173,7 @@ class Boomerang: public Weapon
 		void fireWeapon();
 		void physics();
 		void render();
-	
+
 };
 
 class Bomb: public Weapon
@@ -141,8 +190,8 @@ class Sniper: public Weapon
 	private:
 		float startPosL[2];
 		float startPosR[2];
-	        float endPosL[2];
-	        float endPosR[2];
+		float endPosL[2];
+		float endPosR[2];
 
 		std::string type = "Sniper";
 	public:
