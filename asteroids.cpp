@@ -494,7 +494,7 @@ void render()
 	//--
 
 	ggprint8b(&r, 16, 0x00ff0000, "Player 1 - w a s d space");
-	ggprint8b(&r, 16, 0x00ffff00, "Player 2 - up down left right enter");
+	ggprint8b(&r, 16, 0x00ff0000, "Player 2 - up down left right enter");
 
 		glColor3ub(0,0,0);
 
