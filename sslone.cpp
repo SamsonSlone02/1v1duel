@@ -3,29 +3,8 @@ using namespace std;
 
 
 
-Global::Global() {
-	xres = 640;
-	yres = 480;
-	memset(keys, 0, 65536);
-};
 
 
-Ship::Ship()
-{
-	Global gl;
-	//added rand to have every new player spawn randomly within the region of the arena
-	pos[0] = (float)(rand() % gl.xres);
-	pos[1] = (float)(rand() % gl.yres);
-	pos[2] = 0.0f;
-	VecZero(dir);
-	VecZero(vel);
-	VecZero(acc);
-	angle = 0.0;
-	//generates a random color on every ship initialization
-	color[0] = (float)(rand() % 100) / 100;
-	color[1] = (float)(rand() % 100) / 100;
-	color[2] = (float)(rand() % 100) / 100;
-}
 void Ship::setColor(int r, int g,int b)
 {
 	color[0] = r / 255.0f;

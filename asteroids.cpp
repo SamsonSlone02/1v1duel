@@ -57,7 +57,30 @@ extern double physicsCountdown;
 extern double timeSpan;
 extern double timeDiff(struct timespec *start, struct timespec *end);
 extern void timeCopy(struct timespec *dest, struct timespec *source);
+Global::Global() {
+        xres = 640;
+        yres = 480;
+        memset(keys, 0, 65536);
+};
+Ship::Ship()
+{
+        Global gl;
+        //added rand to have every new player spawn randomly within the region of the arena
+        pos[0] = (float)(rand() % gl.xres);
+        pos[1] = (float)(rand() % gl.yres);
+        pos[2] = 0.0f;
+        VecZero(dir);
+        VecZero(vel);
+        VecZero(acc);
+        angle = 0.0;
+        //generates a random color on every ship initialization
+        color[0] = (float)(rand() % 100) / 100;
+        color[1] = (float)(rand() % 100) / 100;
+        color[2] = (float)(rand() % 100) / 100;
+}
+
 Global gl;
+
 class Game {
 	public:
 		Player *players[2];
