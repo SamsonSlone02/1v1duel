@@ -61,10 +61,83 @@ Shield::Shield(Player * in_parent= NULL){
 	Passive();
 	this->parent = in_parent;
 	parent->setHealth(parent->getHealth() + 1);
+	
+	//float pos;
+	
+	shieldAngle = 0;
+
+	shield1[0] = parent->ship->pos[0];
+	shield1[1] = parent->ship->pos[1];
+	shield2[0] = parent->ship->pos[0];
+	shield2[1] = parent->ship->pos[1];
+	shield3[0] = parent->ship->pos[0];
+	shield3[1] = parent->ship->pos[1];
+	
+	
+	angle = parent->ship->angle;
+
+	
 }
-Shield::~Shield(){}
-void Shield::update(){}
-void Shield::render(){}
+Shield::~Shield(){
+
+}
+
+void Shield::update(){
+	float parentPos[2];
+	parentPos[0] = parent->ship->pos[0];
+	parentPos[1] = parent->ship->pos[1];
+	
+	angle += 2.5;
+	angle = fmod(angle,360.0f);	
+
+	float rad = ((angle+90.0) / 360.0f) * PI * 2.0;
+	
+	float xdir = cos(rad +  (PI)/2);
+	float ydir = sin(rad + (PI)/2);
+
+	int r = 25;
+
+	xdir = cos(rad + (11 * PI) /6);
+	ydir = sin(rad + (11 * PI) /6);
+
+	shield1[0] = parentPos[0] + r * xdir;
+	shield1[1] = parentPos[1] + r * ydir;
+	
+
+	xdir = cos(rad + (7 * PI) /6);
+	ydir = sin(rad + (7 * PI) /6);
+
+	shield2[0] = parentPos[0] + r * xdir;
+	shield2[1] = parentPos[1] + r * ydir;
+	
+	xdir = cos(rad + PI/2);
+	ydir = sin(rad + PI/2);
+
+	shield3[0] = parentPos[0] + r * xdir;
+	shield3[1] = parentPos[1] + r * ydir;
+		
+
+}
+void Shield::render(){
+
+		glBegin(GL_TRIANGLES);
+		glColor3ub(166, 218, 247);
+		int w = 5;
+		glVertex2f(shield1[0] +w ,shield1[1] );
+		glVertex2f(shield1[0] -w ,shield1[1] );
+		glVertex2f(shield1[0]  ,shield1[1] + w);
+		
+		glVertex2f(shield2[0] +w ,shield2[1] );
+		glVertex2f(shield2[0] -w ,shield2[1] );
+		glVertex2f(shield2[0]  ,shield2[1] + w);
+	
+		
+		glVertex2f(shield3[0] +w ,shield3[1] );
+		glVertex2f(shield3[0] -w ,shield3[1] );
+		glVertex2f(shield3[0]  ,shield3[1] + w);
+		
+		glEnd();
+}
 
 Speed::Speed(Player * in_parent = NULL){
 	Passive();

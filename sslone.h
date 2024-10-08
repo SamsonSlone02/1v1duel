@@ -32,173 +32,182 @@ const int MAX_BULLETS = 11;
 const Flt MINIMUM_ASTEROID_SIZE = 60.0;
 //constants
 class Global {
-	public:
-		int xres, yres;
-		char keys[65536];
-		Global();
+    public:
+	int xres, yres;
+	char keys[65536];
+	Global();
 };
 
 
 class Ship {
-	public:
-		Vec pos;
-		Vec dir;
-		Vec vel;
-		Vec acc;
-		float angle;
-		float color[3];
-		Ship();
-		void setColor(int r, int g, int b);
+    public:
+	Vec pos;
+	Vec dir;
+	Vec vel;
+	Vec acc;
+	float angle;
+	float color[3];
+	Ship();
+	void setColor(int r, int g, int b);
 };
 class Player;
 class Passive
 {
-	private:
-		std::string type = "None";
+    private:
+	std::string type = "None";
 
-	public:
-		Player * parent;
-		Passive(Player * in_parent);
-		~Passive();
-		virtual void update();
-		virtual void render();
+    public:
+	Player * parent;
+	Passive(Player * in_parent);
+	~Passive();
+	virtual void update();
+	virtual void render();
 
 };
 
 class Shield: public Passive
 {
 
-	private:
-		std::string type = "Shield";
-	public:
-		Shield(Player * in_parent);
-		void update();
-		void render();
-		~Shield();
+    private:
+	std::string type = "Shield";
+    public:
+	float pos;
+	float angle;
+
+	float shieldAngle;
+
+	float shield1[2];
+	float shield2[2];
+	float shield3[2];
+
+	Shield(Player * in_parent);
+	void update();
+	void render();
+	~Shield();
 };
 class Speed: public Passive
 {
 
-	private:
-		std::string type = "Speed";
-	public:
-		Speed(Player * in_parent);
-		void update();
-		void render();
-		~Speed();
+    private:
+	std::string type = "Speed";
+    public:
+	Speed(Player * in_parent);
+	void update();
+	void render();
+	~Speed();
 };
 
 
 class Weapon;
 class Bullet {
-	public:
-		Vec pos;
-		Vec vel;
-		Flt angle;
-		int yBounce;
-		int xBounce;
-		float color[3];
-		float initX;
-		float initY;
-		float initRot;
-		struct timespec time;
-		Weapon * bulletParent;
-	public:
-		Bullet(Weapon * in_bulletParent);
+    public:
+	Vec pos;
+	Vec vel;
+	Flt angle;
+	int yBounce;
+	int xBounce;
+	float color[3];
+	float initX;
+	float initY;
+	float initRot;
+	struct timespec time;
+	Weapon * bulletParent;
+    public:
+	Bullet(Weapon * in_bulletParent);
 };
 
 class Player
 {
 
-	private:
-		int health;
-		double speed;	
-		double rSpeed;
-	public:
-		int up,down,left,right,attack;
-		Passive * currentPassive;
-		Weapon * currentWeapon;		
-		Ship * ship;
-		void test();
-		Player(int in_health,double in_speed, double in_rSpeed);
-		void setKeys(int in_up, int in_down, int in_left, int in_right, int in_attack);
-		std::string getWeapon();
-		void setWeapon();
+    private:
+	int health;
+	double speed;	
+	double rSpeed;
+    public:
+	int up,down,left,right,attack;
+	Passive * currentPassive;
+	Weapon * currentWeapon;		
+	Ship * ship;
+	void test();
+	Player(int in_health,double in_speed, double in_rSpeed);
+	void setKeys(int in_up, int in_down, int in_left, int in_right, int in_attack);
+	std::string getWeapon();
+	void setWeapon();
 
-		double getRSpeed();
-		void setRSpeed(double in_rSpeed);
+	double getRSpeed();
+	void setRSpeed(double in_rSpeed);
 
-		double getSpeed();
-		void setSpeed(double in_speed);
+	double getSpeed();
+	void setSpeed(double in_speed);
 
-		int getHealth();
-		void setHealth(int in_health);
-		//void setPassive();
+	int getHealth();
+	void setHealth(int in_health);
+	//void setPassive();
 };
 
 class Weapon
 {
 
-	private:
+    private:
 
-		int rate;
-		std::string type = "Weapon";
-	public:
-		Weapon(int in_rate, Player * in_parent);
-		virtual ~Weapon();
-		Player * parent;
-		virtual std:: string getWeapon();
-		virtual void fireWeapon();
-		virtual void physics();
-		virtual void render();
+	int rate;
+	std::string type = "Weapon";
+    public:
+	Weapon(int in_rate, Player * in_parent);
+	virtual ~Weapon();
+	Player * parent;
+	virtual std:: string getWeapon();
+	virtual void fireWeapon();
+	virtual void physics();
+	virtual void render();
 
 };
 
 
 class Boomerang: public Weapon
 {
-	private:
-		Vec pos;
-		Vec vel;
-		float color[3];
-		Bullet * barr;
-		struct timespec bulletTimer;
-		int nbullets;
-		std::string type = "boomerang";
+    private:
+	Vec pos;
+	Vec vel;
+	float color[3];
+	Bullet * barr;
+	struct timespec bulletTimer;
+	int nbullets;
+	std::string type = "boomerang";
 
-	public:
-		Boomerang(int in_rate, Player * in_parent);
-		~Boomerang();
-		std::string getWeapon();
-		void fireWeapon();
-		void physics();
-		void render();
+    public:
+	Boomerang(int in_rate, Player * in_parent);
+	~Boomerang();
+	std::string getWeapon();
+	void fireWeapon();
+	void physics();
+	void render();
 
 };
 
 class Bomb: public Weapon
 {
-	private:
-		std::string type = "Bomb";
-	public:
-		std::string getWeapon();
+    private:
+	std::string type = "Bomb";
+    public:
+	std::string getWeapon();
 };
 
 class Sniper: public Weapon
 {
 
-	private:
-		float startPosL[2];
-		float startPosR[2];
-		float endPosL[2];
-		float endPosR[2];
+    private:
+	float startPosL[2];
+	float startPosR[2];
+	float endPosL[2];
+	float endPosR[2];
 
-		std::string type = "Sniper";
-	public:
-		Sniper(int in_rate, Player * in_parent);
-		std::string getWeapon();
-		void fireWeapon();
-		void physics();
-		void render();
+	std::string type = "Sniper";
+    public:
+	Sniper(int in_rate, Player * in_parent);
+	std::string getWeapon();
+	void fireWeapon();
+	void physics();
+	void render();
 
 };

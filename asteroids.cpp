@@ -387,6 +387,7 @@ void physics()
 
 		//cout << "Updating Position" << endl;
 		g.players[i]->currentWeapon->physics();
+		g.players[i]->currentPassive->update();
 		//cout << "Position Updated" << endl;
 	}
 	//---------------------------------------------------
@@ -538,6 +539,7 @@ void render()
 	for(int count =0;count < 2;count++)
 	{ 
 		g.players[count]->currentWeapon->render();
+		g.players[count]->currentPassive->render();
 	}
 }
 
