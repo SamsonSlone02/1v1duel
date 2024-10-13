@@ -74,7 +74,9 @@ class Shield: public Passive
 	float pos;
 	float angle;
 
-	float shieldAngle;
+	float shield1Angle;
+	float shield2Angle;
+	float shield3Angle;
 
 	float shield1[2];
 	float shield2[2];

@@ -43,7 +43,7 @@ Shield::Shield(Player * in_parent= NULL){
 	
 	//float pos;
 	
-	shieldAngle = 0;
+	//shieldAngle = 0;
 
 	shield1[0] = parent->ship->pos[0];
 	shield1[1] = parent->ship->pos[1];
@@ -62,6 +62,7 @@ Shield::~Shield(){
 }
 
 void Shield::update(){
+
 	float parentPos[2];
 	parentPos[0] = parent->ship->pos[0];
 	parentPos[1] = parent->ship->pos[1];
@@ -74,48 +75,110 @@ void Shield::update(){
 	float xdir = cos(rad +  (PI)/2);
 	float ydir = sin(rad + (PI)/2);
 
-	int r = 25;
+	float r = 25;
 
 	xdir = cos(rad + (11 * PI) /6);
 	ydir = sin(rad + (11 * PI) /6);
-
+	shield1Angle = (atan2(ydir,xdir) * (180/PI)) - 90;
 	shield1[0] = parentPos[0] + r * xdir;
 	shield1[1] = parentPos[1] + r * ydir;
-	
 
 	xdir = cos(rad + (7 * PI) /6);
 	ydir = sin(rad + (7 * PI) /6);
-
+	shield2Angle = (atan2(ydir,xdir) * (180/PI))-90;
 	shield2[0] = parentPos[0] + r * xdir;
 	shield2[1] = parentPos[1] + r * ydir;
 	
 	xdir = cos(rad + PI/2);
 	ydir = sin(rad + PI/2);
-
+	shield3Angle = (atan2(ydir,xdir) * (180/PI)) - 90;
 	shield3[0] = parentPos[0] + r * xdir;
 	shield3[1] = parentPos[1] + r * ydir;
 		
-
 }
-void Shield::render(){
 
+void Shield::render(){
+	
+		glPushMatrix();
+		glTranslatef(shield1[0], shield1[1], 1);
+		glRotatef(shield1Angle, 0.0f, 0.0f, 1.0f);
+		
+		glScalef(2.4, 1.4, 1.4); 
 		glBegin(GL_TRIANGLES);
 		glColor3ub(166, 218, 247);
-		int w = 5;
-		glVertex2f(shield1[0] +w ,shield1[1] );
-		glVertex2f(shield1[0] -w ,shield1[1] );
-		glVertex2f(shield1[0]  ,shield1[1] + w);
+		glVertex2f(-5,0);
+		glVertex2f(-3,3);
+		glVertex2f(-3,0);
+
+		glVertex2f(5,0);
+		glVertex2f(3,3);
+		glVertex2f(3,0);
 		
-		glVertex2f(shield2[0] +w ,shield2[1] );
-		glVertex2f(shield2[0] -w ,shield2[1] );
-		glVertex2f(shield2[0]  ,shield2[1] + w);
-	
+		glVertex2f(-3,3);
+		glVertex2f(3,0);
+		glVertex2f(-3,0);
 		
-		glVertex2f(shield3[0] +w ,shield3[1] );
-		glVertex2f(shield3[0] -w ,shield3[1] );
-		glVertex2f(shield3[0]  ,shield3[1] + w);
-		
+		glVertex2f(-3,3);
+		glVertex2f(3,3);
+		glVertex2f(3,0);
 		glEnd();
+		glPopMatrix();
+		
+
+		glPushMatrix();
+                glTranslatef(shield2[0], shield2[1], 1);
+		glRotatef(shield2Angle, 0.0f, 0.0f, 1.0f);
+                
+		glScalef(2.4, 1.4, 1.4); 
+		glBegin(GL_TRIANGLES);
+                
+		glColor3ub(166, 218, 247);
+                glVertex2f(-5,0);
+                glVertex2f(-3,3);
+                glVertex2f(-3,0);
+
+                glVertex2f(5,0);
+                glVertex2f(3,3);
+                glVertex2f(3,0);
+
+                glVertex2f(-3,3);
+                glVertex2f(3,0);
+                glVertex2f(-3,0);
+
+                glVertex2f(-3,3);
+                glVertex2f(3,3);
+                glVertex2f(3,0);
+
+                glEnd();
+                glPopMatrix();
+
+
+		glPushMatrix();
+ 		glTranslatef(shield3[0], shield3[1], 1);
+		glRotatef(shield3Angle, 0.0f, 0.0f, 1.0f);
+                
+		glScalef(2.4, 1.4, 1.4); 
+		glBegin(GL_TRIANGLES);
+                glColor3ub(166, 218, 247);
+		 glVertex2f(-5,0);
+                glVertex2f(-3,3);
+                glVertex2f(-3,0);
+
+                glVertex2f(5,0);
+                glVertex2f(3,3);
+                glVertex2f(3,0);
+
+                glVertex2f(-3,3);
+                glVertex2f(3,0);
+                glVertex2f(-3,0);
+
+                glVertex2f(-3,3);
+                glVertex2f(3,3);
+                glVertex2f(3,0);
+
+		glEnd();
+                glPopMatrix();
+
 }
 
 Speed::Speed(Player * in_parent = NULL){
@@ -150,6 +213,7 @@ Boomerang::Boomerang(int in_rate = 10, Player * in_parent = NULL)
 	nbullets = 0;
 
 	this->barr = new Bullet[MAX_BULLETS];
+	
 
 	struct timespec bulletTimer;
 	clock_gettime(CLOCK_REALTIME, &bulletTimer);
@@ -174,7 +238,8 @@ void Boomerang::fireWeapon()
 	if (ts > 1.5) {
 		timeCopy(&bulletTimer, &bt);
 		if (nbullets < MAX_BULLETS) {
-			Bullet *b = &barr[nbullets];
+			Bullet * b= new Bullet(this);
+			b = &barr[nbullets];
 			//shoot a bullet...
 			cout << &b << endl;		
 			timeCopy(&b->time, &bt);
@@ -326,8 +391,6 @@ void Sniper::fireWeapon()
 	startPosR[0] = parent->ship->pos[0] - r *(xdir);
 	startPosR[1] = parent->ship->pos[1] - r *(ydir);
 
-	cout << "fire" << endl;
-
 	xdir = cos(rad);
 	ydir = sin(rad);
 
@@ -342,6 +405,7 @@ void Sniper::physics(){};
 void Sniper::render()
 {
 	glBegin(GL_LINES);
+	glColor3ub(0, 0, 0);
 	glVertex2f(startPosL[0],startPosL[1]);
 	glVertex2f(endPosL[0],endPosL[1]);
 	glVertex2f(startPosR[0],startPosR[1]);

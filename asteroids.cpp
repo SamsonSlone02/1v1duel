@@ -28,7 +28,6 @@ using namespace std;
 typedef float Flt;
 typedef float Vec[3];
 typedef Flt	Matrix[4][4];
-
 //macros
 #define rnd() (((Flt)rand())/(Flt)RAND_MAX)
 #define random(a) (rand()%a)
@@ -88,9 +87,10 @@ class Game {
 		bool mouseThrustOn;
 	public:
 		Game() {
+			
+			srand(time(NULL));
 			players[0] = new Player(1,3,6);
 			players[1] = new Player(1,3,6);
-			srand(time(NULL));
 			mouseThrustOn = false;
 
 			//initialize two ships
@@ -104,8 +104,8 @@ class Game {
 			players[0]->currentWeapon = new Boomerang(10,players[0]);		
 			players[1]->currentWeapon = new Sniper(10,players[1]);
 		
-			players[0]->ship->setColor(100/2,90/2,240/2);
-			players[1]->ship->setColor(100,90,240);
+		//	players[0]->ship->setColor(100/2,90/2,240/2);
+	//		players[1]->ship->setColor(100,90,240);
 
 			//		players[0].setWeapon();
 
@@ -524,9 +524,9 @@ void render()
 		glVertex2f(  0.0f,  20.0f);
 		glVertex2f( 12.0f, -10.0f);
 		glEnd();
-		glColor3f(1.0f, 0.0f, 0.0f);
-		glBegin(GL_POINTS);
-		glVertex2f(0.0f, 0.0f);
+		//glColor3f(1.0f, 0.0f, 0.0f);
+		//glBegin(GL_POINTS);
+		//glVertex2f(0.0f, 0.0f);
 		glEnd();
 		glPopMatrix();
 	}
