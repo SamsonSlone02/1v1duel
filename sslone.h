@@ -184,7 +184,7 @@ class Weapon
     private:
 
 	int rate;
-	std::string type = "Weapon";
+	const char * type = "Weapon";
     public:
 	Weapon(int in_rate, Player * in_parent);
 	virtual ~Weapon();
@@ -206,7 +206,7 @@ class Boomerang: public Weapon
 	Bullet * barr;
 	struct timespec bulletTimer;
 	int nbullets;
-	std::string type = "boomerang";
+	const char * type = "boomerang";
 
     public:
     PhysWorld * member;
@@ -236,7 +236,7 @@ class Sniper: public Weapon
 	float endPosL[2];
 	float endPosR[2];
 
-	std::string type = "Sniper";
+	const char * type = "Sniper";
     public:
 	Sniper(int in_rate, Player * in_parent);
 	std::string getWeapon();

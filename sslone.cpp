@@ -467,6 +467,11 @@ void Boomerang::render()
 		glVertex2f(b->pos[0]+1.0f, b->pos[1]+1.0f);
 		glEnd();
 	}
+	Rect r;
+	r.bot = parent->ship->pos[1] - 35;
+	r.left = parent->ship->pos[0] - 15;
+	r.center = 0;
+	ggprint8b(&r, 16, 0x00ff0000, type);
 
 }
 Sniper::Sniper(int in_rate = 10, Player * in_parent = NULL)
@@ -513,6 +518,12 @@ void Sniper::render()
 	glVertex2f(startPosR[0],startPosR[1]);
 	glVertex2f(endPosR[0],endPosR[1]);
 	glEnd();
+	
+	Rect r;
+	r.bot = parent->ship->pos[1] - 35;
+	r.left = parent->ship->pos[0] - 15;
+	r.center = 0;
+	ggprint8b(&r, 16, 0x00ff0000, type);
 
 };
 
