@@ -37,6 +37,34 @@ class Global {
 	char keys[65536];
 	Global();
 };
+class PhysWorld;
+class Object
+{
+    public:
+    float h,w;
+    PhysWorld * member;
+    float pos[2];
+    float vel[2];
+    Object(PhysWorld * in_member);
+    ~Object();
+    bool testCollision();
+
+
+
+};
+class PhysWorld
+{
+    private:
+    Object * objectArr[500];
+    public:
+        int arrSize;
+        PhysWorld();
+        ~PhysWorld();
+        bool addObject(Object * in_object);
+        bool remObject(Object * in_object);
+
+};
+
 
 
 class Ship {
@@ -101,7 +129,7 @@ class Speed: public Passive
 
 
 class Weapon;
-class Bullet {
+class Bullet : public Object{
     public:
 	Vec pos;
 	Vec vel;
@@ -113,9 +141,9 @@ class Bullet {
 	float initY;
 	float initRot;
 	struct timespec time;
-	Weapon * bulletParent;
+	PhysWorld * member;
     public:
-	Bullet(Weapon * in_bulletParent);
+	Bullet(PhysWorld * in_member);
 };
 
 class Player
@@ -178,7 +206,8 @@ class Boomerang: public Weapon
 	std::string type = "boomerang";
 
     public:
-	Boomerang(int in_rate, Player * in_parent);
+    PhysWorld * member;
+    Boomerang(int in_raate, Player * in_parent, PhysWorld * in_member);
 	~Boomerang();
 	std::string getWeapon();
 	void fireWeapon();

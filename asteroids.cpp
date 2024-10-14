@@ -79,7 +79,7 @@ Ship::Ship()
 }
 
 Global gl;
-
+PhysWorld * myPhysWorld = new PhysWorld();
 class Game {
 	public:
 		Player *players[2];
@@ -101,7 +101,7 @@ class Game {
 			//temporary, setting passive and weapons for both players for testing
 			players[0]->currentPassive = new Speed(players[0]);
 			players[1]->currentPassive = new Shield(players[1]);
-			players[0]->currentWeapon = new Boomerang(10,players[0]);		
+			players[0]->currentWeapon = new Boomerang(10,players[0],myPhysWorld);		
 			players[1]->currentWeapon = new Sniper(10,players[1]);
 		
 		//	players[0]->ship->setColor(100/2,90/2,240/2);
