@@ -435,6 +435,7 @@ void physics()
 			//apply thrust
 			//convert->ship angle to radians
 			Flt rad = ((g.players[i]->ship->angle+90.0) / 360.0f) * PI * 2.0;
+			g.players[i]->isThrust = true;
 			//convert angle to a vector
 			Flt xdir = cos(rad);
 			Flt ydir = sin(rad);
@@ -454,7 +455,7 @@ void physics()
 		else
 		{
 
-
+			g.players[i]->isThrust = false;
 			g.players[i]->ship->vel[0] = 0;
 			g.players[i]->ship->vel[1] = 0;
 
@@ -530,7 +531,7 @@ void render()
 		glEnd();
 		glPopMatrix();
 	}
-
+	/*
 	for(int i = 0; i < 2;i++)
 	{
 		if (gl.keys[g.players[i]->up] || g.mouseThrustOn) {
@@ -556,7 +557,7 @@ void render()
 		}
 
 	}
-
+*/
 
 	// cout << "Drawing Weapons" << endl;
 	for(int count =0;count < 2;count++)

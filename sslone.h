@@ -3,6 +3,7 @@
 #include<cstring>
 #include <GL/glx.h>
 #include<cmath>
+#include "fonts.h"
 class Player;
 class Bullet;
 class Global;
@@ -28,7 +29,7 @@ const float timeslice = 1.0f;
 const float gravity = -0.2f;
 #define PI 3.141592653589793
 #define ALPHA 1
-const int MAX_BULLETS = 11;
+const int MAX_BULLETS = 10;
 const Flt MINIMUM_ASTEROID_SIZE = 60.0;
 //constants
 class Global {
@@ -61,7 +62,8 @@ class PhysWorld
         PhysWorld();
         ~PhysWorld();
         bool addObject(Object * in_object);
-        bool remObject(Object * in_object);
+	bool remObject(Object * in_object);
+	void printArr();
 
 };
 
@@ -82,7 +84,7 @@ class Player;
 class Passive
 {
     private:
-	std::string type = "None";
+	const char * type = "None";
 
     public:
 	Player * parent;
@@ -97,7 +99,7 @@ class Shield: public Passive
 {
 
     private:
-	std::string type = "Shield";
+	const char * type = "Shield";
     public:
 	float pos;
 	float angle;
@@ -119,7 +121,7 @@ class Speed: public Passive
 {
 
     private:
-	std::string type = "Speed";
+	const char * type = "Speed";
     public:
 	Speed(Player * in_parent);
 	void update();
@@ -155,6 +157,7 @@ class Player
 	double rSpeed;
     public:
 	int up,down,left,right,attack;
+	bool isThrust;
 	Passive * currentPassive;
 	Weapon * currentWeapon;		
 	Ship * ship;
@@ -207,7 +210,7 @@ class Boomerang: public Weapon
 
     public:
     PhysWorld * member;
-    Boomerang(int in_raate, Player * in_parent, PhysWorld * in_member);
+    Boomerang(int in_rate, Player * in_parent, PhysWorld * in_member);
 	~Boomerang();
 	std::string getWeapon();
 	void fireWeapon();
