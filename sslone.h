@@ -49,15 +49,15 @@ class Object
     Object(PhysWorld * in_member);
     ~Object();
     bool testCollision();
-
+    
 
 
 };
 class PhysWorld
 {
     private:
-    Object * objectArr[500];
     public:
+        Object * objectArr[500];
         int arrSize;
         PhysWorld();
         ~PhysWorld();
@@ -69,15 +69,15 @@ class PhysWorld
 
 
 
-class Ship {
+class Ship: public Object{
     public:
-	Vec pos;
+    //Vec pos;
 	Vec dir;
 	Vec vel;
 	Vec acc;
 	float angle;
 	float color[3];
-	Ship();
+	Ship(PhysWorld * in_member);
 	void setColor(int r, int g, int b);
 };
 class Player;
@@ -133,7 +133,7 @@ class Speed: public Passive
 class Weapon;
 class Bullet : public Object{
     public:
-	Vec pos;
+	//Vec pos;
 	Vec vel;
 	Flt angle;
 	int yBounce;
@@ -143,7 +143,7 @@ class Bullet : public Object{
 	float initY;
 	float initRot;
 	struct timespec time;
-	PhysWorld * member;
+	//PhysWorld * member;
     public:
 	Bullet(PhysWorld * in_member);
 };
@@ -162,7 +162,7 @@ class Player
 	Weapon * currentWeapon;		
 	Ship * ship;
 	void test();
-	Player(int in_health,double in_speed, double in_rSpeed);
+	Player(int in_health,double in_speed, double in_rSpeed,PhysWorld * in_member);
 	void setKeys(int in_up, int in_down, int in_left, int in_right, int in_attack);
 	std::string getWeapon();
 	void setWeapon();

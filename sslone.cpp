@@ -6,7 +6,27 @@ Object::Object(PhysWorld * in_member = NULL){
 }
 Object::~Object(){}
 
-bool Object::testCollision(){ return true;}
+bool Object::testCollision(){ 
+    for(int i = 0; i < member->arrSize;i++)
+    {
+           
+        if(this == member->objectArr[i] || member->objectArr[i] == NULL)
+        {
+            
+            continue;
+        }
+        if(           this->pos[0] < member->objectArr[i]->pos[0] + member->objectArr[i]->w
+                   && this->pos[0] + this->w > member->objectArr[i]->pos[0]
+                   && this->pos[1] < member->objectArr[i]->pos[1] + member->objectArr[i]->w
+                   && this->pos[1] + this->w > member->objectArr[i]->pos[1]
+                )
+        {
+        cout << "collision" << endl;
+        }
+    
+    }
+    return true;
+}
 
 PhysWorld::PhysWorld(){
 	arrSize = 500;
@@ -15,6 +35,7 @@ PhysWorld::PhysWorld(){
 		objectArr[i] = NULL;
 	}
 }
+
 PhysWorld::~PhysWorld(){}
 bool PhysWorld::addObject(Object * in_object){
 
@@ -67,6 +88,9 @@ void Ship::setColor(int r, int g,int b)
 }
 Bullet::Bullet(PhysWorld * in_member = NULL)
 {
+    h = 5;
+    w = 5;
+
 	this->yBounce = 1;
 	this->xBounce = 1;
 	angle = 0;
@@ -333,6 +357,7 @@ void Boomerang::fireWeapon()
 		if (nbullets < MAX_BULLETS) {
 			Bullet * b= new Bullet(member);
 			b = &barr[nbullets];
+            b->member = member;
 			member->addObject(b);
 			std::cout << "after adding" << std::endl;
 			member->printArr();
@@ -382,7 +407,7 @@ void Boomerang::physics()
 	while (i < nbullets) {
 		Bullet *b = &barr[i];
 
-
+        b->testCollision();
 		//How long has bullet been alive?
 		double ts = timeDiff(&b->time, &bt);
 		double ttl = 3.6;
@@ -588,14 +613,14 @@ void Player::setHealth(int in_health)
 	health = in_health;
 }
 
-Player::Player(int in_health, double in_speed, double in_rSpeed)
+Player::Player(int in_health, double in_speed, double in_rSpeed, PhysWorld * in_member)
 {
 	setSpeed(in_speed);
 	setRSpeed(in_rSpeed);
-
+    PhysWorld * member = in_member;
 	isThrust = false;
 	health = in_health;
 	currentWeapon = new Weapon(10,this);
 	currentPassive = new Passive(this);
-	ship = new Ship();
+	ship = new Ship(member);
 }

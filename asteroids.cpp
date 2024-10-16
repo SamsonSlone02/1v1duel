@@ -61,13 +61,17 @@ Global::Global() {
         yres = 480;
         memset(keys, 0, 65536);
 };
-Ship::Ship()
+Ship::Ship(PhysWorld * in_member = NULL) : Object(in_member)
 {
+        //Object(in_member);
         Global gl;
         //added rand to have every new player spawn randomly within the region of the arena
         pos[0] = (float)(rand() % gl.xres);
         pos[1] = (float)(rand() % gl.yres);
-        pos[2] = 0.0f;
+ //       pos[2] = 0.0f;
+        h = 20;
+        w = 20;
+        member = in_member;
         VecZero(dir);
         VecZero(vel);
         VecZero(acc);
@@ -89,8 +93,8 @@ class Game {
 		Game() {
 			
 			srand(time(NULL));
-			players[0] = new Player(1,3,6);
-			players[1] = new Player(1,3,6);
+			players[0] = new Player(1,3,6,myPhysWorld);
+			players[1] = new Player(1,3,6,myPhysWorld);
 			mouseThrustOn = false;
 
 			//initialize two ships
@@ -104,6 +108,8 @@ class Game {
 			players[0]->currentWeapon = new Boomerang(10,players[0],myPhysWorld);		
 			players[1]->currentWeapon = new Sniper(10,players[1]);
 		
+            myPhysWorld->addObject(players[0]->ship);
+            myPhysWorld->addObject(players[1]->ship);
 		//	players[0]->ship->setColor(100/2,90/2,240/2);
 	//		players[1]->ship->setColor(100,90,240);
 
@@ -411,6 +417,7 @@ void physics()
 		//cout << "Updating Position" << endl;
 		g.players[i]->currentWeapon->physics();
 		g.players[i]->currentPassive->update();
+		g.players[i]->ship->Object::testCollision();
 		//cout << "Position Updated" << endl;
 	}
 	//---------------------------------------------------
