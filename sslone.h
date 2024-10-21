@@ -1,3 +1,6 @@
+#ifndef SSLONE_H
+#define SSLONE_H
+
 #include <ctime>
 #include<iostream>
 #include<cstring>
@@ -257,3 +260,5 @@ class Sniper: public Weapon
 	void render();
 
 };
+
+#endif //SSLONE_H
