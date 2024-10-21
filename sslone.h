@@ -46,10 +46,19 @@ class Object
     PhysWorld * member;
     float pos[2];
     float vel[2];
+    
+    enum Type {NON,WALL,SHIP,BULLET};
+    Type objectType;
+    //things that collision should ignore
+    Object * filter[10];
+    int filterSize;
+
     Object(PhysWorld * in_member);
     ~Object();
     bool testCollision();
-    
+    void addFilter(Object *in_object);
+    void remFilter(Object *in_object);
+    virtual void handleCollision(Object * in_object);
 
 
 };
@@ -75,10 +84,12 @@ class Ship: public Object{
 	Vec dir;
 	Vec vel;
 	Vec acc;
+	Player * parent;
 	float angle;
 	float color[3];
-	Ship(PhysWorld * in_member);
+	Ship(PhysWorld * in_member,Player * in_parent);
 	void setColor(int r, int g, int b);
+	void handleCollision(Object * in_object);
 };
 class Player;
 class Passive
@@ -144,8 +155,8 @@ class Bullet : public Object{
 	float initRot;
 	struct timespec time;
 	//PhysWorld * member;
-    public:
 	Bullet(PhysWorld * in_member);
+	void handleCollision(Object * in_object);
 };
 
 class Player
@@ -163,6 +174,7 @@ class Player
 	Ship * ship;
 	void test();
 	Player(int in_health,double in_speed, double in_rSpeed,PhysWorld * in_member);
+	~Player();
 	void setKeys(int in_up, int in_down, int in_left, int in_right, int in_attack);
 	std::string getWeapon();
 	void setWeapon();

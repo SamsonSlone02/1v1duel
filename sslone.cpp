@@ -1,62 +1,117 @@
 #include "sslone.h"
 using namespace std;
 
-Object::Object(PhysWorld * in_member = NULL){
+Object::Object(PhysWorld * in_member = NULL)
+{
 	member = in_member;
+	filterSize = 10;
+	addFilter(this);
 }
+
 Object::~Object(){}
 
-bool Object::testCollision(){ 
-    for(int i = 0; i < member->arrSize;i++)
-    {
-           
-        if(this == member->objectArr[i] || member->objectArr[i] == NULL)
-        {
-            
-            continue;
-        }
-        if(           this->pos[0] < member->objectArr[i]->pos[0] + member->objectArr[i]->w
-                   && this->pos[0] + this->w > member->objectArr[i]->pos[0]
-                   && this->pos[1] < member->objectArr[i]->pos[1] + member->objectArr[i]->w
-                   && this->pos[1] + this->w > member->objectArr[i]->pos[1]
-                )
-        {
-        cout << "collision" << endl;
-        }
-    
-    }
-    return true;
+bool Object::testCollision()
+{ 
+	bool skipFlag;
+
+	for (int i = 0; i < member->arrSize;i++) {
+
+		skipFlag = false;
+		//if colliding with itself or comparing against an empty object
+		if (this == member->objectArr[i] || member->objectArr[i] == NULL) {
+
+			continue;
+		}
+		if (           this->pos[0] < member->objectArr[i]->pos[0] + member->objectArr[i]->w
+				&& this->pos[0] + this->w > member->objectArr[i]->pos[0]
+				&& this->pos[1] < member->objectArr[i]->pos[1] + member->objectArr[i]->w
+				&& this->pos[1] + this->w > member->objectArr[i]->pos[1]
+		   ) 
+		{
+
+
+			for(int j = 0; j < filterSize;j++)
+			{
+				if(member->objectArr[i] == filter[j])
+				{
+					cout << "ignoring current collision" << endl;
+					//item detected in filter, skipping collision check.
+					skipFlag = true;
+					break;
+
+				}
+			}
+
+			if(!skipFlag)
+			{
+				cout << "collision detected" << endl;
+				//run the objects collision handling function here.
+				//ex. this->handleCollision(object->getType)
+				handleCollision(member->objectArr[i]);
+				member->objectArr[i]->handleCollision(this);
+			}
+		}
+
+	}
+	return true;
+}
+void Object::addFilter(Object * in_object)
+{
+	for(int i = 0; i < filterSize;i++)
+	{
+		if(filter[i] == NULL)
+		{
+			filter[i] = in_object;
+			cout << "succesfully added" << endl;
+			return;
+		}
+	}	
 }
 
-PhysWorld::PhysWorld(){
-	arrSize = 500;
-	for(int i = 0; i < arrSize;i++)
+void Object::remFilter(Object * in_object)
+{
+	for(int i = 0; i < filterSize; i++)
 	{
+		if(filter[i] == in_object)
+		{
+			filter[i] = NULL;
+		}
+	}
+
+}
+
+void Object::handleCollision(Object * in_object)
+{
+	cout << in_object << endl;
+}
+
+PhysWorld::PhysWorld()
+{
+	
+	arrSize = 500;
+	for (int i = 0; i < arrSize;i++) {
 		objectArr[i] = NULL;
 	}
 }
 
 PhysWorld::~PhysWorld(){}
-bool PhysWorld::addObject(Object * in_object){
+bool PhysWorld::addObject(Object * in_object)
+{
 
-	for(int i = 0; i < arrSize;i++)
-	{
+	for (int i = 0; i < arrSize;i++) {
 
-		if(objectArr[i] == NULL)
-		{
+		if (objectArr[i] == NULL) {
 			objectArr[i] = in_object;
 			return true;
-
 		}
 	}
 	return false;
 }
-bool PhysWorld::remObject(Object * in_object) {
+bool PhysWorld::remObject(Object * in_object) 
+{
 
-	for(int i = 0; i < arrSize;i++)
-	{
-		if(objectArr[i] == in_object)
-		{
+	for (int i = 0; i < arrSize;i++) {
+		if (objectArr[i] == in_object) {
 			//delete objectArr[i];
 			objectArr[i] = NULL;
 			return true;
@@ -70,10 +125,8 @@ bool PhysWorld::remObject(Object * in_object) {
 void PhysWorld::printArr()
 {
 	std::cout << "**********************" << std::endl;
-	for(int i = 0; i < 10;i++)
-	{
+	for (int i = 0; i < 10;i++) {
 		std::cout << "Slot: " << i << ", Address: " << objectArr[i] << std::endl;
-
 	}
 	std::cout << "**********************" << std::endl;
 
@@ -86,27 +139,73 @@ void Ship::setColor(int r, int g,int b)
 	color[1] = g / 255.0f;
 	color[2] = b / 255.0f;
 }
+void Ship::handleCollision(Object * in_object)
+{
+
+	switch(in_object->objectType)
+	{
+		
+		case NON:
+			break;
+		case SHIP:
+			cout << "ship detected" << endl;
+			break;
+		case BULLET:
+			cout << "bullet detected" << endl;
+			color[0] = 255;
+			color[1] = 255;
+			color[2] = 255;
+			member->remObject(this);
+			parent->currentPassive = new Passive(parent);
+				
+			//	exit(0);
+			break;
+		case WALL:
+			break;
+	
+	}
+
+
+}
+
 Bullet::Bullet(PhysWorld * in_member = NULL)
 {
-    h = 5;
-    w = 5;
+	h = 5;
+	w = 5;
 
 	this->yBounce = 1;
 	this->xBounce = 1;
 	angle = 0;
 	member = in_member;
-	if(member != NULL)
-	{
+	
+	objectType = BULLET;
+
+	if (member != NULL) {
 		//initX = this->bulletParent->parent->ship->pos[0];	
 		//initY = this->bulletParent->parent->ship->pos[1];	
 	}
 	struct timespec time;
 	clock_gettime(CLOCK_REALTIME, &time);
-	//cout << "TIME ADDRESS ";
-	//cout << &time << endl;
+}
+void Bullet::handleCollision(Object * in_object)
+{
+	switch(in_object->objectType)
+	{
+		case NON:
+			break;
+		case SHIP:
+			cout << "ship detected" << endl;
+			break;
+		case BULLET:
+			break;
+		case WALL:
+			break;
+	
+	}
+	
 }
 //PASSIVE ABILITIES
-Passive::Passive(Player * in_parent= NULL)
+Passive::Passive(Player * in_parent= NULL) 
 {
 	parent = in_parent;
 }
@@ -114,7 +213,8 @@ Passive::~Passive(){}
 void Passive::update(){}
 void Passive::render(){}
 
-Shield::Shield(Player * in_parent= NULL){
+Shield::Shield(Player * in_parent= NULL)
+{
 	Passive();
 	this->parent = in_parent;
 	parent->setHealth(parent->getHealth() + 1);
@@ -133,13 +233,15 @@ Shield::Shield(Player * in_parent= NULL){
 
 	angle = parent->ship->angle;
 
-
-}
-Shield::~Shield(){
-
 }
 
-void Shield::update(){
+Shield::~Shield()
+{
+
+}
+
+void Shield::update()
+{
 
 	float parentPos[2];
 	parentPos[0] = parent->ship->pos[0];
@@ -175,9 +277,9 @@ void Shield::update(){
 
 }
 
-void Shield::render(){
+void Shield::render()
+{
 
-	
 	glPushMatrix();
 	glTranslatef(shield1[0], shield1[1], 1);
 	glRotatef(shield1Angle, 0.0f, 0.0f, 1.0f);
@@ -257,7 +359,7 @@ void Shield::render(){
 
 	glEnd();
 	glPopMatrix();
-	
+
 	Rect r;
 	r.bot = parent->ship->pos[1] - 25;
 	r.left = parent->ship->pos[0] - 15;
@@ -266,14 +368,16 @@ void Shield::render(){
 
 }
 
-Speed::Speed(Player * in_parent = NULL){
+Speed::Speed(Player * in_parent = NULL)
+{
 	Passive();
 	this->parent = in_parent;
 	parent->setSpeed(3.8);
 }
 Speed::~Speed(){}
 void Speed::update(){}
-void Speed::render(){
+void Speed::render()
+{
 
 
 	if (parent->isThrust) {
@@ -310,7 +414,6 @@ Weapon::Weapon(int in_rate = 10, Player * in_parent = NULL)
 {
 	rate = in_rate;
 	parent = in_parent;
-	cout << "weap" <<parent << endl;
 
 }
 Weapon::~Weapon(){}
@@ -357,10 +460,14 @@ void Boomerang::fireWeapon()
 		if (nbullets < MAX_BULLETS) {
 			Bullet * b= new Bullet(member);
 			b = &barr[nbullets];
-            b->member = member;
+			b->member = member;
+			b->addFilter(parent->ship);
 			member->addObject(b);
+
+			//print gameobj arr
 			std::cout << "after adding" << std::endl;
 			member->printArr();
+
 			//shoot a bullet...
 			//cout << &b << endl;		
 			timeCopy(&b->time, &bt);
@@ -407,7 +514,7 @@ void Boomerang::physics()
 	while (i < nbullets) {
 		Bullet *b = &barr[i];
 
-        b->testCollision();
+		b->testCollision();
 		//How long has bullet been alive?
 		double ts = timeDiff(&b->time, &bt);
 		double ttl = 3.6;
@@ -440,28 +547,22 @@ void Boomerang::physics()
 		b->vel[1] = scalar * (cos(theta)* sin(theta - b->initRot) + sin(theta) * cos(theta - b->initRot));
 
 		//wall collision
-		if(b->pos[0] < 0.0)
-		{
+		if (b->pos[0] < 0.0) {
 			b->xBounce *= -1;
 			b->pos[0] = 5;
 		}
-		if(b->pos[0] > (float)gl.xres)
-		{
+		if (b->pos[0] > (float)gl.xres) {
 			b->xBounce *= -1;
-
 			b->pos[0] =(float)gl.xres - 5;
 		}
 
-		if(b->pos[1] < 0.0)
-		{
+		if (b->pos[1] < 0.0) {
 			b->yBounce *= -1;
 			b->pos[1] = 5;
 		}
-		if(b->pos[1] > (float)gl.yres)
-		{
+		if (b->pos[1] > (float)gl.yres) {
 			b->yBounce *= -1;
 			b->pos[1] =(float)gl.yres - 5;
-
 		}
 
 		//updates bullet position
@@ -543,7 +644,7 @@ void Sniper::render()
 	glVertex2f(startPosR[0],startPosR[1]);
 	glVertex2f(endPosR[0],endPosR[1]);
 	glEnd();
-	
+
 	Rect r;
 	r.bot = parent->ship->pos[1] - 35;
 	r.left = parent->ship->pos[0] - 15;
@@ -617,10 +718,14 @@ Player::Player(int in_health, double in_speed, double in_rSpeed, PhysWorld * in_
 {
 	setSpeed(in_speed);
 	setRSpeed(in_rSpeed);
-    PhysWorld * member = in_member;
+	PhysWorld * member = in_member;
 	isThrust = false;
 	health = in_health;
 	currentWeapon = new Weapon(10,this);
 	currentPassive = new Passive(this);
-	ship = new Ship(member);
+	ship = new Ship(member,this);
+}
+Player::~Player()
+{
+	ship->member->remObject(ship);	
 }

@@ -61,12 +61,14 @@ Global::Global() {
         yres = 480;
         memset(keys, 0, 65536);
 };
-Ship::Ship(PhysWorld * in_member = NULL) : Object(in_member)
+Ship::Ship(PhysWorld * in_member = NULL, Player * in_parent = NULL) : Object(in_member)
 {
+	parent = in_parent;
         //Object(in_member);
         Global gl;
         //added rand to have every new player spawn randomly within the region of the arena
-        pos[0] = (float)(rand() % gl.xres);
+ 	objectType = SHIP;
+ 	pos[0] = (float)(rand() % gl.xres);
         pos[1] = (float)(rand() % gl.yres);
  //       pos[2] = 0.0f;
         h = 20;
@@ -97,30 +99,20 @@ class Game {
 			players[1] = new Player(1,3,6,myPhysWorld);
 			mouseThrustOn = false;
 
-			//initialize two ships
-		//	players[0].ship = new Ship();
-		//	players[1].ship = new Ship();
-
-
 			//temporary, setting passive and weapons for both players for testing
 			players[0]->currentPassive = new Speed(players[0]);
 			players[1]->currentPassive = new Shield(players[1]);
 			players[0]->currentWeapon = new Boomerang(10,players[0],myPhysWorld);		
 			players[1]->currentWeapon = new Sniper(10,players[1]);
 		
-            myPhysWorld->addObject(players[0]->ship);
-            myPhysWorld->addObject(players[1]->ship);
-		//	players[0]->ship->setColor(100/2,90/2,240/2);
-	//		players[1]->ship->setColor(100,90,240);
+            		myPhysWorld->addObject(players[0]->ship);
+            		myPhysWorld->addObject(players[1]->ship);
+			
+	    
+	    		players[1]->ship->setColor(100,90,240);
+			players[1]->ship->setColor(100,90,240);
 
-			//		players[0].setWeapon();
 
-		//	cout << players[0]->currentWeapon->parent << endl;
-	//		cout << players[1]->currentWeapon->parent << endl;
-
-			cout << players[0]->getWeapon() << endl;
-			cout << players[1]->getWeapon() << endl;
-			cout << players[1]->left << endl;
 
 		}
 		~Game() {
@@ -394,8 +386,6 @@ void physics()
 
 	for(int i = 0; i < 2; i++)
 	{
-		//g.players[0].setKeys(XK_Up,XK_Down,XK_Left,XK_Right,XK_Return);
-		//g.players[1].setKeys(XK_w,XK_s,XK_a,XK_d,XK_space);
 		//Update ship position
 		g.players[i]->ship->pos[0] += g.players[i]->ship->vel[0];
 		g.players[i]->ship->pos[1] += g.players[i]->ship->vel[1];
@@ -417,7 +407,7 @@ void physics()
 		//cout << "Updating Position" << endl;
 		g.players[i]->currentWeapon->physics();
 		g.players[i]->currentPassive->update();
-		g.players[i]->ship->Object::testCollision();
+		//g.players[i]->ship->Object::testCollision();
 		//cout << "Position Updated" << endl;
 	}
 	//---------------------------------------------------
@@ -532,39 +522,9 @@ void render()
 		glVertex2f(  0.0f,  20.0f);
 		glVertex2f( 12.0f, -10.0f);
 		glEnd();
-		//glColor3f(1.0f, 0.0f, 0.0f);
-		//glBegin(GL_POINTS);
-		//glVertex2f(0.0f, 0.0f);
-		glEnd();
 		glPopMatrix();
 	}
-	/*
-	for(int i = 0; i < 2;i++)
-	{
-		if (gl.keys[g.players[i]->up] || g.mouseThrustOn) {
-			//draw thrust
-			Flt rad = ((g.players[i]->ship->angle+90.0) / 360.0f) * PI * 2.0;
-			//convert angle to a vector
-			Flt xdir = cos(rad);
-			Flt ydir = sin(rad);
-			Flt xs,ys,xe,ye,r;
-			glBegin(GL_LINES);
-			for (int j=0; j<16; j++) {
-				xs = -xdir * 11.0f + rnd() * 4.0 - 2.0;
-				ys = -ydir * 11.0f + rnd() * 4.0 - 2.0;
-				r = rnd()*40.0+40.0;
-				xe = -xdir * r + rnd() * 18.0 - 9.0;
-				ye = -ydir * r + rnd() * 18.0 - 9.0;
-				glColor3f(rnd()*.3+.7, rnd()*.3+.7, 0);
-				glVertex2f(g.players[i]->ship->pos[0]+xs,g.players[i]->ship->pos[1]+ys);
-				glVertex2f(g.players[i]->ship->pos[0]+xe,g.players[i]->ship->pos[1]+ye);
-			}
 
-			glEnd();
-		}
-
-	}
-*/
 
 	// cout << "Drawing Weapons" << endl;
 	for(int count =0;count < 2;count++)
