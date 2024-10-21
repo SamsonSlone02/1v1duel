@@ -239,7 +239,12 @@ class Bomb: public Weapon
     private:
 	std::string type = "Bomb";
     public:
+    Bomb(int in_rate, Player * in_parent, PhysWorld * in_member);
+	~Bomb();
 	std::string getWeapon();
+	void fireWeapon();
+	void physics();
+	void render();
 };
 
 class Sniper: public Weapon
