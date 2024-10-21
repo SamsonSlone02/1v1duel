@@ -5,7 +5,7 @@ Object::Object(PhysWorld * in_member = NULL)
 {
 	member = in_member;
 	filterSize = 10;
-	addFilter(this);
+	//addFilter();
 }
 
 Object::~Object(){}
@@ -653,11 +653,6 @@ void Sniper::render()
 
 };
 
-
-string Bomb::getWeapon()
-{
-	return this->type;
-}
 
 double Player::getRSpeed()
 {
