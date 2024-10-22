@@ -391,16 +391,16 @@ void physics()
 		g.players[i]->ship->pos[1] += g.players[i]->ship->vel[1];
 		//Check for collision with window edges
 		if (g.players[i]->ship->pos[0] < 0.0) {
-			g.players[i]->ship->pos[0] += (float)gl.xres;
+			g.players[i]->ship->pos[0] = 0.0;
 		}
-		else if (g.players[i]->ship->pos[0] > (float)gl.xres) {
-			g.players[i]->ship->pos[0] -= (float)gl.xres;
+		if (g.players[i]->ship->pos[0] > (float)gl.xres) {
+			g.players[i]->ship->pos[0] = (float)gl.xres;
 		}
-		else if (g.players[i]->ship->pos[1] < 0.0) {
-			g.players[i]->ship->pos[1] += (float)gl.yres;
+		if (g.players[i]->ship->pos[1] < 0.0) {
+			g.players[i]->ship->pos[1] = 0.0;
 		}
-		else if (g.players[i]->ship->pos[1] > (float)gl.yres) {
-			g.players[i]->ship->pos[1] -= (float)gl.yres;
+		if (g.players[i]->ship->pos[1] > (float)gl.yres) {
+			g.players[i]->ship->pos[1] = (float)gl.yres;
 		}
 
 
@@ -448,7 +448,28 @@ void physics()
 				g.players[i]->ship->vel[0] *= speed;
 				g.players[i]->ship->vel[1] *= speed;
 			}
-		}
+		} 
+        // reverse motion for ship
+        else if (gl.keys[g.players[i]->down]){
+            // apply thrust
+            // convert->ship angle to radius
+            Flt rad = ((g.players[i]->ship->angle+90.0) / 360.0f) * PI * 2.0;
+            //g.players[i]->isThrust = false;
+            // convert angle to vector
+            Flt xdir = cos(rad);
+            Flt ydir = sin(rad);
+            // 
+            g.players[i]->ship->vel[0] -= xdir * g.players[i]->getSpeed();
+            g.players[i]->ship->vel[1] -= ydir * g.players[i]->getSpeed();
+			Flt speed = sqrt(g.players[i]->ship->vel[0]*g.players[i]->ship->vel[0]+
+					g.players[i]->ship->vel[1]*g.players[i]->ship->vel[1]);
+			if (speed > g.players[i]->getSpeed()) {
+				speed = g.players[i]->getSpeed();
+				normalize2d(g.players[i]->ship->vel);
+				g.players[i]->ship->vel[0] *= speed;
+			    g.players[i]->ship->vel[1] *= speed;
+			}
+        }
 		else
 		{
 
