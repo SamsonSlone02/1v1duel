@@ -1,4 +1,3 @@
-// more code here
 //#include <ctime>
 #include<iostream>
 //#include<cstring>
