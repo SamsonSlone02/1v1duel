@@ -22,6 +22,7 @@
 #include "fonts.h"
 
 #include "sslone.h"
+#include "jsalazar.h"
 #include<cstring>
 using namespace std;
 //defined types
