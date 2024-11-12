@@ -23,6 +23,7 @@
 
 #include "sslone.h"
 #include "jsalazar.h"
+#include "rrivasnavarr.h"
 #include<cstring>
 using namespace std;
 //defined types
@@ -93,6 +94,7 @@ class Game {
 		Player *players[2];
 		struct timespec mouseThrustTimer;
 		bool mouseThrustOn;
+        Wall * myWall;
 	public:
 		Game() {
 
@@ -114,7 +116,12 @@ class Game {
 			players[1]->ship->setColor(100,90,240);
 			players[1]->ship->setColor(100,90,240);
 
-
+            myWall = new Wall(myPhysWorld);
+            myWall->pos[0] = gl.xres / 2;
+            myWall->pos[1] = gl.yres / 2;
+            myWall->h = 100.0f;
+            myWall->w = 100.0f;
+            myPhysWorld->addObject(myWall);
 
 		}
 		~Game() {
@@ -498,6 +505,10 @@ void physics()
 				g.mouseThrustOn = false;
 		}
 	}
+
+    for(int i = 0; i < 2; i++){
+        g.players[i]->ship->Object::testCollision();
+    }
 }
 
 void render()
@@ -560,6 +571,10 @@ void render()
 		g.players[count]->currentWeapon->render();
 		g.players[count]->currentPassive->render();
 	}
+
+    // render Wall
+    g.myWall->render();
+
 	if(gl.isPaused)
 	{
 		//glBlendFunc  (GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
