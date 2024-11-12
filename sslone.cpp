@@ -88,7 +88,7 @@ void Object::handleCollision(Object * in_object)
 PhysWorld::PhysWorld()
 {
 	
-	arrSize = 500;
+	arrSize = 50;
 	for (int i = 0; i < arrSize;i++) {
 		objectArr[i] = NULL;
 	}
@@ -141,7 +141,7 @@ void Ship::setColor(int r, int g,int b)
 }
 void Ship::handleCollision(Object * in_object)
 {
-
+	extern Global gl;
 	switch(in_object->objectType)
 	{
 		
@@ -151,13 +151,24 @@ void Ship::handleCollision(Object * in_object)
 			cout << "ship detected" << endl;
 			break;
 		case BULLET:
+			srand(time(NULL));
 			cout << "bullet detected" << endl;
+			
 			color[0] = 255;
-			color[1] = 255;
-			color[2] = 255;
-			member->remObject(this);
+			color[1] = 0;
+			color[2] = 0;
+			
 			parent->currentPassive = new Passive(parent);
-				
+			parent->currentWeapon = new Weapon(3,parent);	
+		
+		
+			pos[0] = (float)(rand() % gl.xres);
+			pos[1] = (float)(rand() % gl.yres);
+
+		
+		
+		
+		
 			//	exit(0);
 			break;
 		case WALL:
@@ -191,7 +202,8 @@ void Bullet::handleCollision(Object * in_object)
 {
 	switch(in_object->objectType)
 	{
-		case NON:
+		case NON:glEnable(GL_BLEND); //Enable blending.
+glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //Set blending function.
 			break;
 		case SHIP:
 			cout << "ship detected" << endl;

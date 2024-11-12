@@ -3,6 +3,7 @@
 
 #include <ctime>
 #include<iostream>
+#include <unistd.h>
 #include<cstring>
 #include <GL/glx.h>
 #include<cmath>
@@ -39,6 +40,7 @@ class Global {
     public:
 	int xres, yres;
 	char keys[65536];
+	bool isPaused;
 	Global();
 };
 class PhysWorld;
