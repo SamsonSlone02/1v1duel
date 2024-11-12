@@ -71,11 +71,14 @@ Ship::Ship(PhysWorld * in_member = NULL, Player * in_parent = NULL) : Object(in_
 	Global gl;
 	//added rand to have every new player spawn randomly within the region of the arena
 	objectType = SHIP;
-	pos[0] = (float)(rand() % gl.xres);
-	pos[1] = (float)(rand() % gl.yres);
-	//       pos[2] = 0.0f;
 	h = 20;
 	w = 20;
+	pos[0] = (float)(rand() % gl.xres) ;
+	pos[1] = (float)(rand() % gl.yres) ;
+	drawPos[0] = pos[0] - (w/2);
+	drawPos[1] = pos[1] - (h/2);
+	
+	//       pos[2] = 0.0f;
 	member = in_member;
 	VecZero(dir);
 	VecZero(vel);
@@ -504,11 +507,12 @@ void physics()
 			if (tdif < -0.3)
 				g.mouseThrustOn = false;
 		}
+	
+		for(int i = 0; i < 2; i++){
+			g.players[i]->ship->Object::testCollision();
+		}
 	}
 
-    for(int i = 0; i < 2; i++){
-        g.players[i]->ship->Object::testCollision();
-    }
 }
 
 void render()
@@ -529,6 +533,9 @@ void render()
 	glEnd();
 	//--
 
+
+
+
 	ggprint8b(&r, 16, 0x00ff0000, "Player 1 - w a s d space");
 	ggprint8b(&r, 16, 0x00ff0000, "Player 2 - up down left right enter");
 	ggprint8b(&r, 16, 0x00ff0000, "PAUSE : 'P'");
@@ -546,12 +553,21 @@ void render()
 	glEnd();
 	glPopMatrix();
 
+	/*
+	g.players[0]->ship->drawHitbox();
+	g.players[1]->ship->drawHitbox();
+	*/
+
 	//Draw the ship
 	for(int i =0; i < 2; i++)
 	{
+		
+		float tempX = g.players[i]->ship->pos[0] + g.players[i]->ship->w/2;
+		float tempY = g.players[i]->ship->pos[1] + g.players[i]->ship->h/2;
+		
 		glColor3fv(g.players[i]->ship->color);
 		glPushMatrix();
-		glTranslatef(g.players[i]->ship->pos[0], g.players[i]->ship->pos[1], g.players[i]->ship->pos[2]);
+		glTranslatef(tempX, tempY, g.players[i]->ship->pos[2]);
 		glRotatef(g.players[i]->ship->angle, 0.0f, 0.0f, 1.0f);
 		glBegin(GL_TRIANGLES);
 		glVertex2f(-12.0f, -10.0f);
@@ -572,8 +588,8 @@ void render()
 		g.players[count]->currentPassive->render();
 	}
 
-    // render Wall
-    g.myWall->render();
+	// render Wall
+	g.myWall->render();
 
 	if(gl.isPaused)
 	{
@@ -586,13 +602,13 @@ void render()
 		p.left = gl.xres/2;
 		ggprint8b(&p, 16, 0x00ff0000, "GAME PAUSED");
 		/*
-		glColor4f(1.0f,0,0,0.5);
-		glBegin(GL_POLYGON);
-		glVertex2i(0,0);
-		glVertex2i(gl.xres,0);
-		glVertex2i(gl.xres,gl.yres);
-		glVertex2i(0,gl.yres);
-		*/
+		   glColor4f(1.0f,0,0,0.5);
+		   glBegin(GL_POLYGON);
+		   glVertex2i(0,0);
+		   glVertex2i(gl.xres,0);
+		   glVertex2i(gl.xres,gl.yres);
+		   glVertex2i(0,gl.yres);
+		   */
 		glEnd();
 
 	}

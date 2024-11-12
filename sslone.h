@@ -64,14 +64,14 @@ class Object
     void addFilter(Object *in_object);
     void remFilter(Object *in_object);
     virtual void handleCollision(Object * in_object);
-
+    void drawHitbox();
 
 };
 class PhysWorld
 {
     private:
     public:
-        Object * objectArr[500];
+        Object * objectArr[50];
         int arrSize;
         PhysWorld();
         ~PhysWorld();
@@ -89,6 +89,7 @@ class Ship: public Object{
 	Vec dir;
 	Vec vel;
 	Vec acc;
+	float drawPos[2];
 	Player * parent;
 	float angle;
 	float color[3];

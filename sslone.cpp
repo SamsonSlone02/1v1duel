@@ -8,6 +8,19 @@ Object::Object(PhysWorld * in_member = NULL)
 	//addFilter();
 }
 
+void Object::drawHitbox()
+{
+glPushMatrix();
+        glTranslatef(pos[0], pos[1], 1);
+        glBegin(GL_POLYGON);
+        glVertex2f(0.0f, w);
+        glVertex2f(  0.0f,  0.0f);
+        glVertex2f(  h,  0.0f);
+        glVertex2f(h, w);
+        glEnd();
+        glPopMatrix();
+}
+
 Object::~Object(){}
 
 bool Object::testCollision()
@@ -19,13 +32,13 @@ bool Object::testCollision()
 		skipFlag = false;
 		//if colliding with itself or comparing against an empty object
 		if (this == member->objectArr[i] || member->objectArr[i] == NULL) {
-
 			continue;
 		}
-		if (           this->pos[0] < member->objectArr[i]->pos[0] + member->objectArr[i]->w
-				&& this->pos[0] + this->w > member->objectArr[i]->pos[0]
-				&& this->pos[1] < member->objectArr[i]->pos[1] + member->objectArr[i]->w
-				&& this->pos[1] + this->w > member->objectArr[i]->pos[1]
+		//AABB collision detection
+		if (           this->pos[0] < (member->objectArr[i]->pos[0] - member->objectArr[i]->w / 2) + (member->objectArr[i]->w)
+				&& this->pos[0] + (this->w) > member->objectArr[i]->pos[0] - (member->objectArr[i]->w / 2)
+				&& this->pos[1] < (member->objectArr[i]->pos[1]- member->objectArr[i]->h / 2) + (member->objectArr[i]->h)
+				&& this->pos[1] + (this->h) > member->objectArr[i]->pos[1] - (member->objectArr[i]->h / 2)
 		   ) 
 		{
 
@@ -172,6 +185,27 @@ void Ship::handleCollision(Object * in_object)
 			//	exit(0);
 			break;
 		case WALL:
+			vel[0] = 0;
+			vel[1] = 0;
+			
+			if(this->pos[0] > in_object->pos[0])
+			{
+				pos[0]++;
+			}
+			if(this->pos[0] < in_object->pos[0])
+			{
+				pos[0]--;
+			}
+			if(this->pos[1] > in_object->pos[1])
+			{
+				pos[1]++;
+			}
+			if(this->pos[1] < in_object->pos[1])
+			{
+				pos[1]--;
+			}
+
+
 			break;
 	
 	}
@@ -202,8 +236,7 @@ void Bullet::handleCollision(Object * in_object)
 {
 	switch(in_object->objectType)
 	{
-		case NON:glEnable(GL_BLEND); //Enable blending.
-glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //Set blending function.
+		case NON:
 			break;
 		case SHIP:
 			cout << "ship detected" << endl;
@@ -256,8 +289,8 @@ void Shield::update()
 {
 
 	float parentPos[2];
-	parentPos[0] = parent->ship->pos[0];
-	parentPos[1] = parent->ship->pos[1];
+	parentPos[0] = parent->ship->pos[0] + parent->ship->w/2;
+	parentPos[1] = parent->ship->pos[1] + parent->ship->h/2;
 
 	angle += 2.5;
 	angle = fmod(angle,360.0f);	
@@ -390,7 +423,8 @@ Speed::~Speed(){}
 void Speed::update(){}
 void Speed::render()
 {
-
+	float tempX = parent->ship->pos[0] + parent->ship->w/2;
+	float tempY = parent->ship->pos[1] + parent->ship->h/2;			
 
 	if (parent->isThrust) {
 		//draw thrust
@@ -407,15 +441,15 @@ void Speed::render()
 			xe = -xdir * r + rnd() * 18.0 - 9.0;
 			ye = -ydir * r + rnd() * 18.0 - 9.0;
 			glColor3f(rnd()*.3+.7, rnd()*.3+.7, 0);
-			glVertex2f(parent->ship->pos[0]+xs,parent->ship->pos[1]+ys);
-			glVertex2f(parent->ship->pos[0]+xe,parent->ship->pos[1]+ye);
+			glVertex2f(tempX+xs,tempY+ys);
+			glVertex2f(tempX+xe,tempY+ye);
 		}
 
 		glEnd();
 	}
 	Rect r;
-	r.bot = parent->ship->pos[1] - 25;
-	r.left = parent->ship->pos[0] - 15;
+	r.bot = tempY - 25;
+	r.left = tempX - 15;
 	r.center = 0;
 	ggprint8b(&r, 16, 0x00ff0000, type);
 
@@ -474,6 +508,7 @@ void Boomerang::fireWeapon()
 			b = &barr[nbullets];
 			b->member = member;
 			b->addFilter(parent->ship);
+			parent->ship->addFilter(b);
 			member->addObject(b);
 
 			//print gameobj arr
@@ -484,10 +519,10 @@ void Boomerang::fireWeapon()
 			//cout << &b << endl;		
 			timeCopy(&b->time, &bt);
 			//b->bulletParent = this;
-			b-> initX = parent->ship->pos[0];
-			b-> initY = parent->ship->pos[1];
-			b->pos[0] = parent->ship->pos[0];
-			b->pos[1] = parent->ship->pos[1];
+			b-> initX = parent->ship->pos[0] + parent->ship->w/2;
+			b-> initY = parent->ship->pos[1] + parent->ship->h/2;
+			b->pos[0] = parent->ship->pos[0] + parent->ship->w/2;;
+			b->pos[1] = parent->ship->pos[1] + parent->ship->h/2;
 			b->vel[0] = parent->ship->vel[0];
 			b->vel[1] = parent->ship->vel[1];
 
@@ -630,11 +665,14 @@ void Sniper::fireWeapon()
 	float r = 10;
 
 	//hitscan should be a single frame operation, all logic and collision detection should be contained within this single function call
-	startPosL[0] = parent->ship->pos[0] + r *(xdir);
-	startPosL[1] = parent->ship->pos[1] + r *(ydir);
+	float tempX = parent->ship->pos[0] + parent->ship->w/2;
+	float tempY = parent->ship->pos[1] + parent->ship->h/2;
 
-	startPosR[0] = parent->ship->pos[0] - r *(xdir);
-	startPosR[1] = parent->ship->pos[1] - r *(ydir);
+	startPosL[0] = tempX + r *(xdir);
+	startPosL[1] = tempY + r *(ydir);
+
+	startPosR[0] = tempX - r *(xdir);
+	startPosR[1] = tempY - r *(ydir);
 
 	xdir = cos(rad);
 	ydir = sin(rad);
