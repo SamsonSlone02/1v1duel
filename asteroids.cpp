@@ -110,8 +110,8 @@ class Game {
 			players[0]->currentPassive = new Speed(players[0]);
 			players[1]->currentPassive = new Shield(players[1]);
 			players[0]->currentWeapon = new Boomerang(10,players[0],myPhysWorld);		
-			players[1]->currentWeapon = new Sniper(10,players[1]);
-
+			//players[1]->currentWeapon = new Sniper(10,players[1]);
+            players[1]->currentWeapon = new Bomb(10,players[1],myPhysWorld);
 			myPhysWorld->addObject(players[0]->ship);
 			myPhysWorld->addObject(players[1]->ship);
 
@@ -421,8 +421,10 @@ void physics()
 
 
 			//cout << "Updating Position" << endl;
-			g.players[i]->currentWeapon->physics();
-			g.players[i]->currentPassive->update();
+			//cout << "Before!" << endl;
+            g.players[i]->currentWeapon->physics();
+			//cout << "After!" << endl;
+            g.players[i]->currentPassive->update();
 			//g.players[i]->ship->Object::testCollision();
 			//cout << "Position Updated" << endl;
 		}
