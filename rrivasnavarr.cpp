@@ -2,6 +2,8 @@
 #include "sslone.h"
 using namespace std;
 
+extern Global gl;
+
 /*Wall::Wall()
 {
     extern Global gl;
@@ -13,18 +15,15 @@ using namespace std;
 */
 Wall::~Wall(){}
 
-Wall::Wall(PhysWorld * in_member = NULL) : Object(in_member)
+Wall::Wall(PhysWorld * in_member = NULL, float height = 100.0f, float width = 100.0f) : Object(in_member)
 {
     objectType = WALL;
-    
-   // xy coordinates of position
-    // w width (default value)
-    // l depends on xy end coordinates
-    //      so x2 y2? or direction boolean?
-    /*w = 5.0f;
-    l = in;  
-    x = 0.0f;
-    y = 0.0f;*/  
+
+    pos[0] = gl.xres / 2;
+    //pos[1] = gl.yres / 2;
+    h = height;
+    w = width;
+    pos[1] = h / 2; 
 }
 
 void Wall::render()

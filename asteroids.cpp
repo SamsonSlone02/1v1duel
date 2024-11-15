@@ -97,7 +97,7 @@ class Game {
 		Player *players[2];
 		struct timespec mouseThrustTimer;
 		bool mouseThrustOn;
-        Wall * myWall;
+        Wall * myWall, * newWall, * lWall, * rWall, * mWall;
 	public:
 		Game() {
 
@@ -119,12 +119,25 @@ class Game {
 			players[1]->ship->setColor(100,90,240);
 			players[1]->ship->setColor(100,90,240);
 
-            myWall = new Wall(myPhysWorld);
-            myWall->pos[0] = gl.xres / 2;
+            myWall = new Wall(myPhysWorld, 10.0f, gl.xres);
+            newWall = new Wall(myPhysWorld, 10.0f, gl.xres);
+            newWall->pos[1] = gl.yres - 5.0f;
+            lWall = new Wall(myPhysWorld, gl.yres, 10.0f);
+            lWall->pos[0] = 5.0f;
+            lWall->pos[1] = gl.yres / 2;
+            rWall = new Wall(myPhysWorld, gl.yres, 10.0f);
+            rWall->pos[0] = gl.xres - 5.0f;
+            rWall->pos[1] = gl.yres / 2;
+            mWall = new Wall(myPhysWorld, gl.yres/2, 10.0f);
+            mWall->pos[0] = gl.xres/2;
+            mWall->pos[1] = gl.yres/4;
+            /*myWall->pos[0] = gl.xres / 2;
             myWall->pos[1] = gl.yres / 2;
             myWall->h = 100.0f;
-            myWall->w = 100.0f;
+            myWall->w = 100.0f;*/
             myPhysWorld->addObject(myWall);
+            myPhysWorld->addObject(newWall);
+            myPhysWorld->addObject(mWall);
 
 		}
 		~Game() {
@@ -592,6 +605,10 @@ void render()
 
 	// render Wall
 	g.myWall->render();
+    g.newWall->render();
+    g.lWall->render();
+    g.rWall->render();
+    g.mWall->render();
 
 	if(gl.isPaused)
 	{

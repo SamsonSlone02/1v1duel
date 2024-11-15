@@ -36,7 +36,7 @@ class Wall;
 class Wall:public Object
 {
     public:
-        Wall(PhysWorld * in_member);
+        Wall(PhysWorld * in_member, float width, float height);
         ~Wall();
         void render();
 };
