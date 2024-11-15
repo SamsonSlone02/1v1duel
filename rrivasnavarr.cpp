@@ -28,7 +28,7 @@ Wall::Wall(PhysWorld * in_member = NULL, float height = 100.0f, float width = 10
 
 void Wall::render()
 {
-    glColor3ub(255, 0, 0);
+    glColor3ub(0, 255, 0);
     glBegin(GL_POLYGON);
     glVertex2f(pos[0] - w/2, pos[1] + h/2);
     glVertex2f(pos[0] - w/2, pos[1] - h/2);

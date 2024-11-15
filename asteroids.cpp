@@ -137,6 +137,8 @@ class Game {
             myWall->w = 100.0f;*/
             myPhysWorld->addObject(myWall);
             myPhysWorld->addObject(newWall);
+            myPhysWorld->addObject(lWall);
+            myPhysWorld->addObject(rWall);
             myPhysWorld->addObject(mWall);
 
 		}
