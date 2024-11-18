@@ -10,34 +10,21 @@
 
 #include "sslone.h"
 
-//class Global;
 class Wall;
-//class Object;
-//class PhysWorld;
-
-/*class Global 
-{
-    public:
-        int xres, yres;
-        char keys[65536];
-        Global();
-};*/
-
-/*class Wall 
-{
-    public:
-        int l, w, x, y;
-        Wall();
-        ~Wall();
-        Wall(int);
-        virtual void render();
-};*/
 
 class Wall:public Object
 {
     public:
         Wall(PhysWorld * in_member, float width, float height);
         ~Wall();
+        void render();
+};
+
+class Map
+{
+    public:
+        Map();
+        ~Map();
         void render();
 };
 #endif
