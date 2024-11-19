@@ -101,7 +101,7 @@ void Object::remFilter(Object * in_object)
 
 void Object::handleCollision(Object * in_object)
 {
-	//cout << in_object << endl;
+	cout << in_object << endl;
 }
 
 PhysWorld::PhysWorld()
