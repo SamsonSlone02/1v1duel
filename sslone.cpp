@@ -11,12 +11,12 @@ Object::Object(PhysWorld * in_member = NULL)
 void Object::drawHitbox()
 {
 glPushMatrix();
-        glTranslatef(pos[0], pos[1], 1);
+        glTranslatef(pos[0], pos[1] , 1);
         glBegin(GL_POLYGON);
-        glVertex2f(0.0f, w);
-        glVertex2f(  0.0f,  0.0f);
-        glVertex2f(  h,  0.0f);
-        glVertex2f(h, w);
+        glVertex2f(w/2,h/2);
+        glVertex2f(w/2, -h/2);
+        glVertex2f(  -w/2,  -h/2);
+        glVertex2f(-w/2,h/2 );
         glEnd();
         glPopMatrix();
 }
@@ -34,12 +34,18 @@ bool Object::testCollision()
 		if (this == member->objectArr[i] || member->objectArr[i] == NULL) {
 			continue;
 		}
+
+		int objectW,objectH;
+		objectW = member->objectArr[i]->w;
+		objectH = member->objectArr[i]->h;
 		//AABB collision detection
-		if (           this->pos[0] < (member->objectArr[i]->pos[0] - member->objectArr[i]->w / 2) + (member->objectArr[i]->w)
-				&& this->pos[0] + (this->w) > member->objectArr[i]->pos[0] - (member->objectArr[i]->w / 2)
-				&& this->pos[1] < (member->objectArr[i]->pos[1]- member->objectArr[i]->h / 2) + (member->objectArr[i]->h)
-				&& this->pos[1] + (this->h) > member->objectArr[i]->pos[1] - (member->objectArr[i]->h / 2)
-		   ) 
+		if( 
+			this->pos[0] - w/2 < member->objectArr[i]->pos[0] + objectW/2 &&
+			this->pos[0] + w/2 > member->objectArr[i]->pos[0] - objectW/2 &&
+			this->pos[1] - h/2 < member->objectArr[i]->pos[1] + objectH/2 &&
+			this->pos[1] + h/2 > member->objectArr[i]->pos[1] - objectH/2
+
+		) 
 		{
 
 
@@ -47,7 +53,7 @@ bool Object::testCollision()
 			{
 				if(member->objectArr[i] == filter[j])
 				{
-					cout << "ignoring current collision" << endl;
+	//				cout << "ignoring current collision" << endl;
 					//item detected in filter, skipping collision check.
 					skipFlag = true;
 					break;
@@ -95,7 +101,7 @@ void Object::remFilter(Object * in_object)
 
 void Object::handleCollision(Object * in_object)
 {
-	cout << in_object << endl;
+	//cout << in_object << endl;
 }
 
 PhysWorld::PhysWorld()
@@ -185,27 +191,54 @@ void Ship::handleCollision(Object * in_object)
 			//	exit(0);
 			break;
 		case WALL:
+		/*	
 			vel[0] = 0;
 			vel[1] = 0;
 			
-			if(this->pos[0] > in_object->pos[0])
-			{
-				pos[0]++;
-			}
-			if(this->pos[0] < in_object->pos[0])
-			{
-				pos[0]--;
-			}
-			if(this->pos[1] > in_object->pos[1])
-			{
-				pos[1]++;
-			}
-			if(this->pos[1] < in_object->pos[1])
-			{
-				pos[1]--;
-			}
 
+			cout << this->pos[0] << ", " << this->pos[1] << endl;
+			
+			cout << (in_object->pos[0] + (in_object->w/2)) + in_object->w << "right" << endl;
+			cout << (in_object->pos[0] - (in_object->w/2))  << "left" << endl;
+			cout << (in_object->pos[1] + (in_object->h/2)) + in_object->h << "top" << endl;
+			cout << (in_object->pos[1] - (in_object->h/2))  << "down" << endl;
+			
+			cout << in_object->pos[0] + (in_object->w / 2) << "right" << endl;
+			cout << in_object->pos[0] - (in_object->w / 2) << "left" << endl;
 
+		*/
+			cout << "*************************" << endl;
+
+			cout << this->pos[0] << endl; 
+			cout << in_object->pos[0] << endl;
+			in_object->drawHitbox();			
+			
+			if(this->pos[0]  >= (in_object->pos[0] + (in_object->w / 2)))
+			{
+				cout << "right" << endl;
+				pos[0] = (in_object->pos[0] + (in_object->w/2) + w/2);
+			}
+			if(this->pos[0] <= (in_object->pos[0] - (in_object->w / 2)))
+			{
+				cout << "left" << endl;
+				pos[0] = (in_object->pos[0] - (in_object->w / 2) - w/2);
+			}
+			
+			if(this->pos[1] >= (in_object->pos[1] + (in_object->h / 2)))
+			{
+				cout << "down" << endl;
+				pos[1] = (in_object->pos[1] + (in_object->h/2) + h/2);
+			}
+			if(this->pos[1] < (in_object->pos[1] - (in_object->h / 2)))
+			{
+
+				cout << "top" << endl;
+				pos[1] = (in_object->pos[1] - (in_object->h / 2) - h/2);
+			}
+	
+	
+	
+			cout << "*************************" << endl;
 			break;
 	
 	}
@@ -289,8 +322,8 @@ void Shield::update()
 {
 
 	float parentPos[2];
-	parentPos[0] = parent->ship->pos[0] + parent->ship->w/2;
-	parentPos[1] = parent->ship->pos[1] + parent->ship->h/2;
+	parentPos[0] = parent->ship->pos[0];
+	parentPos[1] = parent->ship->pos[1];
 
 	angle += 2.5;
 	angle = fmod(angle,360.0f);	
@@ -423,8 +456,10 @@ Speed::~Speed(){}
 void Speed::update(){}
 void Speed::render()
 {
-	float tempX = parent->ship->pos[0] + parent->ship->w/2;
-	float tempY = parent->ship->pos[1] + parent->ship->h/2;			
+	//float tempX = parent->ship->pos[0] + parent->ship->w/2;
+	//float tempY = parent->ship->pos[1] + parent->ship->h/2;			
+	float tempX = parent->ship->pos[0];
+	float tempY = parent->ship->pos[1];			
 
 	if (parent->isThrust) {
 		//draw thrust
@@ -665,8 +700,10 @@ void Sniper::fireWeapon()
 	float r = 10;
 
 	//hitscan should be a single frame operation, all logic and collision detection should be contained within this single function call
-	float tempX = parent->ship->pos[0] + parent->ship->w/2;
-	float tempY = parent->ship->pos[1] + parent->ship->h/2;
+	//float tempX = parent->ship->pos[0] + parent->ship->w/2;
+	//float tempY = parent->ship->pos[1] + parent->ship->h/2;
+	float tempX = parent->ship->pos[0];
+	float tempY = parent->ship->pos[1];			
 
 	startPosL[0] = tempX + r *(xdir);
 	startPosL[1] = tempY + r *(ydir);

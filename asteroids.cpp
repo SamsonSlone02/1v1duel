@@ -551,17 +551,17 @@ void render()
 	glEnd();
 	glPopMatrix();
 
-	/*
+	
 	g.players[0]->ship->drawHitbox();
 	g.players[1]->ship->drawHitbox();
-	*/
+	
 
 	//Draw the ship
 	for(int i =0; i < 2; i++)
 	{
 		
-		float tempX = g.players[i]->ship->pos[0] + g.players[i]->ship->w/2;
-		float tempY = g.players[i]->ship->pos[1] + g.players[i]->ship->h/2;
+		float tempX = g.players[i]->ship->pos[0];
+		float tempY = g.players[i]->ship->pos[1];
 		
 		glColor3fv(g.players[i]->ship->color);
 		glPushMatrix();
