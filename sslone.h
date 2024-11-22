@@ -63,6 +63,7 @@ class Object
     bool testCollision();
     void addFilter(Object *in_object);
     void remFilter(Object *in_object);
+    void clearFilter();
     virtual void handleCollision(Object * in_object);
     void drawHitbox();
 

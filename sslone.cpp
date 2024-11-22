@@ -53,7 +53,7 @@ bool Object::testCollision()
 			{
 				if(member->objectArr[i] == filter[j])
 				{
-	//				cout << "ignoring current collision" << endl;
+					cout << "ignoring current collision" << endl;
 					//item detected in filter, skipping collision check.
 					skipFlag = true;
 					break;
@@ -67,7 +67,7 @@ bool Object::testCollision()
 				//run the objects collision handling function here.
 				//ex. this->handleCollision(object->getType)
 				handleCollision(member->objectArr[i]);
-				member->objectArr[i]->handleCollision(this);
+				//member->objectArr[i]->handleCollision(this);
 			}
 		}
 
@@ -96,6 +96,16 @@ void Object::remFilter(Object * in_object)
 			filter[i] = NULL;
 		}
 	}
+
+}
+
+void Object::clearFilter()
+{
+	for(int i = 0; i < filterSize; i++)
+	{
+		filter[i] = NULL;
+	}
+		
 
 }
 
@@ -173,18 +183,22 @@ void Ship::handleCollision(Object * in_object)
 		case BULLET:
 			srand(time(NULL));
 			cout << "bullet detected" << endl;
-			
-			color[0] = 255;
-			color[1] = 0;
-			color[2] = 0;
-			
-			parent->currentPassive = new Passive(parent);
-			parent->currentWeapon = new Weapon(3,parent);	
-		
-		
-			pos[0] = (float)(rand() % gl.xres);
-			pos[1] = (float)(rand() % gl.yres);
+			cout << parent->getHealth() << endl;
+			parent->setHealth(parent->getHealth() - 1);
+			if(parent->getHealth() <1 )
+			{
 
+				color[0] = 255;
+				color[1] = 0;
+				color[2] = 0;
+
+				parent->currentPassive = new Passive(parent);
+				parent->currentWeapon = new Weapon(3,parent);	
+
+
+				pos[0] = (float)(rand() % gl.xres);
+				pos[1] = (float)(rand() % gl.yres);
+			}
 
 			break;
 		case WALL:
@@ -197,7 +211,7 @@ void Ship::handleCollision(Object * in_object)
 			if(this->pos[1] < (in_object->pos[1] - (in_object->h / 2)))
 				pos[1] = (in_object->pos[1] - (in_object->h / 2) - h/2);
 			break;
-	
+
 	}
 
 
@@ -229,10 +243,12 @@ void Bullet::handleCollision(Object * in_object)
 		case NON:
 			break;
 		case SHIP:
-			cout << "ship detected" << endl;
+			//addFilter(in_object);
+			member->remObject(this);
 			break;
 		case BULLET:
 			break;
+
 		case WALL:
 			if(this->pos[0]  >= (in_object->pos[0] + (in_object->w / 2)))
 			{	
@@ -255,9 +271,9 @@ void Bullet::handleCollision(Object * in_object)
 				this->yBounce *=-1;
 			}
 			break;
-	
+
 	}
-	
+
 }
 //PASSIVE ABILITIES
 Passive::Passive(Player * in_parent= NULL) 
@@ -272,7 +288,7 @@ Shield::Shield(Player * in_parent= NULL)
 {
 	Passive();
 	this->parent = in_parent;
-	parent->setHealth(parent->getHealth() + 1);
+	parent->setHealth(4);
 
 	//float pos;
 
@@ -335,92 +351,101 @@ void Shield::update()
 void Shield::render()
 {
 
-	glPushMatrix();
-	glTranslatef(shield1[0], shield1[1], 1);
-	glRotatef(shield1Angle, 0.0f, 0.0f, 1.0f);
-
-	glScalef(2.4, 1.4, 1.4); 
-	glBegin(GL_TRIANGLES);
-	glColor3ub(166, 218, 247);
-	glVertex2f(-5,0);
-	glVertex2f(-3,3);
-	glVertex2f(-3,0);
-
-	glVertex2f(5,0);
-	glVertex2f(3,3);
-	glVertex2f(3,0);
-
-	glVertex2f(-3,3);
-	glVertex2f(3,0);
-	glVertex2f(-3,0);
-
-	glVertex2f(-3,3);
-	glVertex2f(3,3);
-	glVertex2f(3,0);
-	glEnd();
-	glPopMatrix();
 
 
-	glPushMatrix();
-	glTranslatef(shield2[0], shield2[1], 1);
-	glRotatef(shield2Angle, 0.0f, 0.0f, 1.0f);
+	if(parent->getHealth() > 1)
+	{
 
-	glScalef(2.4, 1.4, 1.4); 
-	glBegin(GL_TRIANGLES);
+		glPushMatrix();
+		glTranslatef(shield1[0], shield1[1], 1);
+		glRotatef(shield1Angle, 0.0f, 0.0f, 1.0f);
 
-	glColor3ub(166, 218, 247);
-	glVertex2f(-5,0);
-	glVertex2f(-3,3);
-	glVertex2f(-3,0);
+		glScalef(2.4, 1.4, 1.4); 
+		glBegin(GL_TRIANGLES);
+		glColor3ub(166, 218, 247);
+		glVertex2f(-5,0);
+		glVertex2f(-3,3);
+		glVertex2f(-3,0);
 
-	glVertex2f(5,0);
-	glVertex2f(3,3);
-	glVertex2f(3,0);
+		glVertex2f(5,0);
+		glVertex2f(3,3);
+		glVertex2f(3,0);
 
-	glVertex2f(-3,3);
-	glVertex2f(3,0);
-	glVertex2f(-3,0);
+		glVertex2f(-3,3);
+		glVertex2f(3,0);
+		glVertex2f(-3,0);
 
-	glVertex2f(-3,3);
-	glVertex2f(3,3);
-	glVertex2f(3,0);
+		glVertex2f(-3,3);
+		glVertex2f(3,3);
+		glVertex2f(3,0);
+		glEnd();
+		glPopMatrix();
 
-	glEnd();
-	glPopMatrix();
+		if(parent->getHealth() > 2)
+		{
+			glPushMatrix();
+			glTranslatef(shield2[0], shield2[1], 1);
+			glRotatef(shield2Angle, 0.0f, 0.0f, 1.0f);
 
+			glScalef(2.4, 1.4, 1.4); 
+			glBegin(GL_TRIANGLES);
 
-	glPushMatrix();
-	glTranslatef(shield3[0], shield3[1], 1);
-	glRotatef(shield3Angle, 0.0f, 0.0f, 1.0f);
+			glColor3ub(166, 218, 247);
+			glVertex2f(-5,0);
+			glVertex2f(-3,3);
+			glVertex2f(-3,0);
 
-	glScalef(2.4, 1.4, 1.4); 
-	glBegin(GL_TRIANGLES);
-	glColor3ub(166, 218, 247);
-	glVertex2f(-5,0);
-	glVertex2f(-3,3);
-	glVertex2f(-3,0);
+			glVertex2f(5,0);
+			glVertex2f(3,3);
+			glVertex2f(3,0);
 
-	glVertex2f(5,0);
-	glVertex2f(3,3);
-	glVertex2f(3,0);
+			glVertex2f(-3,3);
+			glVertex2f(3,0);
+			glVertex2f(-3,0);
 
-	glVertex2f(-3,3);
-	glVertex2f(3,0);
-	glVertex2f(-3,0);
+			glVertex2f(-3,3);
+			glVertex2f(3,3);
+			glVertex2f(3,0);
 
-	glVertex2f(-3,3);
-	glVertex2f(3,3);
-	glVertex2f(3,0);
+			glEnd();
+			glPopMatrix();
 
-	glEnd();
-	glPopMatrix();
+			if(parent->getHealth() > 3)
+			{
+				glPushMatrix();
+				glTranslatef(shield3[0], shield3[1], 1);
+				glRotatef(shield3Angle, 0.0f, 0.0f, 1.0f);
 
-	Rect r;
-	r.bot = parent->ship->pos[1] - 25;
-	r.left = parent->ship->pos[0] - 15;
-	r.center = 0;
-	ggprint8b(&r, 16, 0x00ff0000, type);
+				glScalef(2.4, 1.4, 1.4); 
+				glBegin(GL_TRIANGLES);
+				glColor3ub(166, 218, 247);
+				glVertex2f(-5,0);
+				glVertex2f(-3,3);
+				glVertex2f(-3,0);
 
+				glVertex2f(5,0);
+				glVertex2f(3,3);
+				glVertex2f(3,0);
+
+				glVertex2f(-3,3);
+				glVertex2f(3,0);
+				glVertex2f(-3,0);
+
+				glVertex2f(-3,3);
+				glVertex2f(3,3);
+				glVertex2f(3,0);
+
+				glEnd();
+				glPopMatrix();
+
+				Rect r;
+				r.bot = parent->ship->pos[1] - 25;
+				r.left = parent->ship->pos[0] - 15;
+				r.center = 0;
+				ggprint8b(&r, 16, 0x00ff0000, type);
+			}
+		}
+	}
 }
 
 Speed::Speed(Player * in_parent = NULL)
@@ -581,6 +606,8 @@ void Boomerang::physics()
 		double ttl = 3.6;
 		if (ts > ttl) {
 			//time to delete the bullet.
+
+			b->clearFilter();
 			b->xBounce = 1;
 			b->yBounce = 1;
 			member->remObject(b);
@@ -641,34 +668,34 @@ void Boomerang::render()
 	for (int i=0; i< nbullets; i++) {
 		Bullet *b = &barr[i];
 		/*
-		glColor3f(b->color[0],b->color[1], b->color[2]);
-		glBegin(GL_POINTS);
-		glVertex2f(b->pos[0],      b->pos[1]);
-		glVertex2f(b->pos[0]-1.0f, b->pos[1]);
-		glVertex2f(b->pos[0]+1.0f, b->pos[1]);
-		glVertex2f(b->pos[0],      b->pos[1]-1.0f);
-		glVertex2f(b->pos[0],      b->pos[1]+1.0f);
-		glColor3f(b->color[0], b->color[1], b->color[2]);
-		aglVertex2f(b->pos[0]-1.0f, b->pos[1]-1.0f);
-		glVertex2f(b->pos[0]-1.0f, b->pos[1]+1.0f);
-		glVertex2f(b->pos[0]+1.0f, b->pos[1]-1.0f);
-		glVertex2f(b->pos[0]+1.0f, b->pos[1]+1.0f);
+		   glColor3f(b->color[0],b->color[1], b->color[2]);
+		   glBegin(GL_POINTS);
+		   glVertex2f(b->pos[0],      b->pos[1]);
+		   glVertex2f(b->pos[0]-1.0f, b->pos[1]);
+		   glVertex2f(b->pos[0]+1.0f, b->pos[1]);
+		   glVertex2f(b->pos[0],      b->pos[1]-1.0f);
+		   glVertex2f(b->pos[0],      b->pos[1]+1.0f);
+		   glColor3f(b->color[0], b->color[1], b->color[2]);
+		   aglVertex2f(b->pos[0]-1.0f, b->pos[1]-1.0f);
+		   glVertex2f(b->pos[0]-1.0f, b->pos[1]+1.0f);
+		   glVertex2f(b->pos[0]+1.0f, b->pos[1]-1.0f);
+		   glVertex2f(b->pos[0]+1.0f, b->pos[1]+1.0f);
+		   glEnd();
+		   */
+
+
+		glPushMatrix();
+		glColor3ub(b->color[0],b->color[1],b->color[2]);
+		glTranslatef(b->pos[0], b->pos[1] , 1);
+		glRotatef((b->angle * b->rotation * 180)/3.14159,0.0f,0.0f,1.0f);
+		glBegin(GL_POLYGON);
+		glVertex2f(b->w/2,b->h/2);
+		glVertex2f(b->w/2, -b->h/2);
+		glVertex2f(  -b->w/2,  -b->h/2);
+		glVertex2f(-b->w/2,b->h/2 );
 		glEnd();
-		*/
-	
-		
-	glPushMatrix();
-	glColor3ub(b->color[0],b->color[1],b->color[2]);
-	glTranslatef(b->pos[0], b->pos[1] , 1);
-        glRotatef((b->angle * b->rotation * 180)/3.14159,0.0f,0.0f,1.0f);
-        glBegin(GL_POLYGON);
-        glVertex2f(b->w/2,b->h/2);
-        glVertex2f(b->w/2, -b->h/2);
-        glVertex2f(  -b->w/2,  -b->h/2);
-        glVertex2f(-b->w/2,b->h/2 );
-        glEnd();
-        glPopMatrix();
-		
+		glPopMatrix();
+
 	}
 	Rect r;
 	r.bot = parent->ship->pos[1] - 35;

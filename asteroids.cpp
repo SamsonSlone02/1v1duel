@@ -522,7 +522,7 @@ void render()
 	r.center = 0;
 
 	//--draws background
-	glColor3f(255/255.0,255/255.0,255/255.0);
+	glColor3f(128/255.0,128/255.0,128/255.0);
 	glBegin(GL_POLYGON);
 	glVertex2i(0,0);
 	glVertex2i(gl.xres,0);
