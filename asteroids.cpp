@@ -98,6 +98,7 @@ class Game {
 		struct timespec mouseThrustTimer;
 		bool mouseThrustOn;
 		Map * mapp;
+		ItemBox * myBox;
 	public:
 		Game() {
 
@@ -106,18 +107,24 @@ class Game {
 			players[1] = new Player(1,3,6,myPhysWorld);
 			mouseThrustOn = false;
 
+
+
 			//temporary, setting passive and weapons for both players for testing
 			players[0]->currentPassive = new Speed(players[0]);
-			players[1]->currentPassive = new Shield(players[1]);
+	//		players[1]->currentPassive = new Shield(players[1]);
 			players[0]->currentWeapon = new Boomerang(10,players[0],myPhysWorld);		
+			//players[1]->currentWeapon = new Boomerang(10,players[1],myPhysWorld);		
 			//players[1]->currentWeapon = new Bomb(10,players[1],myPhysWorld);
-			players[1]->currentWeapon = new Sniper(10,players[1]);
+	//		players[1]->currentWeapon = new Sniper(10,players[1]);
 			myPhysWorld->addObject(players[0]->ship);
 			myPhysWorld->addObject(players[1]->ship);
 
 
 			players[1]->ship->setColor(100,90,240);
 			players[1]->ship->setColor(100,90,240);
+
+
+			myBox = new ItemBox(myPhysWorld);
 
 			// creates level map
 			mapp = new Map();
@@ -506,8 +513,15 @@ void physics()
 				g.mouseThrustOn = false;
 		}
 
+		/*
 		for(int i = 0; i < 2; i++){
 			g.players[i]->ship->Object::testCollision();
+		}
+		*/
+		for(int i = 0; i < myPhysWorld->arrSize;i++)
+		{
+			if(myPhysWorld->objectArr[i] != NULL)
+				myPhysWorld->objectArr[i]->testCollision();
 		}
 	}
 
@@ -588,7 +602,8 @@ void render()
 
 	// render Map
 	g.mapp->render();
-
+	//render itemBox (testing, will remove)
+	g.myBox->render();
 	if(gl.isPaused)
 	{
 		//glBlendFunc  (GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);

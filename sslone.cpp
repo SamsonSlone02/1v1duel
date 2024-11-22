@@ -154,9 +154,22 @@ bool PhysWorld::remObject(Object * in_object)
 
 void PhysWorld::printArr()
 {
+	const char * names[] = {"NON","WALL","SHIP","BULLET","ITEMBOX"};
 	std::cout << "**********************" << std::endl;
-	for (int i = 0; i < 10;i++) {
-		std::cout << "Slot: " << i << ", Address: " << objectArr[i] << std::endl;
+	for (int i = 0; i < 20;i++) {
+		
+		std::cout << "Slot: " << i << ", Address: " << objectArr[i];
+		if(objectArr[i] != NULL)
+		{
+
+			int x = objectArr[i]->pos[0];
+			int y = objectArr[i]->pos[1];
+			std::cout << ", Type: " << names[objectArr[i]->objectType] << ", X: " << x <<  ", Y: " << y << std::endl;
+		}
+		else
+		{
+			cout << ", Type: NOT ASSIGNED "<< endl;
+		}
 	}
 	std::cout << "**********************" << std::endl;
 
@@ -178,11 +191,11 @@ void Ship::handleCollision(Object * in_object)
 		case NON:
 			break;
 		case SHIP:
-			cout << "ship detected" << endl;
+			//cout << "ship detected" << endl;
 			break;
 		case BULLET:
 			srand(time(NULL));
-			cout << "bullet detected" << endl;
+			//cout << "bullet detected" << endl;
 			cout << parent->getHealth() << endl;
 			parent->setHealth(parent->getHealth() - 1);
 			if(parent->getHealth() <1 )
@@ -212,10 +225,73 @@ void Ship::handleCollision(Object * in_object)
 				pos[1] = (in_object->pos[1] - (in_object->h / 2) - h/2);
 			break;
 
+		case ITEMBOX:
+				srand(time(NULL));
+				parent->setWeapon(rand() % 5);
+				
+				member->remObject(in_object);
+				cout << "touched itembox" << endl;
+			break;
 	}
 
 
 }
+
+ItemBox::ItemBox(PhysWorld * in_member = NULL)
+{	
+	member = in_member;
+	srand(time(NULL));
+	boxContent = rand() % 4;
+	h = 10;
+	w = 10;
+	pos[0] = 100;
+	pos[1] = 100;
+	objectType = ITEMBOX;
+	member->addObject(this);
+	//addFilter(this);
+
+
+}
+
+void ItemBox::handleCollision(Object * in_object)
+{
+
+	switch(in_object->objectType)
+	{
+		
+		case NON:
+			break;
+		case SHIP:
+			//cout << "ship detected from item box" << endl;
+			member->remObject(this);
+			break;
+		case BULLET:
+			break;
+		case WALL:
+			break;
+		case ITEMBOX:
+			break;
+	}
+
+
+}
+
+void ItemBox::render()
+{
+	drawHitbox();
+	Rect r;
+	r.bot = pos[1] - 25;
+	r.left = pos[0] - 15;
+	r.center = 0;
+	ggprint8b(&r, 16, 0x00000000, (const char *)"COLLIDE FOR RANDOM ITEM, CHOICES ARE . . . ");
+	Rect r2;
+	r2.bot = pos[1] - 45;
+	r2.left = pos[0] - 15;
+	r2.center = 0;
+	ggprint8b(&r2, 16, 0x00000000, (const char *)"NOTHING,SNIPER,BOOMERANG,SPEED,SHIELD");
+
+}
+
 
 Bullet::Bullet(PhysWorld * in_member = NULL)
 {
@@ -271,7 +347,8 @@ void Bullet::handleCollision(Object * in_object)
 				this->yBounce *=-1;
 			}
 			break;
-
+		case ITEMBOX:
+			break;
 	}
 
 }
@@ -356,6 +433,12 @@ void Shield::render()
 	if(parent->getHealth() > 1)
 	{
 
+		Rect r;
+		r.bot = parent->ship->pos[1] - 25;
+		r.left = parent->ship->pos[0] - 15;
+		r.center = 0;
+		ggprint8b(&r, 16, 0x00ff0000, type);
+
 		glPushMatrix();
 		glTranslatef(shield1[0], shield1[1], 1);
 		glRotatef(shield1Angle, 0.0f, 0.0f, 1.0f);
@@ -438,11 +521,6 @@ void Shield::render()
 				glEnd();
 				glPopMatrix();
 
-				Rect r;
-				r.bot = parent->ship->pos[1] - 25;
-				r.left = parent->ship->pos[0] - 15;
-				r.center = 0;
-				ggprint8b(&r, 16, 0x00ff0000, type);
 			}
 		}
 	}
@@ -537,8 +615,7 @@ void Boomerang::fireWeapon()
 	struct timespec bt;
 	clock_gettime(CLOCK_REALTIME, &bt);
 	double ts = timeDiff(&bulletTimer, &bt);
-
-	if (ts > 1.5) {
+	if (ts > 1.5 || ts < 0) {
 		timeCopy(&bulletTimer, &bt);
 		if (nbullets < MAX_BULLETS) {
 			Bullet * b= new Bullet(member);
@@ -581,6 +658,7 @@ void Boomerang::fireWeapon()
 			b->xBounce = 1;
 			b->yBounce = 1;
 			nbullets++;
+
 		}
 
 
@@ -793,13 +871,43 @@ string Player::getWeapon()
 {
 	return currentWeapon->getWeapon();
 }
-void Player::setWeapon()
+void Player::setWeapon(int input)
 {
 	//remove current weapon
-	delete this->currentWeapon;
 	//set empty weapon
 	//unfinised, will eventually figure out how i want weapons to be assigned via arguments
-	currentWeapon = new Weapon(10,this);
+
+	const char * names[] = {"NON","SNIPER","BOOMERANG","SHIELD","SPEED"};
+
+	std::cout << names[input] << endl;
+	switch(input)
+	{
+		case 0:
+			//nothing
+			//delete this->currentWeapon;
+			//currentWeapon = new Weapon(10,this);
+			delete this->currentPassive;
+			currentPassive = new Shield(this);
+			break;
+		case 1:
+			delete this->currentWeapon;
+			currentWeapon = new Sniper(10,this);
+			break;
+		case 2:
+			delete this->currentWeapon;
+			currentWeapon = new Boomerang(10,this,ship->member);
+			break;
+		case 3:
+			delete this->currentPassive;
+			currentPassive = new Shield(this);
+			break;
+		case 4:
+			delete this->currentPassive;
+			currentPassive = new Speed(this);
+			break;
+
+	}
+
 
 }
 

@@ -37,223 +37,231 @@ const int MAX_BULLETS = 10;
 const Flt MINIMUM_ASTEROID_SIZE = 60.0;
 //constants
 class Global {
-    public:
-	int xres, yres;
-	char keys[65536];
-	bool isPaused;
-	Global();
+	public:
+		int xres, yres;
+		char keys[65536];
+		bool isPaused;
+		Global();
 };
 class PhysWorld;
 class Object
 {
-    public:
-    float h,w;
-    PhysWorld * member;
-    float pos[2];
-    float vel[2];
-    
-    enum Type {NON,WALL,SHIP,BULLET};
-    Type objectType;
-    //things that collision should ignore
-    Object * filter[10];
-    int filterSize;
+	public:
+		float h,w;
+		PhysWorld * member;
+		float pos[2];
+		float vel[2];
 
-    Object(PhysWorld * in_member);
-    ~Object();
-    bool testCollision();
-    void addFilter(Object *in_object);
-    void remFilter(Object *in_object);
-    void clearFilter();
-    virtual void handleCollision(Object * in_object);
-    void drawHitbox();
+		enum Type {NON,WALL,SHIP,BULLET,ITEMBOX};
+		Type objectType;
+		//things that collision should ignore
+		Object * filter[10];
+		int filterSize;
+
+		Object(PhysWorld * in_member);
+		~Object();
+		bool testCollision();
+		void addFilter(Object *in_object);
+		void remFilter(Object *in_object);
+		void clearFilter();
+		virtual void handleCollision(Object * in_object);
+		void drawHitbox();
 
 };
 class PhysWorld
 {
-    private:
-    public:
-        Object * objectArr[50];
-        int arrSize;
-        PhysWorld();
-        ~PhysWorld();
-        bool addObject(Object * in_object);
-	bool remObject(Object * in_object);
-	void printArr();
+	private:
+	public:
+		Object * objectArr[50];
+		int arrSize;
+		PhysWorld();
+		~PhysWorld();
+		bool addObject(Object * in_object);
+		bool remObject(Object * in_object);
+		void printArr();
 
 };
 
-
+class ItemBox: public Object
+{
+	public:
+		int boxContent;
+		ItemBox(PhysWorld * in_member);
+		~ItemBox();
+		void render();
+		void handleCollision(Object * in_object);
+};
 
 class Ship: public Object{
-    public:
-    //Vec pos;
-	Vec dir;
-	Vec vel;
-	Vec acc;
-	float drawPos[2];
-	Player * parent;
-	float angle;
-	float color[3];
-	Ship(PhysWorld * in_member,Player * in_parent);
-	void setColor(int r, int g, int b);
-	void handleCollision(Object * in_object);
+	public:
+		//Vec pos;
+		Vec dir;
+		Vec vel;
+		Vec acc;
+		float drawPos[2];
+		Player * parent;
+		float angle;
+		float color[3];
+		Ship(PhysWorld * in_member,Player * in_parent);
+		void setColor(int r, int g, int b);
+		void handleCollision(Object * in_object);
 };
 class Player;
 class Passive
 {
-    private:
-	const char * type = "None";
+	private:
+		const char * type = "None";
 
-    public:
-	Player * parent;
-	Passive(Player * in_parent);
-	~Passive();
-	virtual void update();
-	virtual void render();
+	public:
+		Player * parent;
+		Passive(Player * in_parent);
+		virtual ~Passive();
+		virtual void update();
+		virtual void render();
 
 };
 
 class Shield: public Passive
 {
 
-    private:
-	const char * type = "Shield";
-    public:
-	float pos;
-	float angle;
+	private:
+		const char * type = "Shield";
+	public:
+		float pos;
+		float angle;
 
-	float shield1Angle;
-	float shield2Angle;
-	float shield3Angle;
+		float shield1Angle;
+		float shield2Angle;
+		float shield3Angle;
 
-	float shield1[2];
-	float shield2[2];
-	float shield3[2];
+		float shield1[2];
+		float shield2[2];
+		float shield3[2];
 
-	Shield(Player * in_parent);
-	void update();
-	void render();
-	~Shield();
+		Shield(Player * in_parent);
+		void update();
+		void render();
+		~Shield();
 };
 class Speed: public Passive
 {
 
-    private:
-	const char * type = "Speed";
-    public:
-	Speed(Player * in_parent);
-	void update();
-	void render();
-	~Speed();
+	private:
+		const char * type = "Speed";
+	public:
+		Speed(Player * in_parent);
+		void update();
+		void render();
+		~Speed();
 };
 
 
 class Weapon;
 class Bullet : public Object{
-    public:
-	//Vec pos;
-	Vec vel;
-	Flt angle;
-	int yBounce;
-	int xBounce;
-	float color[3];
-	float initX;
-	float initY;
-	float rotation;
-	float initRot;
-	struct timespec time;
-	//PhysWorld * member;
-	Bullet(PhysWorld * in_member);
-	void handleCollision(Object * in_object);
+	public:
+		//Vec pos;
+		Vec vel;
+		Flt angle;
+		int yBounce;
+		int xBounce;
+		float color[3];
+		float initX;
+		float initY;
+		float rotation;
+		float initRot;
+		struct timespec time;
+		//PhysWorld * member;
+		Bullet(PhysWorld * in_member);
+		void handleCollision(Object * in_object);
 };
 
 class Player
 {
 
-    private:
-	int health;
-	double speed;	
-	double rSpeed;
-    public:
-	int up,down,left,right,attack;
-	bool isThrust;
-	Passive * currentPassive;
-	Weapon * currentWeapon;		
-	Ship * ship;
-	void test();
-	Player(int in_health,double in_speed, double in_rSpeed,PhysWorld * in_member);
-	~Player();
-	void setKeys(int in_up, int in_down, int in_left, int in_right, int in_attack);
-	std::string getWeapon();
-	void setWeapon();
+	private:
+		int health;
+		double speed;	
+		double rSpeed;
+	public:
+		int up,down,left,right,attack;
+		bool isThrust;
+		Passive * currentPassive;
+		Weapon * currentWeapon;		
+		Ship * ship;
+		void test();
+		Player(int in_health,double in_speed, double in_rSpeed,PhysWorld * in_member);
+		~Player();
+		void setKeys(int in_up, int in_down, int in_left, int in_right, int in_attack);
+		std::string getWeapon();
+		void setWeapon(int input);
 
-	double getRSpeed();
-	void setRSpeed(double in_rSpeed);
+		double getRSpeed();
+		void setRSpeed(double in_rSpeed);
 
-	double getSpeed();
-	void setSpeed(double in_speed);
+		double getSpeed();
+		void setSpeed(double in_speed);
 
-	int getHealth();
-	void setHealth(int in_health);
-	//void setPassive();
+		int getHealth();
+		void setHealth(int in_health);
+		//void setPassive();
 };
 
 class Weapon
 {
 
-    private:
+	private:
 
-	int rate;
-	const char * type = "Weapon";
-    public:
-	Weapon(int in_rate, Player * in_parent);
-	virtual ~Weapon();
-	Player * parent;
-	virtual std:: string getWeapon();
-	virtual void fireWeapon();
-	virtual void physics();
-	virtual void render();
+		int rate;
+		const char * type = "Weapon";
+	public:
+		Weapon(int in_rate, Player * in_parent);
+		virtual ~Weapon();
+		Player * parent;
+		virtual std:: string getWeapon();
+		virtual void fireWeapon();
+		virtual void physics();
+		virtual void render();
 
 };
 
 
 class Boomerang: public Weapon
 {
-    private:
-	Vec pos;
-	Vec vel;
-	float color[3];
-	Bullet * barr;
-	struct timespec bulletTimer;
-	int nbullets;
-	const char * type = "boomerang";
+	private:
+		Vec pos;
+		Vec vel;
+		float color[3];
+		Bullet * barr;
+		struct timespec bulletTimer;
+		int nbullets;
+		const char * type = "boomerang";
 
-    public:
-    PhysWorld * member;
-    Boomerang(int in_rate, Player * in_parent, PhysWorld * in_member);
-	~Boomerang();
-	std::string getWeapon();
-	void fireWeapon();
-	void physics();
-	void render();
+	public:
+		PhysWorld * member;
+		Boomerang(int in_rate, Player * in_parent, PhysWorld * in_member);
+		~Boomerang();
+		std::string getWeapon();
+		void fireWeapon();
+		void physics();
+		void render();
 
 };
 class Sniper: public Weapon
 {
 
-    private:
-	float startPosL[2];
-	float startPosR[2];
-	float endPosL[2];
-	float endPosR[2];
+	private:
+		float startPosL[2];
+		float startPosR[2];
+		float endPosL[2];
+		float endPosR[2];
 
-	const char * type = "Sniper";
-    public:
-	Sniper(int in_rate, Player * in_parent);
-	std::string getWeapon();
-	void fireWeapon();
-	void physics();
-	void render();
+		const char * type = "Sniper";
+	public:
+		Sniper(int in_rate, Player * in_parent);
+		std::string getWeapon();
+		void fireWeapon();
+		void physics();
+		void render();
 
 };
 
