@@ -158,6 +158,7 @@ class Bullet : public Object{
 	float color[3];
 	float initX;
 	float initY;
+	float rotation;
 	float initRot;
 	struct timespec time;
 	//PhysWorld * member;

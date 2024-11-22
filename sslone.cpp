@@ -10,7 +10,7 @@ Object::Object(PhysWorld * in_member = NULL)
 
 void Object::drawHitbox()
 {
-glPushMatrix();
+	glPushMatrix();
         glTranslatef(pos[0], pos[1] , 1);
         glBegin(GL_POLYGON);
         glVertex2f(w/2,h/2);
@@ -63,7 +63,7 @@ bool Object::testCollision()
 
 			if(!skipFlag)
 			{
-				cout << "collision detected" << endl;
+				//cout << "collision detected" << endl;
 				//run the objects collision handling function here.
 				//ex. this->handleCollision(object->getType)
 				handleCollision(member->objectArr[i]);
@@ -101,7 +101,8 @@ void Object::remFilter(Object * in_object)
 
 void Object::handleCollision(Object * in_object)
 {
-	cout << in_object << endl;
+	//cout << in_object << endl;
+	in_object = in_object;
 }
 
 PhysWorld::PhysWorld()
@@ -184,61 +185,17 @@ void Ship::handleCollision(Object * in_object)
 			pos[0] = (float)(rand() % gl.xres);
 			pos[1] = (float)(rand() % gl.yres);
 
-		
-		
-		
-		
-			//	exit(0);
+
 			break;
 		case WALL:
-		/*	
-			vel[0] = 0;
-			vel[1] = 0;
-			
-
-			cout << this->pos[0] << ", " << this->pos[1] << endl;
-			
-			cout << (in_object->pos[0] + (in_object->w/2)) + in_object->w << "right" << endl;
-			cout << (in_object->pos[0] - (in_object->w/2))  << "left" << endl;
-			cout << (in_object->pos[1] + (in_object->h/2)) + in_object->h << "top" << endl;
-			cout << (in_object->pos[1] - (in_object->h/2))  << "down" << endl;
-			
-			cout << in_object->pos[0] + (in_object->w / 2) << "right" << endl;
-			cout << in_object->pos[0] - (in_object->w / 2) << "left" << endl;
-
-		*/
-			cout << "*************************" << endl;
-
-			cout << this->pos[0] << endl; 
-			cout << in_object->pos[0] << endl;
-			in_object->drawHitbox();			
-			
 			if(this->pos[0]  >= (in_object->pos[0] + (in_object->w / 2)))
-			{
-				cout << "right" << endl;
 				pos[0] = (in_object->pos[0] + (in_object->w/2) + w/2);
-			}
 			if(this->pos[0] <= (in_object->pos[0] - (in_object->w / 2)))
-			{
-				cout << "left" << endl;
 				pos[0] = (in_object->pos[0] - (in_object->w / 2) - w/2);
-			}
-			
 			if(this->pos[1] >= (in_object->pos[1] + (in_object->h / 2)))
-			{
-				cout << "down" << endl;
 				pos[1] = (in_object->pos[1] + (in_object->h/2) + h/2);
-			}
 			if(this->pos[1] < (in_object->pos[1] - (in_object->h / 2)))
-			{
-
-				cout << "top" << endl;
 				pos[1] = (in_object->pos[1] - (in_object->h / 2) - h/2);
-			}
-	
-	
-	
-			cout << "*************************" << endl;
 			break;
 	
 	}
@@ -255,7 +212,7 @@ Bullet::Bullet(PhysWorld * in_member = NULL)
 	this->xBounce = 1;
 	angle = 0;
 	member = in_member;
-	
+	rotation = 1;
 	objectType = BULLET;
 
 	if (member != NULL) {
@@ -277,6 +234,26 @@ void Bullet::handleCollision(Object * in_object)
 		case BULLET:
 			break;
 		case WALL:
+			if(this->pos[0]  >= (in_object->pos[0] + (in_object->w / 2)))
+			{	
+				pos[0] = (in_object->pos[0] + (in_object->w/2) + w/2);
+				this->xBounce *=-1;
+			}
+			else if(this->pos[0] <= (in_object->pos[0] - (in_object->w / 2)))
+			{
+				pos[0] = (in_object->pos[0] - (in_object->w / 2) - w/2);
+				this->xBounce *=-1;
+			}
+			else if(this->pos[1] >= (in_object->pos[1] + (in_object->h / 2)))
+			{
+				pos[1] = (in_object->pos[1] + (in_object->h/2) + h/2);
+				this->yBounce *=-1;
+			}
+			else if(this->pos[1] < (in_object->pos[1] - (in_object->h / 2)))
+			{
+				pos[1] = (in_object->pos[1] - (in_object->h / 2) - h/2);
+				this->yBounce *=-1;
+			}
 			break;
 	
 	}
@@ -545,7 +522,9 @@ void Boomerang::fireWeapon()
 			b->addFilter(parent->ship);
 			parent->ship->addFilter(b);
 			member->addObject(b);
-
+			b->w = 10;
+			b->h = 10;
+			b->rotation = 9;
 			//print gameobj arr
 			std::cout << "after adding" << std::endl;
 			member->printArr();
@@ -554,10 +533,10 @@ void Boomerang::fireWeapon()
 			//cout << &b << endl;		
 			timeCopy(&b->time, &bt);
 			//b->bulletParent = this;
-			b-> initX = parent->ship->pos[0] + parent->ship->w/2;
-			b-> initY = parent->ship->pos[1] + parent->ship->h/2;
-			b->pos[0] = parent->ship->pos[0] + parent->ship->w/2;;
-			b->pos[1] = parent->ship->pos[1] + parent->ship->h/2;
+			b-> initX = parent->ship->pos[0];
+			b-> initY = parent->ship->pos[1];
+			b->pos[0] = parent->ship->pos[0];
+			b->pos[1] = parent->ship->pos[1];
 			b->vel[0] = parent->ship->vel[0];
 			b->vel[1] = parent->ship->vel[1];
 
@@ -570,9 +549,9 @@ void Boomerang::fireWeapon()
 			b->pos[0] += xdir*20.0f;
 			b->pos[1] += ydir*20.0f;
 
-			b->color[0] = 0.0f/255.0f;
-			b->color[1] = 0.0f/255.0f;
-			b->color[2] = 0.0f/255.0f;
+			b->color[0] = 161.0f;
+			b->color[1] = 102.0f;
+			b->color[2] = 47.0f;
 
 			b->xBounce = 1;
 			b->yBounce = 1;
@@ -661,6 +640,7 @@ void Boomerang::render()
 
 	for (int i=0; i< nbullets; i++) {
 		Bullet *b = &barr[i];
+		/*
 		glColor3f(b->color[0],b->color[1], b->color[2]);
 		glBegin(GL_POINTS);
 		glVertex2f(b->pos[0],      b->pos[1]);
@@ -669,11 +649,26 @@ void Boomerang::render()
 		glVertex2f(b->pos[0],      b->pos[1]-1.0f);
 		glVertex2f(b->pos[0],      b->pos[1]+1.0f);
 		glColor3f(b->color[0], b->color[1], b->color[2]);
-		glVertex2f(b->pos[0]-1.0f, b->pos[1]-1.0f);
+		aglVertex2f(b->pos[0]-1.0f, b->pos[1]-1.0f);
 		glVertex2f(b->pos[0]-1.0f, b->pos[1]+1.0f);
 		glVertex2f(b->pos[0]+1.0f, b->pos[1]-1.0f);
 		glVertex2f(b->pos[0]+1.0f, b->pos[1]+1.0f);
 		glEnd();
+		*/
+	
+		
+	glPushMatrix();
+	glColor3ub(b->color[0],b->color[1],b->color[2]);
+	glTranslatef(b->pos[0], b->pos[1] , 1);
+        glRotatef((b->angle * b->rotation * 180)/3.14159,0.0f,0.0f,1.0f);
+        glBegin(GL_POLYGON);
+        glVertex2f(b->w/2,b->h/2);
+        glVertex2f(b->w/2, -b->h/2);
+        glVertex2f(  -b->w/2,  -b->h/2);
+        glVertex2f(-b->w/2,b->h/2 );
+        glEnd();
+        glPopMatrix();
+		
 	}
 	Rect r;
 	r.bot = parent->ship->pos[1] - 35;

@@ -77,7 +77,7 @@ Ship::Ship(PhysWorld * in_member = NULL, Player * in_parent = NULL) : Object(in_
 	pos[1] = (float)(rand() % gl.yres) ;
 	drawPos[0] = pos[0] - (w/2);
 	drawPos[1] = pos[1] - (h/2);
-	
+
 	//       pos[2] = 0.0f;
 	member = in_member;
 	VecZero(dir);
@@ -97,7 +97,7 @@ class Game {
 		Player *players[2];
 		struct timespec mouseThrustTimer;
 		bool mouseThrustOn;
-        Map * mapp;
+		Map * mapp;
 	public:
 		Game() {
 
@@ -110,8 +110,8 @@ class Game {
 			players[0]->currentPassive = new Speed(players[0]);
 			players[1]->currentPassive = new Shield(players[1]);
 			players[0]->currentWeapon = new Boomerang(10,players[0],myPhysWorld);		
-			//players[1]->currentWeapon = new Sniper(10,players[1]);
-            players[1]->currentWeapon = new Bomb(10,players[1],myPhysWorld);
+			//players[1]->currentWeapon = new Bomb(10,players[1],myPhysWorld);
+			players[1]->currentWeapon = new Sniper(10,players[1]);
 			myPhysWorld->addObject(players[0]->ship);
 			myPhysWorld->addObject(players[1]->ship);
 
@@ -119,8 +119,8 @@ class Game {
 			players[1]->ship->setColor(100,90,240);
 			players[1]->ship->setColor(100,90,240);
 
-            // creates level map
-            mapp = new Map();
+			// creates level map
+			mapp = new Map();
 
 		}
 		~Game() {
@@ -418,9 +418,9 @@ void physics()
 
 			//cout << "Updating Position" << endl;
 			//cout << "Before!" << endl;
-            g.players[i]->currentWeapon->physics();
+			g.players[i]->currentWeapon->physics();
 			//cout << "After!" << endl;
-            g.players[i]->currentPassive->update();
+			g.players[i]->currentPassive->update();
 			//g.players[i]->ship->Object::testCollision();
 			//cout << "Position Updated" << endl;
 		}
@@ -505,7 +505,7 @@ void physics()
 			if (tdif < -0.3)
 				g.mouseThrustOn = false;
 		}
-	
+
 		for(int i = 0; i < 2; i++){
 			g.players[i]->ship->Object::testCollision();
 		}
@@ -551,18 +551,18 @@ void render()
 	glEnd();
 	glPopMatrix();
 
-	
+
 	g.players[0]->ship->drawHitbox();
 	g.players[1]->ship->drawHitbox();
-	
+
 
 	//Draw the ship
 	for(int i =0; i < 2; i++)
 	{
-		
+
 		float tempX = g.players[i]->ship->pos[0];
 		float tempY = g.players[i]->ship->pos[1];
-		
+
 		glColor3fv(g.players[i]->ship->color);
 		glPushMatrix();
 		glTranslatef(tempX, tempY, g.players[i]->ship->pos[2]);
@@ -587,7 +587,7 @@ void render()
 	}
 
 	// render Map
-    g.mapp->render();
+	g.mapp->render();
 
 	if(gl.isPaused)
 	{
