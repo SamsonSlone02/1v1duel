@@ -352,6 +352,10 @@ void Bullet::handleCollision(Object * in_object)
 	}
 
 }
+Bullet::~Bullet()
+{
+	cout << "del\n";
+}
 //PASSIVE ABILITIES
 Passive::Passive(Player * in_parent= NULL) 
 {
@@ -602,6 +606,11 @@ Boomerang::Boomerang(int in_rate = 10, Player * in_parent = NULL, PhysWorld * in
 Boomerang::~Boomerang()
 {
 	cout << "barr del!"<< endl;
+	for(int i = 0; i < nbullets;i++)
+	{
+		Bullet * b = &barr[i];
+		member->remObject(b);
+	}
 	delete [] barr;
 }
 string Boomerang::getWeapon()

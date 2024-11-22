@@ -172,6 +172,7 @@ class Bullet : public Object{
 		struct timespec time;
 		//PhysWorld * member;
 		Bullet(PhysWorld * in_member);
+		~Bullet();
 		void handleCollision(Object * in_object);
 };
 
