@@ -8,7 +8,10 @@
         Bullet * mybullet;
       struct timespec bulletTimer;
       int nbullets;
+      int xBounce;
+      int yBounce;
       bool isBullet;
+      bool boom;
       //const char * type = "Bomb";
      //std::string type = "Bomb";
       public:
