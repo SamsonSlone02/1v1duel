@@ -40,38 +40,31 @@ bool Object::testCollision()
 		objectW = member->objectArr[i]->w;
 		objectH = member->objectArr[i]->h;
 		//AABB collision detection
-		if( 
+		if ( 
 			this->pos[0] - w/2 < member->objectArr[i]->pos[0] + objectW/2 &&
 			this->pos[0] + w/2 > member->objectArr[i]->pos[0] - objectW/2 &&
 			this->pos[1] - h/2 < member->objectArr[i]->pos[1] + objectH/2 &&
 			this->pos[1] + h/2 > member->objectArr[i]->pos[1] - objectH/2
 
-		) 
-		{
+		) {
 
 
-			for(int j = 0; j < filterSize;j++)
-			{
-				if(member->objectArr[i] == filter[j] || member->objectArr[i]->objectType == filterType[j])
-				{
+			for (int j = 0; j < filterSize;j++) {
+				if (member->objectArr[i] == filter[j] || member->objectArr[i]->objectType == filterType[j]) {
 					//cout << "ignoring current collision" << endl;
 					//item detected in filter, skipping collision check.
 					skipFlag = true;
 					break;
-
 				}
 			}
 
 
-			if(!skipFlag)
-			{
+			if (!skipFlag) {
 				//cout << "collision detected" << endl;
 				//run the objects collision handling function here.
 				//ex. this->handleCollision(object->getType)
-				if(member->objectArr[i]->objectType != 1 && objectType != 1)
-				//cout << member->objectArr[i]->objectType << " -> " << objectType << endl;
 				handleCollision(member->objectArr[i]);
-				if(member->objectArr[i] != NULL)
+				if (member->objectArr[i] != NULL)
 					member->objectArr[i]->handleCollision(this);
 				didCollide = true;	
 			}
@@ -82,10 +75,8 @@ bool Object::testCollision()
 }
 void Object::addFilter(Object * in_object)
 {
-	for(int i = 0; i < filterSize;i++)
-	{
-		if(filter[i] == NULL)
-		{
+	for (int i = 0; i < filterSize;i++) {
+		if (filter[i] == NULL) {
 			filter[i] = in_object;
 			//cout << "succesfully added" << endl;
 			return;
@@ -95,10 +86,8 @@ void Object::addFilter(Object * in_object)
 
 void Object::remFilter(Object * in_object)
 {
-	for(int i = 0; i < filterSize; i++)
-	{
-		if(filter[i] == in_object)
-		{
+	for (int i = 0; i < filterSize; i++) {
+		if (filter[i] == in_object) {
 			filter[i] = NULL;
 		}
 	}
@@ -106,8 +95,7 @@ void Object::remFilter(Object * in_object)
 }
 void Object::clearFilter()
 {
-	for(int i = 0; i < filterSize; i++)
-	{
+	for (int i = 0; i < filterSize; i++) {
 		filter[i] = NULL;
 	}
 		
@@ -116,10 +104,8 @@ void Object::clearFilter()
 
 void Object::addFilterType(Type in_object)
 {
-	for(int i = 0; i < filterSize;i++)
-	{
-		if(filterType[i] == NON)
-		{
+	for (int i = 0; i < filterSize;i++) {
+		if (filterType[i] == NON) {
 			filterType[i] = in_object;
 			//cout << "succesfully added" << endl;
 			return;
@@ -129,10 +115,8 @@ void Object::addFilterType(Type in_object)
 
 void Object::remFilterType(Type in_object)
 {
-	for(int i = 0; i < filterSize; i++)
-	{
-		if(filterType[i] == in_object)
-		{
+	for (int i = 0; i < filterSize; i++) {
+		if (filterType[i] == in_object) {
 			filterType[i] = NON;
 		}
 	}
@@ -141,8 +125,7 @@ void Object::remFilterType(Type in_object)
 
 void Object::clearFilterType()
 {
-	for(int i = 0; i < filterSize; i++)
-	{
+	for (int i = 0; i < filterSize; i++) {
 		filterType[i] = NON;
 	}
 		
@@ -200,15 +183,13 @@ void PhysWorld::printArr()
 	for (int i = 0; i < 20;i++) {
 		
 		std::cout << "Slot: " << i << ", Address: " << objectArr[i];
-		if(objectArr[i] != NULL)
-		{
+		if (objectArr[i] != NULL) {
 
 			int x = objectArr[i]->pos[0];
 			int y = objectArr[i]->pos[1];
 			std::cout << ", Type: " << names[objectArr[i]->objectType] << ", X: " << x <<  ", Y: " << y << std::endl;
 		}
-		else
-		{
+		else {
 			cout << ", Type: NOT ASSIGNED "<< endl;
 		}
 	}
@@ -239,8 +220,7 @@ void Ship::handleCollision(Object * in_object)
 			//cout << "bullet detected" << endl;
 			cout << parent->getHealth() << endl;
 			parent->setHealth(parent->getHealth() - 1);
-			if(parent->getHealth() <1 )
-			{
+			if (parent->getHealth() <1 ) {
 
 				color[0] = 255;
 				color[1] = 0;
@@ -259,13 +239,13 @@ void Ship::handleCollision(Object * in_object)
 
 			break;
 		case WALL:
-			if(this->pos[0]  >= (in_object->pos[0] + (in_object->w / 2)))
+			if (this->pos[0]  >= (in_object->pos[0] + (in_object->w / 2)))
 				pos[0] = (in_object->pos[0] + (in_object->w/2) + w/2);
-			if(this->pos[0] <= (in_object->pos[0] - (in_object->w / 2)))
+			if (this->pos[0] <= (in_object->pos[0] - (in_object->w / 2)))
 				pos[0] = (in_object->pos[0] - (in_object->w / 2) - w/2);
-			if(this->pos[1] >= (in_object->pos[1] + (in_object->h / 2)))
+			if (this->pos[1] >= (in_object->pos[1] + (in_object->h / 2)))
 				pos[1] = (in_object->pos[1] + (in_object->h/2) + h/2);
-			if(this->pos[1] < (in_object->pos[1] - (in_object->h / 2)))
+			if (this->pos[1] < (in_object->pos[1] - (in_object->h / 2)))
 				pos[1] = (in_object->pos[1] - (in_object->h / 2) - h/2);
 			break;
 
@@ -290,7 +270,7 @@ ItemBox::ItemBox(PhysWorld * in_member = NULL)
 	w = 15;
 	objectType = ITEMBOX;
 	count = 0;
-	if(member != NULL)
+	if (member != NULL)
 		member->addObject(this);
 
 
@@ -299,8 +279,7 @@ ItemBox::ItemBox(PhysWorld * in_member = NULL)
 void ItemBox::handleCollision(Object * in_object)
 {
 
-	switch(in_object->objectType)
-	{
+	switch (in_object->objectType) {
 		
 		case NON:
 			break;
@@ -364,11 +343,8 @@ ItemBox::~ItemBox()
 BoxWorld::BoxWorld(PhysWorld * in_member = NULL)
 {
 	member= in_member;
-	//currentBoxes =  new ItemBox[BOXCAP];
-	currentBoxIndex = 0;
 	
-	for(int i = 0; i < BOXCAP;i++)
-	{
+	for (int i = 0; i < BOXCAP;i++) {
 		currentBoxes[i] = NULL;
 	}
 	
@@ -380,10 +356,8 @@ BoxWorld::BoxWorld(PhysWorld * in_member = NULL)
 
 bool BoxWorld::remObject(ItemBox * in_box)
 {
-	for(int i = 0; i < BOXCAP; i++)
-	{
-		if(currentBoxes[i] == in_box)
-		{
+	for (int i = 0; i < BOXCAP; i++) {
+		if (currentBoxes[i] == in_box) {
 			boxCount--;
 			member->remObject(in_box);
 			currentBoxes[i] = NULL;
@@ -405,14 +379,11 @@ void BoxWorld::update()
 	
 	extern Global gl;
 	if (currentTime - startTime >= timeTillSpawn) {
-		if(boxCount < BOXCAP)
-		{
+		if (boxCount < BOXCAP) {
 			//ItemBox * a = new ItemBox(member);
-			for(int i = 0; i <BOXCAP;i++)
-			{	
-				if(currentBoxes[i] == NULL)
-				{	currentBoxIndex = i;
-
+			for (int i = 0; i <BOXCAP;i++) {	
+				if (currentBoxes[i] == NULL) {	
+					currentBoxIndex = i;
 					currentBoxes[i] = new ItemBox(member);
 					ItemBox * a = currentBoxes[currentBoxIndex];
 					a->pos[0] = rand() % gl.xres;				
@@ -429,13 +400,12 @@ void BoxWorld::update()
 
 			}
 		}
-		else
-		{
+		else {
 					startTime = time(NULL);
 		
 		}
 		timeTillSpawn = 10 + (rand() % 10);
-		cout << "tts: " << timeTillSpawn << endl;
+		cout << "time till next box spawn: " << timeTillSpawn << endl;
 	}
 	currentTime = time(NULL);
 
@@ -462,8 +432,7 @@ Bullet::Bullet(PhysWorld * in_member = NULL)
 }
 void Bullet::handleCollision(Object * in_object)
 {
-	switch(in_object->objectType)
-	{
+	switch (in_object->objectType) {
 		case NON:
 			break;
 		case SHIP:
@@ -475,23 +444,19 @@ void Bullet::handleCollision(Object * in_object)
 			break;
 
 		case WALL:
-			if(this->pos[0]  >= (in_object->pos[0] + (in_object->w / 2)))
-			{	
+			if (this->pos[0]  >= (in_object->pos[0] + (in_object->w / 2))) {	
 				pos[0] = (in_object->pos[0] + (in_object->w/2) + w/2);
 				this->xBounce *=-1;
 			}
-			else if(this->pos[0] <= (in_object->pos[0] - (in_object->w / 2)))
-			{
+			else if (this->pos[0] <= (in_object->pos[0] - (in_object->w / 2))) {
 				pos[0] = (in_object->pos[0] - (in_object->w / 2) - w/2);
 				this->xBounce *=-1;
 			}
-			else if(this->pos[1] >= (in_object->pos[1] + (in_object->h / 2)))
-			{
+			else if (this->pos[1] >= (in_object->pos[1] + (in_object->h / 2))) {
 				pos[1] = (in_object->pos[1] + (in_object->h/2) + h/2);
 				this->yBounce *=-1;
 			}
-			else if(this->pos[1] < (in_object->pos[1] - (in_object->h / 2)))
-			{
+			else if (this->pos[1] < (in_object->pos[1] - (in_object->h / 2))) {
 				pos[1] = (in_object->pos[1] - (in_object->h / 2) - h/2);
 				this->yBounce *=-1;
 			}
@@ -583,8 +548,7 @@ void Shield::render()
 
 
 
-	if(parent->getHealth() > 1)
-	{
+	if (parent->getHealth() > 1) {
 
 		Rect r;
 		r.bot = parent->ship->pos[1] - 25;
@@ -617,8 +581,7 @@ void Shield::render()
 		glEnd();
 		glPopMatrix();
 
-		if(parent->getHealth() > 2)
-		{
+		if (parent->getHealth() > 2) {
 			glPushMatrix();
 			glTranslatef(shield2[0], shield2[1], 1);
 			glRotatef(shield2Angle, 0.0f, 0.0f, 1.0f);
@@ -646,8 +609,7 @@ void Shield::render()
 			glEnd();
 			glPopMatrix();
 
-			if(parent->getHealth() > 3)
-			{
+			if (parent->getHealth() > 3) {
 				glPushMatrix();
 				glTranslatef(shield3[0], shield3[1], 1);
 				glRotatef(shield3Angle, 0.0f, 0.0f, 1.0f);
@@ -759,8 +721,7 @@ Boomerang::Boomerang(int in_rate = 10, Player * in_parent = NULL, PhysWorld * in
 Boomerang::~Boomerang()
 {
 	cout << "barr del!"<< endl;
-	for(int i = 0; i < nbullets;i++)
-	{
+	for (int i = 0; i < nbullets;i++) {
 		Bullet * b = &barr[i];
 		member->remObject(b);
 	}
@@ -838,6 +799,7 @@ void Boomerang::physics()
 	clock_gettime(CLOCK_REALTIME, &bt);
 	int i = 0;
 	while (i < nbullets) {
+		
 		Bullet *b = &barr[i];
 
 		//b->testCollision();
@@ -845,12 +807,13 @@ void Boomerang::physics()
 		double ts = timeDiff(&b->time, &bt);
 		double ttl = 3.6;
 		if (ts > ttl) {
-			//time to delete the bullet.
-
 			b->clearFilter();
 			b->xBounce = 1;
 			b->yBounce = 1;
 			member->remObject(b);
+			
+		//	delete b;
+			
 			member->addObject(&barr[i]);    
 			member->remObject(&barr[nbullets-1]);
 			barr[i] = barr[nbullets-1];
@@ -907,22 +870,6 @@ void Boomerang::render()
 
 	for (int i=0; i< nbullets; i++) {
 		Bullet *b = &barr[i];
-		/*
-		   glColor3f(b->color[0],b->color[1], b->color[2]);
-		   glBegin(GL_POINTS);
-		   glVertex2f(b->pos[0],      b->pos[1]);
-		   glVertex2f(b->pos[0]-1.0f, b->pos[1]);
-		   glVertex2f(b->pos[0]+1.0f, b->pos[1]);
-		   glVertex2f(b->pos[0],      b->pos[1]-1.0f);
-		   glVertex2f(b->pos[0],      b->pos[1]+1.0f);
-		   glColor3f(b->color[0], b->color[1], b->color[2]);
-		   aglVertex2f(b->pos[0]-1.0f, b->pos[1]-1.0f);
-		   glVertex2f(b->pos[0]-1.0f, b->pos[1]+1.0f);
-		   glVertex2f(b->pos[0]+1.0f, b->pos[1]-1.0f);
-		   glVertex2f(b->pos[0]+1.0f, b->pos[1]+1.0f);
-		   glEnd();
-		   */
-
 
 		glPushMatrix();
 		glColor3ub(b->color[0],b->color[1],b->color[2]);
@@ -953,12 +900,8 @@ Sniper::Sniper(int in_rate = 10, Player * in_parent = NULL, PhysWorld * in_membe
 	tts = 3;
 	startTime = time(NULL);
 	currentTime = time(NULL);
-	//iterations = 40;
-	//step = 20;
 	iterations = 200;
 	step = 10;
-	//iterations = 10;
-	//step = 40;
 }
 string Sniper::getWeapon()
 {
@@ -992,23 +935,16 @@ void Sniper::fireWeapon()
 		ydir = sin(rad);
 
 
-		for(float i = 0; i < iterations; i++)
-		{
+		for (float i = 0; i < iterations; i++) {
 			Bullet * b = new Bullet(member);
 
 			b->pos[0] = startPosC[0] + (i * step * xdir) + (40 * xdir);
 			b->pos[1] = startPosC[1] + (i * step * ydir) + (40 * ydir);
 
-		//	cout << b->pos[0] << ", ";
-		//	cout << b->pos[1] << endl;
-			//b->pos[0] = startPosR[0] + 40 + (i * 10 * xdir);
-			//b->pos[1] = startPosR[1] + 40 + (i * 10 * ydir);
 			b->w = 20;
 			b->h = 20;
+
 			member->addObject(b);
-
-
-
 			parent->ship->addFilter(b);
 			b->addFilter(parent->ship);   
 
@@ -1017,29 +953,22 @@ void Sniper::fireWeapon()
 			b->addFilterType(Object::BULLET);
 			b->addFilterType(Object::ITEMBOX);
 			b->addFilter(parent->ship);
-			//member->printArr();
 
-				float x2 = b->pos[0];
-				float y2 = b->pos[1];
-		//	member->printArr();
+			float x2 = b->pos[0];
+			float y2 = b->pos[1];
 
-			if(b->testCollision())
-			{
+			if (b->testCollision()) {
 				b->clearFilter();   
 				b->clearFilterType();
 				parent->ship->remFilter(b);
 				member->remObject(b);
-				//endPosC[0] = b->pos[0];
-				//endPosC[1] = b->pos[1];
 				float x1 = parent->ship->pos[0];
 				float y1 = parent->ship->pos[1];
-		//		cout << x1 << ", " << y1 << endl;
-		//		cout << x2 << ", " << y2 << endl;
-
 
 				shotDistance = sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2) * 1.0);
 				cout << "shot distance: " << shotDistance << endl;
 				delete b;
+				
 				break;	
 			}
 			b->clearFilterType();
@@ -1065,8 +994,7 @@ void Sniper::fireWeapon()
 void Sniper::physics(){
 
 	currentTime = time(NULL);
-	if(currentTime - startTime >= tts)
-	{
+	if (currentTime - startTime >= tts) {
 		canFire = true;
 		startTime = time(NULL);
 	}
@@ -1075,10 +1003,8 @@ void Sniper::render()
 {
 	int debug = 0;
 
-	if(debug)
-	{
-		for(int i = 0; i < iterations; i++)
-		{
+	if(debug) {
+		for (int i = 0; i < iterations; i++) {
 			Flt rad = ((parent->ship->angle+90.0) / 360.0f) * PI * 2.0;
 			Object objectArr[200];
 			float xdir = cos(rad);
@@ -1112,7 +1038,10 @@ void Sniper::render()
 	ggprint8b(&r, 16, 0x00ff0000, type);
 
 };
+Sniper::~Sniper()
+{
 
+}
 
 double Player::getRSpeed()
 {
@@ -1153,8 +1082,7 @@ void Player::setWeapon(int input)
 	const char * names[] = {"NON","SNIPER","BOOMERANG","SHIELD","SPEED"};
 
 	std::cout << names[input] << endl;
-	switch(input)
-	{
+	switch (input) {
 		case 0:
 			//nothing
 			cout << "removing your current item!" << endl;
