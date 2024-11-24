@@ -301,7 +301,7 @@ class Sniper: public Weapon
 		void fireWeapon();
 		void physics();
 		void render();
-
+		virtual ~Sniper();
 };
 
 #endif //SSLONE_H
