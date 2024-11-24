@@ -381,6 +381,8 @@ int check_keys(XEvent *e)
 		case XK_Escape:
 			return 1;
 		case XK_f:
+			cout << g.players[0]->ship->pos[0] << ", " << g.players[0]->ship->pos[1] << endl;
+			cout << g.players[1]->ship->pos[0] << ", " << g.players[1]->ship->pos[1] << endl;
 			break;
 		case XK_s:
 			break;

@@ -196,8 +196,8 @@ class Bullet : public Object{
 		struct timespec time;
 		//PhysWorld * member;
 		Bullet(PhysWorld * in_member);
+		virtual ~Bullet();
 		void handleCollision(Object * in_object);
-		~Bullet();
 };
 
 class Player
@@ -282,9 +282,15 @@ class Sniper: public Weapon
 		float startPosL[2];
 		float startPosR[2];
 		float endPosC[2];
+		int step;
+		int iterations;
 		float endPosL[2];
 		float endPosR[2];
 		const char * type = "Sniper";
+		float shotDistance;
+		int startTime;
+		int currentTime;
+		int tts;
 	public:
 		Sniper(int in_rate, Player * in_parent, PhysWorld * in_member);
 		std::string getWeapon();

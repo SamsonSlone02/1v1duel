@@ -54,7 +54,7 @@ bool Object::testCollision()
 			{
 				if(member->objectArr[i] == filter[j] || member->objectArr[i]->objectType == filterType[j])
 				{
-					cout << "ignoring current collision" << endl;
+					//cout << "ignoring current collision" << endl;
 					//item detected in filter, skipping collision check.
 					skipFlag = true;
 					break;
@@ -68,8 +68,11 @@ bool Object::testCollision()
 				//cout << "collision detected" << endl;
 				//run the objects collision handling function here.
 				//ex. this->handleCollision(object->getType)
+				if(member->objectArr[i]->objectType != 1 && objectType != 1)
+				//cout << member->objectArr[i]->objectType << " -> " << objectType << endl;
 				handleCollision(member->objectArr[i]);
-				member->objectArr[i]->handleCollision(this);
+				if(member->objectArr[i] != NULL)
+					member->objectArr[i]->handleCollision(this);
 				didCollide = true;	
 			}
 		}
@@ -84,7 +87,7 @@ void Object::addFilter(Object * in_object)
 		if(filter[i] == NULL)
 		{
 			filter[i] = in_object;
-			cout << "succesfully added" << endl;
+			//cout << "succesfully added" << endl;
 			return;
 		}
 	}	
@@ -118,7 +121,7 @@ void Object::addFilterType(Type in_object)
 		if(filterType[i] == NON)
 		{
 			filterType[i] = in_object;
-			cout << "succesfully added" << endl;
+			//cout << "succesfully added" << endl;
 			return;
 		}
 	}	
@@ -185,6 +188,7 @@ bool PhysWorld::remObject(Object * in_object)
 		}
 
 	}
+	//cout << "failed to rem" << endl;
 	return false;
 
 }
@@ -282,8 +286,8 @@ ItemBox::ItemBox(PhysWorld * in_member = NULL)
 	member = in_member;
 	srand(time(NULL));
 	boxContent = rand() % 4;
-	h = 10;
-	w = 10;
+	h = 15;
+	w = 15;
 	objectType = ITEMBOX;
 	count = 0;
 	if(member != NULL)
@@ -301,14 +305,14 @@ void ItemBox::handleCollision(Object * in_object)
 		case NON:
 			break;
 		case SHIP:
-			cout << "ship detected from item box" << endl;
+			//cout << "ship detected from item box" << endl;
 			//parent->boxCount--;
 			//member->remObject(this);
 			parent->remObject(this);
 			
 			break;
 		case BULLET:
-			cout << "bull coll" << endl;
+			//cout << "bull coll" << endl;
 			break;
 		case WALL:
 			break;
@@ -371,6 +375,7 @@ BoxWorld::BoxWorld(PhysWorld * in_member = NULL)
 	boxCount = 0;
 	timeTillSpawn = 10;
 	startTime = time(NULL);
+	currentTime = time(NULL) + timeTillSpawn;
 }
 
 bool BoxWorld::remObject(ItemBox * in_box)
@@ -399,8 +404,7 @@ void BoxWorld::update()
 {
 	
 	extern Global gl;
-	currentTime = time(NULL);
-	if (currentTime - startTime > timeTillSpawn) {
+	if (currentTime - startTime >= timeTillSpawn) {
 		if(boxCount < BOXCAP)
 		{
 			//ItemBox * a = new ItemBox(member);
@@ -415,11 +419,10 @@ void BoxWorld::update()
 					a->pos[1] = rand() % gl.yres;				
 					a->parent = this;
 					//currentBoxes[0] = new ItemBox(member);
-					std::cout << "spawn" << endl;
+					std::cout << "box spawning . . ." << endl;
 					boxCount++;
 					currentBoxIndex++;
 					currentBoxIndex %= BOXCAP;
-					cout <<"2" << endl;
 					startTime = time(NULL);
 					break;
 				}	
@@ -434,6 +437,7 @@ void BoxWorld::update()
 		timeTillSpawn = 10 + (rand() % 10);
 		cout << "tts: " << timeTillSpawn << endl;
 	}
+	currentTime = time(NULL);
 
 }
 
@@ -464,7 +468,7 @@ void Bullet::handleCollision(Object * in_object)
 			break;
 		case SHIP:
 			//addFilter(in_object);
-			cout << "tooche" << endl;
+			//cout << "tooche" << endl;
 			member->remObject(this);
 			break;
 		case BULLET:
@@ -499,9 +503,8 @@ void Bullet::handleCollision(Object * in_object)
 }
 Bullet::~Bullet()
 {
-	//cout << "bullet gone " << endl;
+	//cout << "del\n";
 }
-
 //PASSIVE ABILITIES
 Passive::Passive(Player * in_parent= NULL) 
 {
@@ -756,11 +759,11 @@ Boomerang::Boomerang(int in_rate = 10, Player * in_parent = NULL, PhysWorld * in
 Boomerang::~Boomerang()
 {
 	cout << "barr del!"<< endl;
-	for(int i = 0; i < MAX_BULLETS;i++)
+	for(int i = 0; i < nbullets;i++)
 	{
-		member->remObject(&barr[i]);
+		Bullet * b = &barr[i];
+		member->remObject(b);
 	}
-		
 	delete [] barr;
 }
 string Boomerang::getWeapon()
@@ -947,6 +950,15 @@ Sniper::Sniper(int in_rate = 10, Player * in_parent = NULL, PhysWorld * in_membe
 	this->parent = in_parent;
 	member = in_member;
 	canFire = true;
+	tts = 3;
+	startTime = time(NULL);
+	currentTime = time(NULL);
+	//iterations = 40;
+	//step = 20;
+	iterations = 200;
+	step = 10;
+	//iterations = 10;
+	//step = 40;
 }
 string Sniper::getWeapon()
 {
@@ -954,8 +966,8 @@ string Sniper::getWeapon()
 }
 void Sniper::fireWeapon()
 {
-	if(canFire)
-	{
+
+	if(canFire){
 		Flt rad = ((parent->ship->angle+90.0) / 360.0f) * PI * 2.0;
 		float xdir = cos(rad - PI/2);
 		float ydir = sin(rad - PI/2);
@@ -979,69 +991,109 @@ void Sniper::fireWeapon()
 		xdir = cos(rad);
 		ydir = sin(rad);
 
-		endPosL[0] = startPosL[0] + (1000 * xdir);
-		endPosL[1] = startPosL[1] + (1000 * ydir);
 
-		endPosR[0] = startPosR[0] + (1000 * xdir);
-		endPosR[1] = startPosR[1] + (1000 * ydir);
-			
-		endPosC[0] = startPosC[0] + (1000 * xdir);
-		endPosC[1] = startPosC[1] + (1000 * ydir);
-
-		for(int i = 0; i < 100; i++)
+		for(float i = 0; i < iterations; i++)
 		{
 			Bullet * b = new Bullet(member);
-			
-			b->pos[0] = startPosC[0] + (i * 10 * xdir);
-			b->pos[1] = startPosC[1] + (i * 10 * ydir);
+
+			b->pos[0] = startPosC[0] + (i * step * xdir) + (40 * xdir);
+			b->pos[1] = startPosC[1] + (i * step * ydir) + (40 * ydir);
+
+		//	cout << b->pos[0] << ", ";
+		//	cout << b->pos[1] << endl;
 			//b->pos[0] = startPosR[0] + 40 + (i * 10 * xdir);
 			//b->pos[1] = startPosR[1] + 40 + (i * 10 * ydir);
-			b->w = 10;
-			b->h = 10;
-			
+			b->w = 20;
+			b->h = 20;
+			member->addObject(b);
 
-			
+
+
 			parent->ship->addFilter(b);
 			b->addFilter(parent->ship);   
-			
+
 			//filtering out BULLETS and ITEMBOXES as to not have those block the sniper shots. 
 			//not filtering walls so we we dont have wallbang	
 			b->addFilterType(Object::BULLET);
 			b->addFilterType(Object::ITEMBOX);
-			member->addObject(b);
+			b->addFilter(parent->ship);
 			//member->printArr();
-			
-			
+
+				float x2 = b->pos[0];
+				float y2 = b->pos[1];
+		//	member->printArr();
+
 			if(b->testCollision())
 			{
 				b->clearFilter();   
 				b->clearFilterType();
 				parent->ship->remFilter(b);
 				member->remObject(b);
+				//endPosC[0] = b->pos[0];
+				//endPosC[1] = b->pos[1];
+				float x1 = parent->ship->pos[0];
+				float y1 = parent->ship->pos[1];
+		//		cout << x1 << ", " << y1 << endl;
+		//		cout << x2 << ", " << y2 << endl;
+
+
+				shotDistance = sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2) * 1.0);
+				cout << "shot distance: " << shotDistance << endl;
+				delete b;
 				break;	
 			}
 			b->clearFilterType();
 			b->clearFilter();   
 			parent->ship->remFilter(b);
 			member->remObject(b);
+			delete b;
+			shotDistance = 3000;
 		}
-		member->printArr();
-		fired = true;
+
+		endPosL[0] = startPosL[0] + (shotDistance * xdir);
+		endPosL[1] = startPosL[1] + (shotDistance * ydir);
+
+		endPosR[0] = startPosR[0] + (shotDistance * xdir);
+		endPosR[1] = startPosR[1] + (shotDistance * ydir);
+
+		endPosC[0] = startPosC[0]  + (shotDistance * xdir);
+		endPosC[1] = startPosC[1]  + (shotDistance * ydir);
+
 		canFire = false;
 	}
-
-
 };
 void Sniper::physics(){
 
-	if(fired)
+	currentTime = time(NULL);
+	if(currentTime - startTime >= tts)
 	{
-		fired = false;
+		canFire = true;
+		startTime = time(NULL);
 	}
-
 };
 void Sniper::render()
 {
+	int debug = 0;
+
+	if(debug)
+	{
+		for(int i = 0; i < iterations; i++)
+		{
+			Flt rad = ((parent->ship->angle+90.0) / 360.0f) * PI * 2.0;
+			Object objectArr[200];
+			float xdir = cos(rad);
+			float ydir = sin(rad);
+			int x = startPosC[0] + (i * step * xdir) + (40 * xdir);
+			int y = startPosC[1] +  (i * step * ydir) + (40 * ydir);
+			glPushMatrix();
+			objectArr[i].pos[0] = x;
+			objectArr[i].pos[1] = y;
+			objectArr[i].h = 20;
+			objectArr[i].w = 20;
+			objectArr[i].drawHitbox();
+			glPopMatrix();
+		}
+	}
 
 	glBegin(GL_LINES);
 	glColor3ub(0, 0, 0);
@@ -1077,7 +1129,7 @@ int Player::getHealth()
 }
 void Player::test()
 {
-	std::cout << "1" << endl;
+	std::cout << "ptest" << endl;
 }
 void Player::setKeys(int in_up, int in_down, int in_left, int in_right, int in_attack)
 {
@@ -1105,14 +1157,13 @@ void Player::setWeapon(int input)
 	{
 		case 0:
 			//nothing
-			//delete this->currentWeapon;
-			//currentWeapon = new Weapon(10,this);
-			delete this->currentPassive;
-			currentPassive = new Shield(this);
+			cout << "removing your current item!" << endl;
+			delete this->currentWeapon;
+			currentWeapon = new Weapon(10,this);
 			break;
 		case 1:
 			delete this->currentWeapon;
-			currentWeapon = new Sniper(10,this);
+			currentWeapon = new Sniper(10,this,ship->member);
 			break;
 		case 2:
 			delete this->currentWeapon;
