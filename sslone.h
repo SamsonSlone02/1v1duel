@@ -54,6 +54,7 @@ class Object
 
 		enum Type {NON,WALL,SHIP,BULLET,ITEMBOX};
 		Type objectType;
+		Type filterType[10];
 		//things that collision should ignore
 		Object * filter[10];
 		int filterSize;
@@ -64,6 +65,9 @@ class Object
 		void addFilter(Object *in_object);
 		void remFilter(Object *in_object);
 		void clearFilter();
+		void addFilterType(Type in_object);
+		void remFilterType(Type in_object);
+		void clearFilterType();
 		virtual void handleCollision(Object * in_object);
 		void drawHitbox();
 
@@ -81,13 +85,33 @@ class PhysWorld
 		void printArr();
 
 };
+class ItemBox;
+#define BOXCAP 3
+class BoxWorld
+{
+	public:
+		BoxWorld(PhysWorld * in_member);
+		~BoxWorld();
+		int boxCount;
+		int timeTillSpawn;
+		ItemBox * currentBoxes[BOXCAP];
+		PhysWorld * member;
+		int currentBoxIndex;
+		void update();
+		int startTime;
+		bool remObject(ItemBox * in_box);
+		int currentTime;
 
+};
 class ItemBox: public Object
 {
 	public:
+
 		int boxContent;
 		ItemBox(PhysWorld * in_member);
+		double count;
 		~ItemBox();
+		BoxWorld * parent;
 		void render();
 		void handleCollision(Object * in_object);
 };
@@ -173,6 +197,7 @@ class Bullet : public Object{
 		//PhysWorld * member;
 		Bullet(PhysWorld * in_member);
 		void handleCollision(Object * in_object);
+		~Bullet();
 };
 
 class Player
@@ -185,6 +210,7 @@ class Player
 	public:
 		int up,down,left,right,attack;
 		bool isThrust;
+		Player * opponent;
 		Passive * currentPassive;
 		Weapon * currentWeapon;		
 		Ship * ship;
@@ -246,19 +272,26 @@ class Boomerang: public Weapon
 		void render();
 
 };
+
+#define SNIPERMAXARR 20
 class Sniper: public Weapon
 {
 
 	private:
+		float startPosC[2];
 		float startPosL[2];
 		float startPosR[2];
+		float endPosC[2];
 		float endPosL[2];
 		float endPosR[2];
-
 		const char * type = "Sniper";
 	public:
-		Sniper(int in_rate, Player * in_parent);
+		Sniper(int in_rate, Player * in_parent, PhysWorld * in_member);
 		std::string getWeapon();
+		Bullet * barr[20];
+		bool fired;
+		bool canFire;
+		PhysWorld * member;
 		void fireWeapon();
 		void physics();
 		void render();

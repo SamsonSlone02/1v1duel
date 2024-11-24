@@ -92,21 +92,22 @@ Ship::Ship(PhysWorld * in_member = NULL, Player * in_parent = NULL) : Object(in_
 
 Global gl;
 PhysWorld * myPhysWorld = new PhysWorld();
+BoxWorld * myBoxWorld = new BoxWorld(myPhysWorld);
 class Game {
 	public:
 		Player *players[2];
 		struct timespec mouseThrustTimer;
 		bool mouseThrustOn;
 		Map * mapp;
-		ItemBox * myBox;
 	public:
 		Game() {
-
 			srand(time(NULL));
 			players[0] = new Player(1,3,6,myPhysWorld);
 			players[1] = new Player(1,3,6,myPhysWorld);
 			mouseThrustOn = false;
-
+			players[0]->opponent = players[1];
+			players[1]->opponent = players[0];
+	
 
 
 			//temporary, setting passive and weapons for both players for testing
@@ -115,16 +116,13 @@ class Game {
 			players[0]->currentWeapon = new Boomerang(10,players[0],myPhysWorld);		
 			//players[1]->currentWeapon = new Boomerang(10,players[1],myPhysWorld);		
 			//players[1]->currentWeapon = new Bomb(10,players[1],myPhysWorld);
-	//		players[1]->currentWeapon = new Sniper(10,players[1]);
+			players[1]->currentWeapon = new Sniper(10,players[1],myPhysWorld);
 			myPhysWorld->addObject(players[0]->ship);
 			myPhysWorld->addObject(players[1]->ship);
 
 
 			players[1]->ship->setColor(100,90,240);
 			players[1]->ship->setColor(100,90,240);
-
-
-			myBox = new ItemBox(myPhysWorld);
 
 			// creates level map
 			mapp = new Map();
@@ -403,6 +401,7 @@ void physics()
 	//	Flt d0,d1,dist;
 	if(!gl.isPaused)
 	{
+		myBoxWorld->update();
 		for(int i = 0; i < 2; i++)
 		{
 			//Update ship position
@@ -525,6 +524,7 @@ void physics()
 		}
 	}
 
+
 }
 
 void render()
@@ -603,7 +603,17 @@ void render()
 	// render Map
 	g.mapp->render();
 	//render itemBox (testing, will remove)
-	g.myBox->render();
+	//g.myBox->render();
+	
+	for(int i = 0; i < BOXCAP;i++)
+	{
+		if(myBoxWorld->currentBoxes[i] != NULL)
+		{
+			myBoxWorld->currentBoxes[i]->render();
+		}
+	}
+
+	
 	if(gl.isPaused)
 	{
 		//glBlendFunc  (GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
