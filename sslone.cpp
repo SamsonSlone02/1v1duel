@@ -11,6 +11,7 @@ Object::Object(PhysWorld * in_member = NULL)
 void Object::drawHitbox()
 {
 	glPushMatrix();
+	glColor3ub(0,0,0);
         glTranslatef(pos[0], pos[1] , 1);
         glBegin(GL_POLYGON);
         glVertex2f(w/2,h/2);
@@ -181,23 +182,33 @@ void PhysWorld::printArr()
 	const char * names[] = {"NON","WALL","SHIP","BULLET","ITEMBOX"};
 	std::cout << "**********************" << std::endl;
 	for (int i = 0; i < 20;i++) {
-		
+
 		std::cout << "Slot: " << i << ", Address: " << objectArr[i];
 		if (objectArr[i] != NULL) {
 
 			int x = objectArr[i]->pos[0];
 			int y = objectArr[i]->pos[1];
-			std::cout << ", Type: " << names[objectArr[i]->objectType] << ", X: " << x <<  ", Y: " << y << std::endl;
+			std::cout << ", Type: " << names[objectArr[i]->objectType] << ", X: " << x <<  ", Y: " << y << " ";
 		}
 		else {
-			cout << ", Type: NOT ASSIGNED "<< endl;
+			cout << ", Type: NOT ASSIGNED ";
 		}
+		int debug  = 1;
+		if (debug == 1)
+		{	cout << "\nSlot: " << i << " ITEMS BEING FILTERED: ";
+			for (int j = 0; j < 10;j++) {
+				if(objectArr[i] != NULL)
+					cout << objectArr[i]->filter[j] << ", ";
+
+			}
+			cout << endl;
+
+		}
+		cout << endl;
 	}
 	std::cout << "**********************" << std::endl;
 
 }
-
-
 void Ship::setColor(int r, int g,int b)
 {
 	color[0] = r / 255.0f;
@@ -209,7 +220,7 @@ void Ship::handleCollision(Object * in_object)
 	extern Global gl;
 	switch(in_object->objectType)
 	{
-		
+
 		case NON:
 			break;
 		case SHIP:
@@ -250,11 +261,11 @@ void Ship::handleCollision(Object * in_object)
 			break;
 
 		case ITEMBOX:
-				srand(time(NULL));
-				parent->setWeapon(rand() % 5);
-				
+			srand(time(NULL));
+			parent->setWeapon(rand() % 5);
+
 			//	member->remObject(in_object);
-				cout << "touched itembox" << endl;
+			cout << "touched itembox" << endl;
 			break;
 	}
 
@@ -266,6 +277,7 @@ ItemBox::ItemBox(PhysWorld * in_member = NULL)
 	member = in_member;
 	srand(time(NULL));
 	boxContent = rand() % 4;
+	clearFilter();
 	h = 15;
 	w = 15;
 	objectType = ITEMBOX;
@@ -280,7 +292,7 @@ void ItemBox::handleCollision(Object * in_object)
 {
 
 	switch (in_object->objectType) {
-		
+
 		case NON:
 			break;
 		case SHIP:
@@ -288,7 +300,7 @@ void ItemBox::handleCollision(Object * in_object)
 			//parent->boxCount--;
 			//member->remObject(this);
 			parent->remObject(this);
-			
+
 			break;
 		case BULLET:
 			//cout << "bull coll" << endl;
@@ -308,31 +320,31 @@ void ItemBox::render()
 	//cout <<count << endl;
 	glPushMatrix();
 	//srand(time(NULL));
-        //glColor3ub(fmod(rnd() * 10000,255),fmod(rnd() * 10000,255),fmod(rnd() * 100000,255));
+	//glColor3ub(fmod(rnd() * 10000,255),fmod(rnd() * 10000,255),fmod(rnd() * 100000,255));
 	glColor3f(sin(count + PI/2),sin(count+ PI),sin(count + (3*PI)/2));
 	glTranslatef(pos[0], pos[1] , 1);
-        glBegin(GL_POLYGON);
-        glVertex2f(w/2,h/2);
-        glVertex2f(w/2, -h/2);
-        glVertex2f(  -w/2,  -h/2);
-        glVertex2f(-w/2,h/2 );
-        glEnd();
+	glBegin(GL_POLYGON);
+	glVertex2f(w/2,h/2);
+	glVertex2f(w/2, -h/2);
+	glVertex2f(  -w/2,  -h/2);
+	glVertex2f(-w/2,h/2 );
+	glEnd();
 	//drawHitbox();
 	/*
-	Rect r;
-	r.bot = pos[1] - 25;
-	r.left = pos[0] - 15;
-	r.center = 0;
-	ggprint8b(&r, 16, 0x00000000, (const char *)"COLLIDE FOR RANDOM ITEM, CHOICES ARE . . . ");
-	Rect r2;
-	r2.bot = pos[1] - 45;
-	r2.left = pos[0] - 15;
-	r2.center = 0;
-	ggprint8b(&r2, 16, 0x00000000, (const char *)"NOTHING,SNIPER,BOOMERANG,SPEED,SHIELD");
-	*/
+	   Rect r;
+	   r.bot = pos[1] - 25;
+	   r.left = pos[0] - 15;
+	   r.center = 0;
+	   ggprint8b(&r, 16, 0x00000000, (const char *)"COLLIDE FOR RANDOM ITEM, CHOICES ARE . . . ");
+	   Rect r2;
+	   r2.bot = pos[1] - 45;
+	   r2.left = pos[0] - 15;
+	   r2.center = 0;
+	   ggprint8b(&r2, 16, 0x00000000, (const char *)"NOTHING,SNIPER,BOOMERANG,SPEED,SHIELD");
+	   */
 	glPopMatrix();
-	
-	
+
+
 
 
 }
@@ -343,11 +355,11 @@ ItemBox::~ItemBox()
 BoxWorld::BoxWorld(PhysWorld * in_member = NULL)
 {
 	member= in_member;
-	
+
 	for (int i = 0; i < BOXCAP;i++) {
 		currentBoxes[i] = NULL;
 	}
-	
+
 	boxCount = 0;
 	timeTillSpawn = 10;
 	startTime = time(NULL);
@@ -376,7 +388,7 @@ BoxWorld::~BoxWorld()
 
 void BoxWorld::update()
 {
-	
+
 	extern Global gl;
 	if (currentTime - startTime >= timeTillSpawn) {
 		if (boxCount < BOXCAP) {
@@ -401,8 +413,8 @@ void BoxWorld::update()
 			}
 		}
 		else {
-					startTime = time(NULL);
-		
+			startTime = time(NULL);
+
 		}
 		timeTillSpawn = 10 + (rand() % 10);
 		cout << "time till next box spawn: " << timeTillSpawn << endl;
@@ -422,7 +434,7 @@ Bullet::Bullet(PhysWorld * in_member = NULL)
 	member = in_member;
 	rotation = 1;
 	objectType = BULLET;
-
+	clearFilter();
 	if (member != NULL) {
 		//initX = this->bulletParent->parent->ship->pos[0];	
 		//initY = this->bulletParent->parent->ship->pos[1];	
@@ -460,6 +472,8 @@ void Bullet::handleCollision(Object * in_object)
 				pos[1] = (in_object->pos[1] - (in_object->h / 2) - h/2);
 				this->yBounce *=-1;
 			}
+			//this->xBounce *= -1;
+			//this->yBounce *= -1;
 			break;
 		case ITEMBOX:
 			break;
@@ -711,7 +725,7 @@ Boomerang::Boomerang(int in_rate = 10, Player * in_parent = NULL, PhysWorld * in
 	this->parent = in_parent;
 	nbullets = 0;
 
-	this->barr = new Bullet[MAX_BULLETS];
+	//this->barr = new Bullet[MAX_BULLETS];
 
 
 	struct timespec bulletTimer;
@@ -722,10 +736,11 @@ Boomerang::~Boomerang()
 {
 	cout << "barr del!"<< endl;
 	for (int i = 0; i < nbullets;i++) {
-		Bullet * b = &barr[i];
+		Bullet * b = barr[i];
+		parent->ship->remFilter(b);
 		member->remObject(b);
 	}
-	delete [] barr;
+	//delete [] barr;
 }
 string Boomerang::getWeapon()
 {
@@ -741,21 +756,23 @@ void Boomerang::fireWeapon()
 	if (ts > 1.5 || ts < 0) {
 		timeCopy(&bulletTimer, &bt);
 		if (nbullets < MAX_BULLETS) {
-			Bullet * b= new Bullet(member);
-			b = &barr[nbullets];
+			barr[nbullets]= new Bullet(member);
+			Bullet * b = barr[nbullets];
 			b->member = member;
+
 			b->addFilter(parent->ship);
 			parent->ship->addFilter(b);
 			member->addObject(b);
-			b->w = 10;
-			b->h = 10;
+
+			b->w = 15;
+			b->h = 7;
 			b->rotation = 9;
 			//print gameobj arr
 			std::cout << "after adding" << std::endl;
 			member->printArr();
 
 			//shoot a bullet...
-			//cout << &b << endl;		
+			///cout << &b << endl;		
 			timeCopy(&b->time, &bt);
 			//b->bulletParent = this;
 			b-> initX = parent->ship->pos[0];
@@ -773,10 +790,14 @@ void Boomerang::fireWeapon()
 			Flt ydir = sin(rad);
 			b->pos[0] += xdir*20.0f;
 			b->pos[1] += ydir*20.0f;
-
+			/*
 			b->color[0] = 161.0f;
 			b->color[1] = 102.0f;
 			b->color[2] = 47.0f;
+			*/
+			b->color[0] = parent->ship->color[0] * 255.0f;
+			b->color[1] = parent->ship->color[1] * 255.0f;
+			b->color[2] = parent->ship->color[2] * 255.0f;
 
 			b->xBounce = 1;
 			b->yBounce = 1;
@@ -799,24 +820,40 @@ void Boomerang::physics()
 	clock_gettime(CLOCK_REALTIME, &bt);
 	int i = 0;
 	while (i < nbullets) {
-		
-		Bullet *b = &barr[i];
+
+		Bullet *b = barr[i];
 
 		//b->testCollision();
 		//How long has bullet been alive?
 		double ts = timeDiff(&b->time, &bt);
 		double ttl = 3.6;
 		if (ts > ttl) {
-			b->clearFilter();
 			b->xBounce = 1;
 			b->yBounce = 1;
+
+			b->clearFilter();
+			parent->ship->remFilter(b);
 			member->remObject(b);
-			
-		//	delete b;
-			
-			member->addObject(&barr[i]);    
-			member->remObject(&barr[nbullets-1]);
+			//		
+			//
+			//
+			//		member->addObject(barr[i]);    
+			delete b;
+			//member->remObject(barr[nbullets-1]);
+
+
 			barr[i] = barr[nbullets-1];
+
+			//barr[nbullets-1] = NULL;
+			/*
+			   barr[nbullets-1]->clearFilter();
+			   parent->ship->remFilter(barr[nbullets-1]);
+			   member->remObject(barr[nbullets-1]);
+			   delete barr[nbullets-1];
+			   */
+
+			//barr[i]->addFilter(parent->ship);
+			//parent->ship->addFilter(barr[i]);
 
 			std::cout << "after removal" << std::endl;
 			member->printArr();
@@ -869,12 +906,13 @@ void Boomerang::render()
 {
 
 	for (int i=0; i< nbullets; i++) {
-		Bullet *b = &barr[i];
+		Bullet *b = barr[i];
 
 		glPushMatrix();
 		glColor3ub(b->color[0],b->color[1],b->color[2]);
 		glTranslatef(b->pos[0], b->pos[1] , 1);
 		glRotatef((b->angle * b->rotation * 180)/3.14159,0.0f,0.0f,1.0f);
+		
 		glBegin(GL_POLYGON);
 		glVertex2f(b->w/2,b->h/2);
 		glVertex2f(b->w/2, -b->h/2);
@@ -968,7 +1006,7 @@ void Sniper::fireWeapon()
 				shotDistance = sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2) * 1.0);
 				cout << "shot distance: " << shotDistance << endl;
 				delete b;
-				
+
 				break;	
 			}
 			b->clearFilterType();
@@ -1080,8 +1118,8 @@ void Player::setWeapon(int input)
 	//unfinised, will eventually figure out how i want weapons to be assigned via arguments
 
 	const char * names[] = {"NON","SNIPER","BOOMERANG","SHIELD","SPEED"};
-
 	std::cout << names[input] << endl;
+
 	switch (input) {
 		case 0:
 			//nothing
@@ -1142,3 +1180,47 @@ Player::~Player()
 {
 	ship->member->remObject(ship);	
 }
+
+Hud::Hud(Player * in_p1 = NULL, Player * in_p2 = NULL)
+{
+	p1 = in_p1;	
+	p2 = in_p2;
+
+}
+Hud::~Hud()
+{
+
+}
+void Hud::update()
+{
+
+}
+void Hud::render()
+{
+	extern Global gl;
+	float h = 70.0f;
+	float w = 200.0f;
+	glPushMatrix();
+	glColor3f(p1->ship->color[0],p1->ship->color[1],p1->ship->color[2]);
+        glTranslatef(0, (gl.yres-h), 1);
+        glBegin(GL_POLYGON);
+        glVertex2f(0.0f,h);
+        glVertex2f(0.0f,0.0f);
+        glVertex2f(w,0.0f);
+        glVertex2f(w,h);
+        glEnd();
+        glPopMatrix();
+
+	glPushMatrix();
+	glColor3f(p2->ship->color[0],p2->ship->color[1],p2->ship->color[2]);
+        glTranslatef(gl.xres - w, (gl.yres-h), 1);
+        glBegin(GL_POLYGON);
+        glVertex2f(0.0f,h);
+        glVertex2f(0.0f,0.0f);
+        glVertex2f(w,0.0f);
+        glVertex2f(w,h);
+        glEnd();
+        glPopMatrix();
+
+}
+

@@ -41,6 +41,7 @@ class Global {
 		int xres, yres;
 		char keys[65536];
 		bool isPaused;
+		
 		Global();
 };
 class PhysWorld;
@@ -257,7 +258,7 @@ class Boomerang: public Weapon
 		Vec pos;
 		Vec vel;
 		float color[3];
-		Bullet * barr;
+		Bullet * barr[MAX_BULLETS];
 		struct timespec bulletTimer;
 		int nbullets;
 		const char * type = "boomerang";
@@ -303,5 +304,17 @@ class Sniper: public Weapon
 		void render();
 		virtual ~Sniper();
 };
+class Game;
+class Hud {
+	public:
+		Hud(Player * in_p1, Player * in_p2);
+		~Hud();
+		void update();
+		void render();
+		Player * p1;
+		Player * p2;
+		
+};
+
 
 #endif //SSLONE_H

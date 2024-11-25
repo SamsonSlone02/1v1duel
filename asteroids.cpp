@@ -99,6 +99,7 @@ class Game {
 		struct timespec mouseThrustTimer;
 		bool mouseThrustOn;
 		Map * mapp;
+		Hud * myHud;
 	public:
 		Game() {
 			srand(time(NULL));
@@ -125,6 +126,7 @@ class Game {
 			players[1]->ship->setColor(100,90,240);
 
 			// creates level map
+			myHud = new Hud(players[0],players[1]);
 			mapp = new Map();
 
 		}
@@ -213,11 +215,12 @@ class X11_wrapper {
 		}
 		void reshape_window(int width, int height) {
 			//window has been resized.
-			setup_screen_res(width, height);
+			
+			//setup_screen_res(width, height);
 			glViewport(0, 0, (GLint)width, (GLint)height);
 			glMatrixMode(GL_PROJECTION); glLoadIdentity();
 			glMatrixMode(GL_MODELVIEW); glLoadIdentity();
-			glOrtho(0, gl.xres, 0, gl.yres, -1, 1);
+			glOrtho(0, gl.xres , 0, gl.yres , -1, 1);
 			set_title();
 		}
 		void setup_screen_res(const int w, const int h) {
@@ -515,10 +518,10 @@ void physics()
 		}
 
 		/*
-		for(int i = 0; i < 2; i++){
-			g.players[i]->ship->Object::testCollision();
-		}
-		*/
+		   for(int i = 0; i < 2; i++){
+		   g.players[i]->ship->Object::testCollision();
+		   }
+		   */
 		for(int i = 0; i < myPhysWorld->arrSize;i++)
 		{
 			if(myPhysWorld->objectArr[i] != NULL)
@@ -534,8 +537,8 @@ void render()
 	Rect r;
 	glClear(GL_COLOR_BUFFER_BIT);
 	r.bot = gl.yres - 20;
-	r.left = 10;
-	r.center = 0;
+	r.left = gl.xres/2;
+	r.center = 1;
 
 	//--draws background
 	glColor3f(128/255.0,128/255.0,128/255.0);
@@ -547,16 +550,8 @@ void render()
 	glEnd();
 	//--
 
-
-
-
-	ggprint8b(&r, 16, 0x00ff0000, "Player 1 - w a s d space");
-	ggprint8b(&r, 16, 0x00ff0000, "Player 2 - up down left right enter");
-	ggprint8b(&r, 16, 0x00ff0000, "PAUSE : 'P'");
-
 	glColor3ub(0,0,0);
-
-
+	/*
 	glPushMatrix();
 	glTranslatef((gl.xres/2)-50, (gl.yres/2)-50, 1);
 	glBegin(GL_POLYGON);
@@ -566,12 +561,10 @@ void render()
 	glVertex2f(100.0f, 100.0f);
 	glEnd();
 	glPopMatrix();
-
-
-	g.players[0]->ship->drawHitbox();
-	g.players[1]->ship->drawHitbox();
-
-
+	*/
+	//g.players[0]->ship->drawHitbox();
+	//g.players[1]->ship->drawHitbox();
+	
 	//Draw the ship
 	for(int i =0; i < 2; i++)
 	{
@@ -604,9 +597,10 @@ void render()
 
 	// render Map
 	g.mapp->render();
+
 	//render itemBox (testing, will remove)
 	//g.myBox->render();
-	
+
 	for(int i = 0; i < BOXCAP;i++)
 	{
 		if(myBoxWorld->currentBoxes[i] != NULL)
@@ -615,7 +609,12 @@ void render()
 		}
 	}
 
-	
+
+	g.myHud->render();
+	ggprint8b(&r, 16, 0x00ff0000, "Player 1 - w a s d space");
+	ggprint8b(&r, 16, 0x00ff0000, "Player 2 - up down left right enter");
+	ggprint8b(&r, 16, 0x00ff0000, "PAUSE : 'P'");
+
 	if(gl.isPaused)
 	{
 		//glBlendFunc  (GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
