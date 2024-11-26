@@ -59,8 +59,12 @@ extern double timeSpan;
 extern double timeDiff(struct timespec *start, struct timespec *end);
 extern void timeCopy(struct timespec *dest, struct timespec *source);
 Global::Global() {
-	xres = 640;
-	yres = 480;
+	//xres = 640;
+	//yres = 480;
+	xres = 960;
+	yres = 540;
+	//xres = 1920;
+	//yres = 1080;
 	memset(keys, 0, 65536);
 	isPaused = false;
 };
@@ -387,6 +391,9 @@ int check_keys(XEvent *e)
 			cout << g.players[0]->ship->pos[0] << ", " << g.players[0]->ship->pos[1] << endl;
 			cout << g.players[1]->ship->pos[0] << ", " << g.players[1]->ship->pos[1] << endl;
 			break;
+		case XK_r:
+			myPhysWorld->printArr();
+			break;
 		case XK_s:
 			break;
 		case XK_Down:
@@ -530,6 +537,19 @@ void physics()
 	}
 
 
+	//how we would implement gamemodes
+	/*
+	arr gameMode[3] = {points, elims}
+	
+	gameMode->update();
+
+	if(gameMode->winCondition)
+	{
+		done = false;
+	
+	}
+	*/
+
 }
 
 void render()
@@ -601,6 +621,7 @@ void render()
 	//render itemBox (testing, will remove)
 	//g.myBox->render();
 
+	
 	for(int i = 0; i < BOXCAP;i++)
 	{
 		if(myBoxWorld->currentBoxes[i] != NULL)
@@ -611,6 +632,7 @@ void render()
 
 
 	g.myHud->render();
+	
 	ggprint8b(&r, 16, 0x00ff0000, "Player 1 - w a s d space");
 	ggprint8b(&r, 16, 0x00ff0000, "Player 2 - up down left right enter");
 	ggprint8b(&r, 16, 0x00ff0000, "PAUSE : 'P'");

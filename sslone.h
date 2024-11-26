@@ -53,7 +53,7 @@ class Object
 		float pos[2];
 		float vel[2];
 
-		enum Type {NON,WALL,SHIP,BULLET,ITEMBOX};
+		enum Type {NON,WALL,SHIP,BULLET,ITEMBOX,BOMB};
 		Type objectType;
 		Type filterType[10];
 		//things that collision should ignore
@@ -109,6 +109,9 @@ class ItemBox: public Object
 	public:
 
 		int boxContent;
+		float upperBound;
+		float lowerBound;
+		bool isGrowing;
 		ItemBox(PhysWorld * in_member);
 		double count;
 		~ItemBox();
@@ -221,6 +224,8 @@ class Player
 		void setKeys(int in_up, int in_down, int in_left, int in_right, int in_attack);
 		std::string getWeapon();
 		void setWeapon(int input);
+
+		void respawn();
 
 		double getRSpeed();
 		void setRSpeed(double in_rSpeed);

@@ -61,7 +61,7 @@ bool Object::testCollision()
 
 
 			if (!skipFlag) {
-				//cout << "collision detected" << endl;
+				//if you got here, that means a valid collision was detected.
 				//run the objects collision handling function here.
 				//ex. this->handleCollision(object->getType)
 				handleCollision(member->objectArr[i]);
@@ -179,7 +179,7 @@ bool PhysWorld::remObject(Object * in_object)
 
 void PhysWorld::printArr()
 {
-	const char * names[] = {"NON","WALL","SHIP","BULLET","ITEMBOX"};
+	const char * names[] = {"NON","WALL","SHIP","BULLET","ITEMBOX","BOMB"};
 	std::cout << "**********************" << std::endl;
 	for (int i = 0; i < 20;i++) {
 
@@ -232,7 +232,7 @@ void Ship::handleCollision(Object * in_object)
 			cout << parent->getHealth() << endl;
 			parent->setHealth(parent->getHealth() - 1);
 			if (parent->getHealth() <1 ) {
-
+				/*
 				color[0] = 255;
 				color[1] = 0;
 				color[2] = 0;
@@ -246,7 +246,9 @@ void Ship::handleCollision(Object * in_object)
 
 				pos[0] = (float)(rand() % gl.xres);
 				pos[1] = (float)(rand() % gl.yres);
-			}
+				*/
+				parent->respawn();
+				}
 
 			break;
 		case WALL:
@@ -262,12 +264,15 @@ void Ship::handleCollision(Object * in_object)
 
 		case ITEMBOX:
 			srand(time(NULL));
-			parent->setWeapon(rand() % 5);
+			parent->setWeapon(rand() % 6);
 
 			//	member->remObject(in_object);
 			cout << "touched itembox" << endl;
 			break;
+		case BOMB:
+			break;
 	}
+
 
 
 }
@@ -278,8 +283,12 @@ ItemBox::ItemBox(PhysWorld * in_member = NULL)
 	srand(time(NULL));
 	boxContent = rand() % 4;
 	clearFilter();
-	h = 15;
-	w = 15;
+	h = (upperBound + lowerBound) /2;
+	w = (upperBound + lowerBound) / 2;
+	
+	upperBound = 20;
+	lowerBound = 15;
+	isGrowing = true;
 	objectType = ITEMBOX;
 	count = 0;
 	if (member != NULL)
@@ -309,6 +318,8 @@ void ItemBox::handleCollision(Object * in_object)
 			break;
 		case ITEMBOX:
 			break;
+		case BOMB:
+			break;
 	}
 
 
@@ -316,11 +327,38 @@ void ItemBox::handleCollision(Object * in_object)
 
 void ItemBox::render()
 {
+
+	if(h > upperBound)
+	{
+		isGrowing = false;
+		h = upperBound;
+		w = upperBound;
+	}
+	if(h < lowerBound)
+	{
+		isGrowing = true;
+		h = lowerBound;
+		w = lowerBound;
+	}
+	float rate = .1;
+	if(isGrowing)
+	{
+		h+= rate;
+		w+= rate;
+	}
+	else
+	{
+		h-= rate;
+		w-= rate;
+	}
+
 	count+=.005;
 	//cout <<count << endl;
 	glPushMatrix();
 	//srand(time(NULL));
 	//glColor3ub(fmod(rnd() * 10000,255),fmod(rnd() * 10000,255),fmod(rnd() * 100000,255));
+	//
+	//
 	glColor3f(sin(count + PI/2),sin(count+ PI),sin(count + (3*PI)/2));
 	glTranslatef(pos[0], pos[1] , 1);
 	glBegin(GL_POLYGON);
@@ -361,7 +399,7 @@ BoxWorld::BoxWorld(PhysWorld * in_member = NULL)
 	}
 
 	boxCount = 0;
-	timeTillSpawn = 10;
+	timeTillSpawn = 0;
 	startTime = time(NULL);
 	currentTime = time(NULL) + timeTillSpawn;
 }
@@ -476,6 +514,8 @@ void Bullet::handleCollision(Object * in_object)
 			//this->yBounce *= -1;
 			break;
 		case ITEMBOX:
+			break;
+		case BOMB:
 			break;
 	}
 
@@ -940,6 +980,9 @@ Sniper::Sniper(int in_rate = 10, Player * in_parent = NULL, PhysWorld * in_membe
 	currentTime = time(NULL);
 	iterations = 200;
 	step = 10;
+
+	//iterations = 10;
+	//step = 50;
 }
 string Sniper::getWeapon()
 {
@@ -1117,7 +1160,7 @@ void Player::setWeapon(int input)
 	//set empty weapon
 	//unfinised, will eventually figure out how i want weapons to be assigned via arguments
 
-	const char * names[] = {"NON","SNIPER","BOOMERANG","SHIELD","SPEED"};
+	const char * names[] = {"NON","SNIPER","BOOMERANG","SHIELD","SPEED","BOMB"};
 	std::cout << names[input] << endl;
 
 	switch (input) {
@@ -1126,20 +1169,30 @@ void Player::setWeapon(int input)
 			cout << "removing your current item!" << endl;
 			delete this->currentWeapon;
 			currentWeapon = new Weapon(10,this);
+			delete this->currentPassive;
+			currentPassive = new Passive(this);
+			cout << "post" << endl;
 			break;
 		case 1:
+			cout << "sniper" << endl;
 			delete this->currentWeapon;
 			currentWeapon = new Sniper(10,this,ship->member);
+			cout << "post" << endl;
 			break;
 		case 2:
+			cout << "boomerang" << endl;
 			delete this->currentWeapon;
 			currentWeapon = new Boomerang(10,this,ship->member);
+			cout << "post" << endl;
 			break;
 		case 3:
+			cout << "shield" << endl;
 			delete this->currentPassive;
 			currentPassive = new Shield(this);
+			cout << "post" << endl;
 			break;
 		case 4:
+			cout << "spped" << endl;
 			delete this->currentPassive;
 			currentPassive = new Speed(this);
 			break;
@@ -1176,6 +1229,21 @@ Player::Player(int in_health, double in_speed, double in_rSpeed, PhysWorld * in_
 	currentPassive = new Passive(this);
 	ship = new Ship(member,this);
 }
+
+void Player::respawn()
+{
+	extern Global gl;
+	setWeapon(0);
+	ship->pos[0] = 0;
+	ship->pos[1] = 0;
+	ship->setColor(0,0,0);
+	ship->pos[0] = (float)(rand() % gl.xres);
+	ship->pos[1] = (float)(rand() % gl.yres);
+
+
+}
+
+
 Player::~Player()
 {
 	ship->member->remObject(ship);	
@@ -1199,28 +1267,125 @@ void Hud::render()
 {
 	extern Global gl;
 	float h = 70.0f;
-	float w = 200.0f;
-	glPushMatrix();
-	glColor3f(p1->ship->color[0],p1->ship->color[1],p1->ship->color[2]);
-        glTranslatef(0, (gl.yres-h), 1);
-        glBegin(GL_POLYGON);
-        glVertex2f(0.0f,h);
-        glVertex2f(0.0f,0.0f);
-        glVertex2f(w,0.0f);
-        glVertex2f(w,h);
-        glEnd();
-        glPopMatrix();
+	//float w = 200.0f;
+	float midW = gl.xres * .23;
+	
+	float p1C[3] = {p1->ship->color[0],p1->ship->color[1],p1->ship->color[2]};
+	float p2C[3] = {p2->ship->color[0],p2->ship->color[1],p2->ship->color[2]};
 
+	float w = gl.xres / 2;
+	//left box
 	glPushMatrix();
-	glColor3f(p2->ship->color[0],p2->ship->color[1],p2->ship->color[2]);
-        glTranslatef(gl.xres - w, (gl.yres-h), 1);
-        glBegin(GL_POLYGON);
-        glVertex2f(0.0f,h);
-        glVertex2f(0.0f,0.0f);
-        glVertex2f(w,0.0f);
-        glVertex2f(w,h);
-        glEnd();
-        glPopMatrix();
+	glColor3f(p1C[0],p1C[1],p1C[2]);
+	glTranslatef(0, (gl.yres-h), 1);
+	glBegin(GL_POLYGON);
+	glVertex2f(0.0f,h);
+	glVertex2f(0.0f,0.0f);
+	glVertex2f(w,0.0f);
+	glVertex2f(w,h);
+	glEnd();
+	glPopMatrix();
+
+
+	//right box
+	glPushMatrix();
+	glColor3f(p2C[0],p2C[1],p2C[2]);
+	glTranslatef(gl.xres - w, (gl.yres-h), 1);
+	glBegin(GL_POLYGON);
+	glVertex2f(0.0f,h);
+	glVertex2f(0.0f,0.0f);
+	glVertex2f(w,0.0f);
+	glVertex2f(w,h);
+	glEnd();
+	glPopMatrix();
+	
+	//middle box
+	glPushMatrix();
+	glColor3f((p1C[0] + p2C[0])/2,(p1C[1] + p2C[1])/2,(p1C[2] + p2C[2])/2);
+	glTranslatef(gl.xres/2 - (midW/2), (gl.yres-h), 1);
+	glBegin(GL_POLYGON);
+	glVertex2f(0.0f,h);
+	glVertex2f(0.0f,0.0f);
+	glVertex2f(midW,0.0f);
+	glVertex2f(midW,h);
+	glEnd();
+	glPopMatrix();
+
+	//bottom bar
+	glPushMatrix();
+	glColor3f(0,0,0);
+	glTranslatef(0, (gl.yres-h), 1);
+	glBegin(GL_POLYGON);
+	glVertex2f(0.0f,5);
+	glVertex2f(0.0f,0.0f);
+	glVertex2f(gl.xres,0.0f);
+	glVertex2f(gl.xres,5);
+	glEnd();
+	glPopMatrix();
+
+
+	//top bar
+	glPushMatrix();
+	glColor3f(0,0,0);
+	glTranslatef(0, (gl.yres-5), 1);
+	glBegin(GL_POLYGON);
+	glVertex2f(0.0f,5);
+	glVertex2f(0.0f,0.0f);
+	glVertex2f(gl.xres,0.0f);
+	glVertex2f(gl.xres,5);
+	glEnd();
+	glPopMatrix();
+
+
+	//left mid vert bar
+	glPushMatrix();
+	glColor3f(0,0,0);
+	glTranslatef((gl.xres / 2) - midW/2, (gl.yres-h), 1);
+	glBegin(GL_POLYGON);
+	glVertex2f(0.0f,h);
+	glVertex2f(0.0f,0.0f);
+	glVertex2f(5,0.0f);
+	glVertex2f(5,h);
+	glEnd();
+	glPopMatrix();
+
+	//right mid vert bar
+	glPushMatrix();
+	glColor3f(0,0,0);
+	glTranslatef((gl.xres / 2) + midW/2, (gl.yres-h), 1);
+	glBegin(GL_POLYGON);
+	glVertex2f(0.0f,h);
+	glVertex2f(0.0f,0.0f);
+	glVertex2f(5,0.0f);
+	glVertex2f(5,h);
+	glEnd();
+	glPopMatrix();
+
+	// left vert bar
+	glPushMatrix();
+	glColor3f(0,0,0);
+	glTranslatef(0, (gl.yres-h), 1);
+	glBegin(GL_POLYGON);
+	glVertex2f(0.0f,h);
+	glVertex2f(0.0f,0.0f);
+	glVertex2f(5,0.0f);
+	glVertex2f(5,h);
+	glEnd();
+	glPopMatrix();
+
+
+	//right vert bar
+	glPushMatrix();
+	glColor3f(0,0,0);
+	glTranslatef(gl.xres - 5, (gl.yres-h), 1);
+	glBegin(GL_POLYGON);
+	glVertex2f(0.0f,h);
+	glVertex2f(0.0f,0.0f);
+	glVertex2f(5,0.0f);
+	glVertex2f(5,h);
+	glEnd();
+	glPopMatrix();
+
 
 }
 
