@@ -9,7 +9,7 @@ using namespace std;
    }
    */ 
 
-/*
+
 Bomb::Bomb(int in_rate = 10, Player * in_parent = NULL , PhysWorld * in_member = NULL) : Weapon(in_rate, in_parent)
 {
     Weapon(in_rate, in_parent);
@@ -77,7 +77,7 @@ void Bomb::physics()
             Flt rad = ((myBomb->angle) / 360.0f)*PI*2.0;
             Flt xdir = cos(rad);
             Flt ydir = sin(rad); 
-            int shift = 0;
+            //int shift = 0;
             for (int i = 0; i < 8; i++) {
                 barr[i] = new Bullet(member);    
                 myBullet = barr[i]; 
@@ -85,8 +85,8 @@ void Bomb::physics()
                 cout << "making a bullet member: " << myBullet << endl;
                 myBullet->pos[0] = myBomb->pos[0];
                 myBullet->pos[1] = myBomb->pos[1];
-                myBullet->vel[0] = (xdir)*4;
-                myBullet->vel[1] = (ydir)*4;
+                myBullet->vel[0] = (xdir)*3;
+                myBullet->vel[1] = (ydir)*3;
                 myBomb->angle = 90;
                 rad = ((myBomb->angle) / 360.0f)*PI*-2.0;
                 xdir = cos(rad);
@@ -105,8 +105,8 @@ void Bomb::physics()
     if (barr[0] != NULL) {
         for (int i = 0; i < 8; i++) {
             myBullet = barr[i];
-            myBullet->pos[0] += myBullet->vel[0];
-            myBullet->pos[1] += myBullet->vel[1];
+            myBullet->pos[0] += myBullet->vel[0] * myBullet->xBounce;
+            myBullet->pos[1] += myBullet->vel[1] * myBullet->yBounce;
         }
 
 
@@ -196,4 +196,4 @@ void BombObject::handleCollision(Object * in_object)
             break;
     }
 
-}*/
+}

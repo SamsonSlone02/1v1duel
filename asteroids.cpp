@@ -120,8 +120,8 @@ class Game {
 	//		players[1]->currentPassive = new Shield(players[1]);
 			players[0]->currentWeapon = new Boomerang(10,players[0],myPhysWorld);		
 			//players[1]->currentWeapon = new Boomerang(10,players[1],myPhysWorld);		
-			//players[1]->currentWeapon = new Bomb(10,players[1],myPhysWorld);
-			players[1]->currentWeapon = new Sniper(10,players[1],myPhysWorld);
+			players[1]->currentWeapon = new Bomb(10,players[1],myPhysWorld);
+			//players[1]->currentWeapon = new Sniper(10,players[1],myPhysWorld);
 			myPhysWorld->addObject(players[0]->ship);
 			myPhysWorld->addObject(players[1]->ship);
 
