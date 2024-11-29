@@ -61,10 +61,10 @@ extern void timeCopy(struct timespec *dest, struct timespec *source);
 Global::Global() {
 	//xres = 640;
 	//yres = 480;
-	xres = 960;
-	yres = 540;
-	//xres = 1920;
-	//yres = 1080;
+	//xres = 960;
+	//yres = 540;
+	xres = 1440;
+	yres = 810;
 	memset(keys, 0, 65536);
 	isPaused = false;
 };
@@ -102,7 +102,7 @@ class Game {
 		Player *players[2];
 		struct timespec mouseThrustTimer;
 		bool mouseThrustOn;
-		Map * mapp;
+		Map2 * mapp;
 		Hud * myHud;
 	public:
 		Game() {
@@ -120,8 +120,8 @@ class Game {
 	//		players[1]->currentPassive = new Shield(players[1]);
 			players[0]->currentWeapon = new Boomerang(10,players[0],myPhysWorld);		
 			//players[1]->currentWeapon = new Boomerang(10,players[1],myPhysWorld);		
-			//players[1]->currentWeapon = new Bomb(10,players[1],myPhysWorld);
-			players[1]->currentWeapon = new Sniper(10,players[1],myPhysWorld);
+			players[1]->currentWeapon = new Bomb(10,players[1],myPhysWorld);
+			//players[1]->currentWeapon = new Sniper(10,players[1],myPhysWorld);
 			myPhysWorld->addObject(players[0]->ship);
 			myPhysWorld->addObject(players[1]->ship);
 
@@ -131,7 +131,7 @@ class Game {
 
 			// creates level map
 			myHud = new Hud(players[0],players[1]);
-			mapp = new Map();
+			mapp = new Map2();
 
 		}
 		~Game() {
@@ -631,7 +631,7 @@ void render()
 	}
 
 
-	g.myHud->render();
+	//g.myHud->render();
 	
 	ggprint8b(&r, 16, 0x00ff0000, "Player 1 - w a s d space");
 	ggprint8b(&r, 16, 0x00ff0000, "Player 2 - up down left right enter");

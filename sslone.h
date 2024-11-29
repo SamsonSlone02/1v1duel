@@ -52,6 +52,7 @@ class Object
 		PhysWorld * member;
 		float pos[2];
 		float vel[2];
+		float color[3];
 
 		enum Type {NON,WALL,SHIP,BULLET,ITEMBOX,BOMB};
 		Type objectType;
@@ -65,6 +66,7 @@ class Object
 		bool testCollision();
 		void addFilter(Object *in_object);
 		void remFilter(Object *in_object);
+		void setColor(float r, float g, float b);
 		void clearFilter();
 		void addFilterType(Type in_object);
 		void remFilterType(Type in_object);
@@ -310,6 +312,7 @@ class Sniper: public Weapon
 		virtual ~Sniper();
 };
 class Game;
+
 class Hud {
 	public:
 		Hud(Player * in_p1, Player * in_p2);
@@ -321,5 +324,14 @@ class Hud {
 		
 };
 
+class Map2
+{
+	public:
+		Map2();
+		~Map2();
+		void render();
+		Object * level[50];
+
+};
 
 #endif //SSLONE_H

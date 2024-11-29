@@ -1,8 +1,10 @@
 #include "sslone.h"
+#include "rrivasnavarr.h"
 using namespace std;
 
 Object::Object(PhysWorld * in_member = NULL)
 {
+	setColor(0,0,0);
 	member = in_member;
 	filterSize = 10;
 	//addFilter();
@@ -138,6 +140,15 @@ void Object::handleCollision(Object * in_object)
 	//cout << in_object << endl;
 	in_object = in_object;
 }
+
+void Object::setColor(float r,float g,float b)
+{
+
+	color[0] = r;
+	color[1] = g;
+	color[2] = b;
+}
+
 
 PhysWorld::PhysWorld()
 {
@@ -1283,6 +1294,10 @@ Hud::~Hud()
 {
 
 }
+
+
+
+
 void Hud::update()
 {
 
@@ -1412,4 +1427,160 @@ void Hud::render()
 
 
 }
+
+
+Map2::Map2()
+{
+	float h,w;
+	//woodColor
+	float wC[3] = {161,102,47};
+
+	extern PhysWorld * myPhysWorld;
+	extern Global gl;
+	level[0] = new Wall(myPhysWorld, 30.0f, gl.xres);
+	level[0]->pos[1] = 15;
+	myPhysWorld->addObject(level[0]);
+		
+	level[1] = new Wall(myPhysWorld, 30.0f, gl.xres);
+	level[1]->pos[1] = gl.yres-15;
+	myPhysWorld->addObject(level[1]);
+
+	level[2] = new Wall(myPhysWorld, gl.xres, 30.f);
+	level[2]->pos[0] = gl.xres-15;
+	myPhysWorld->addObject(level[2]);
+
+	level[3] = new Wall(myPhysWorld, gl.xres, 30.f);
+	level[3]->pos[0] = 15;
+	myPhysWorld->addObject(level[3]);
+
+	level[4] = new Wall(myPhysWorld, 100.0f, 100.0f);
+	level[4]->setColor(wC[0],wC[1],wC[2]);
+	level[4]->pos[0] = gl.xres/2;
+	level[4]->pos[1] = 200;
+	myPhysWorld->addObject(level[4]);
+
+	level[5] = new Wall(myPhysWorld, 100.0f, 100.0f);
+	level[5]->setColor(wC[0],wC[1],wC[2]);
+	level[5]->pos[0] = gl.xres/2;
+	level[5]->pos[1] = gl.yres - 200;
+	myPhysWorld->addObject(level[5]);
+	
+	level[6] = new Wall(myPhysWorld, (gl.yres - 520)/2, 20);
+	level[6]->setColor(wC[0],wC[1],wC[2]);
+	level[6]->pos[0] = gl.xres/2;
+	level[6]->pos[1] = gl.yres - (gl.yres - 520);
+	myPhysWorld->addObject(level[6]);
+	
+	level[7] = new Wall(myPhysWorld, (gl.yres - 520)/2, 20);
+	level[7]->setColor(wC[0],wC[1],wC[2]);
+	level[7]->pos[0] = gl.xres/2;
+	level[7]->pos[1] = (gl.yres - 520);
+	myPhysWorld->addObject(level[7]);
+
+	level[8] = new Wall(myPhysWorld, 20.0f, 300.0f);
+	level[8]->setColor(wC[0],wC[1],wC[2]);
+	level[8]->pos[0] = gl.xres/2 + 100;
+	level[8]->pos[1] = gl.yres - 200;
+	myPhysWorld->addObject(level[8]);
+
+	level[9] = new Wall(myPhysWorld, 20.0f, 300.0f);
+	level[9]->setColor(wC[0],wC[1],wC[2]);
+	level[9]->pos[0] = gl.xres/2 - 100;
+	level[9]->pos[1] = 200;
+	myPhysWorld->addObject(level[9]);
+
+	//top left L shape
+	w = 75.0f;
+	h = 75.0f;
+	level[10] = new Wall(myPhysWorld, h, w);
+	level[10]->setColor(wC[0],wC[1],wC[2]);
+	level[10]->pos[0] =(int)((float)gl.xres * .2f);
+	level[10]->pos[1] = (int)((float)gl.yres * .75f);
+	myPhysWorld->addObject(level[10]);
+
+	level[11] = new Wall(myPhysWorld, h, w);
+	level[11]->setColor(wC[0],wC[1],wC[2]);
+	level[11]->pos[0] =(int)((float)gl.xres * .2f);
+	level[11]->pos[1] = (int)((float)gl.yres * .75f) - h;
+	myPhysWorld->addObject(level[11]);
+
+	level[12] = new Wall(myPhysWorld, h, w);
+	level[12]->setColor(wC[0],wC[1],wC[2]);
+	level[12]->pos[0] =(int)((float)gl.xres * .2f) + w;
+	level[12]->pos[1] = (int)((float)gl.yres * .75f);
+	myPhysWorld->addObject(level[12]);
+
+
+	//bottom right L shape
+	w = 75.0f;
+	h = 75.0f;
+	level[13] = new Wall(myPhysWorld, h, w);
+	level[13]->setColor(wC[0],wC[1],wC[2]);
+	level[13]->pos[0] =(int)((float)gl.xres * .75f) + w;
+	level[13]->pos[1] = (int)((float)gl.yres * .2f);
+	myPhysWorld->addObject(level[13]);
+
+	level[14] = new Wall(myPhysWorld, h, w);
+	level[14]->setColor(wC[0],wC[1],wC[2]);
+	level[14]->pos[0] =(int)((float)gl.xres * .75f);
+	level[14]->pos[1] = (int)((float)gl.yres * .2f);
+	myPhysWorld->addObject(level[14]);
+
+	level[15] = new Wall(myPhysWorld, h, w);
+	level[15]->setColor(wC[0],wC[1],wC[2]);
+	level[15]->pos[0] =(int)((float)gl.xres * .75f) + w;
+	level[15]->pos[1] = (int)((float)gl.yres * .2f) + h;
+	myPhysWorld->addObject(level[15]);
+	/*
+
+
+	level[0] = new Wall(myPhysWorld, 20.0f, gl.xres);
+	level[0]->pos[1] = 50;
+	myPhysWorld->addObject(level[0]);
+
+
+	level[0] = new Wall(myPhysWorld, 20.0f, gl.xres);
+	level[0]->pos[1] = 50;
+	myPhysWorld->addObject(level[0]);
+
+
+	level[0] = new Wall(myPhysWorld, 20.0f, gl.xres);
+	level[0]->pos[1] = 50;
+	myPhysWorld->addObject(level[0]);
+
+
+
+	level[0] = new Wall(myPhysWorld, 20.0f, gl.xres);
+	level[0]->pos[1] = 50;
+	myPhysWorld->addObject(level[0]);
+	*/
+
+	
+}
+
+void Map2::render()
+{
+	for(int i = 0; i < 50; i++)
+	{
+		if(level[i] != NULL)
+		{
+			Object * l = level[i];
+			glPushMatrix();
+			glColor3ub(l->color[0],l->color[1],l->color[2]);
+			glTranslatef(l->pos[0], l->pos[1] , 1);
+			glBegin(GL_POLYGON);
+			glVertex2f(l->w/2,l->h/2);
+			glVertex2f(l->w/2, -l->h/2);
+			glVertex2f(  -l->w/2,  -l->h/2);
+			glVertex2f(-l->w/2,l->h/2 );
+			glEnd();
+			glPopMatrix();
+		}	
+	}
+
+
+}
+
+Map2::~Map2()
+{}
 
