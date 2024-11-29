@@ -1,26 +1,33 @@
- class Bomb: public Weapon
+
+class BombObject;
+
+class Bomb: public Weapon
    {
        private:
-       Vec pos;
-       Vec vel;
-       float color[3];
-       
-        Bullet * mybullet;
-      struct timespec bulletTimer;
-      int nbullets;
-      int xBounce;
-      int yBounce;
-      bool isBullet;
+       Bullet * myBullet;
+       struct timespec bulletTimer;
+       float space = 10;
+       public:
+       PhysWorld * member;
+       Bomb(int in_rate, Player * in_parent, PhysWorld * in_member);
+       ~Bomb();
+       //std::string getWeapon();
+       void fireWeapon();
+       void physics();
+       void render();
+       BombObject * myBomb;
+       Bullet * barr[8];
+  };  
+
+
+class BombObject: public Object
+{
+  public:
+      BombObject(PhysWorld * in_member);
+      virtual ~BombObject();
+      void handleCollision(Object * in_object);
       bool boom;
-      //const char * type = "Bomb";
-     //std::string type = "Bomb";
-      public:
-      PhysWorld * member;
-      Bomb(int in_rate, Player * in_parent, PhysWorld * in_member);
-      ~Bomb();
-     // std::string getWeapon();
-      void fireWeapon();
-      void physics();
-      void render();
-  
-  };      
+      float angle;
+};
+
+

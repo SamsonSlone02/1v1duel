@@ -9,115 +9,184 @@ using namespace std;
    }
    */ 
 
-
+/*
 Bomb::Bomb(int in_rate = 10, Player * in_parent = NULL , PhysWorld * in_member = NULL) : Weapon(in_rate, in_parent)
 {
     Weapon(in_rate, in_parent);
     member = in_member;
     this->parent = in_parent;
-    nbullets = 0;
-    isBullet = false;
-    boom = false;
+
+
+    for (int i = 0; i < 8; i++) {
+        barr[i] = NULL;
+    }
+
 }
 
 Bomb::~Bomb()
 {  
+    for (int i = 0; i < 8; i++) {
+        cout << "removing bullet" << endl;
+        myBullet = barr[i];
+        parent->ship->remFilter(myBullet);
+        member->remObject(myBullet);
+    }
 
 }
 
 void Bomb::fireWeapon()
 {
-    mybullet = new Bullet(member);
-    mybullet->pos[0] = parent->ship->pos[0];
-    mybullet->pos[1] = parent->ship->pos[1];
-    mybullet->color[0] = 0;
-    mybullet->color[1] = 0;
-    mybullet->color[2] = 0;
-    cout << "Firing Bomb" << endl;
-    isBullet = true;
-    boom = false;
-    xBounce = 1;
-    yBounce = 1;
-    Flt rad = ((parent->ship->angle+90.0) / 360.0f) * PI * 2.0;
-    //convert angle to a vector
-    Flt xdir = cos(rad);
-    Flt ydir = sin(rad);
-    mybullet->vel[0] = xdir*4;
-    mybullet->vel[1] = ydir*4;
+
+    if (myBomb == NULL) {
+        cout << "firing bomb!" << endl;
+        myBomb = new BombObject(member);
+
+        Flt rad = ((parent->ship->angle+90.0) / 360.0f) * PI * 2.0;
+        Flt xdir = cos(rad);
+        Flt ydir = sin(rad);
+
+        myBomb->pos[0] = parent->ship->pos[0];
+        myBomb->pos[1] = parent->ship->pos[1];
+        myBomb->vel[0] = xdir*3;
+        myBomb->vel[1] = ydir*3;
+        myBomb->boom = false;
+
+
+    }
 
 }
+
+
 void Bomb::physics()
 {
-    Global gl;
-    if (isBullet) { 
-        //  mybullet->vel[0] = 2; 
-        // mybullet->vel[1] = 2;
-        if (!boom) { 
-            mybullet->pos[0] += mybullet->vel[0];
-            mybullet->pos[1] += mybullet->vel[1];
+
+    if (myBomb != NULL) {
+
+        if (myBomb->boom) {
+            //myBomb = NULL;
+            //delete myBomb;
+
+            cout << "went into boom physics" << endl;
+            Flt rad = ((myBomb->angle) / 360.0f)*PI*2.0;
+            Flt xdir = cos(rad);
+            Flt ydir = sin(rad); 
+            int shift = 0;
+            for (int i = 0; i < 8; i++) {
+                barr[i] = new Bullet(member);    
+                myBullet = barr[i]; 
+                member->addObject(myBullet);
+                cout << "making a bullet member: " << myBullet << endl;
+                myBullet->pos[0] = myBomb->pos[0];
+                myBullet->pos[1] = myBomb->pos[1];
+                myBullet->vel[0] = (xdir)*4;
+                myBullet->vel[1] = (ydir)*4;
+                myBomb->angle = 90;
+                rad = ((myBomb->angle) / 360.0f)*PI*-2.0;
+                xdir = cos(rad);
+                ydir = cos(rad);
+            }
+            myBomb = NULL;
+            delete myBomb;
+            return;
         }
 
-        if (mybullet->pos[0] < 0.0) {
-            mybullet->xBounce *= -1;
-            mybullet->pos[0] = 5;
-            boom = true;
-        }
-        if (mybullet->pos[0] > (float)gl.xres) {
-            mybullet->xBounce *= -1;
-            mybullet->pos[0] =(float)gl.xres - 5;
-            boom = true;
+        myBomb->pos[0] += myBomb->vel[0];     
+        myBomb->pos[1] += myBomb->vel[1];
+    }
+
+    if (barr[0] != NULL) {
+        for (int i = 0; i < 8; i++) {
+            myBullet = barr[i];
+            myBullet->pos[0] += myBullet->vel[0];
+            myBullet->pos[1] += myBullet->vel[1];
         }
 
-        if (mybullet->pos[1] < 0.0) {
-            mybullet->yBounce *= -1;
-            mybullet->pos[1] = 5;
-            boom = true;
-        }
-        if (mybullet->pos[1] > (float)gl.yres) {
-            mybullet->yBounce *= -1;
-            mybullet->pos[1] =(float)gl.yres - 5;
-            boom = true;
-        }
 
 
     }
 
-
 }
-
-
-
-
 void Bomb::render()
 {
-    if(isBullet) {
-        if (!boom) {
+
+    if (barr[0] != NULL) {
+        cout << "Went into boom render" << endl;
+        for (int i = 0; i < 8; i++) {
+            myBullet = barr[i];
             glPushMatrix();
-            glColor3f(mybullet->color[0], mybullet->color[1], mybullet->color[2]);
-            glTranslatef(mybullet->pos[0], mybullet->pos[1], 1);
+            glColor3f(0,0,0);
+            glTranslatef(myBullet->pos[0], myBullet->pos[1] , 1);
             glBegin(GL_POLYGON);
-            glVertex2f(0.0f, 7.0f);
-            glVertex2f(  0.0f,  0.0f);
-            glVertex2f(  7.0f,  0.0f);
-            glVertex2f(7.0f, 7.0f);
+            glVertex2f(myBullet->w/2,myBullet->h/2);
+            glVertex2f(myBullet->w/2, -myBullet->h/2);
+            glVertex2f(  -myBullet->w/2,  -myBullet->h/2);
+            glVertex2f(-myBullet->w/2,myBullet->h/2 );
             glEnd();
             glPopMatrix();
-
-        } else {
-
-            glPushMatrix();
-            glColor3f(mybullet->color[0], mybullet->color[1], mybullet->color[2]);
-            glTranslatef(mybullet->pos[0], mybullet->pos[1], 1);
-            glBegin(GL_POLYGON);
-            glVertex2f(0.0f, 30.0f);
-            glVertex2f(  0.0f,  0.0f);
-            glVertex2f(  30.0f,  0.0f);
-            glVertex2f(30.0f, 30.0f);
-            glEnd();
-            glPopMatrix();
-
         }
+    } 
+    if (myBomb != NULL) {
+        glPushMatrix();
+        glColor3f(0,0,0);
+        glTranslatef(myBomb->pos[0], myBomb->pos[1] , 1);
+        glBegin(GL_POLYGON);
+        glVertex2f(myBomb->w/2,myBomb->h/2);
+        glVertex2f(myBomb->w/2, -myBomb->h/2);
+        glVertex2f(  -myBomb->w/2,  -myBomb->h/2);
+        glVertex2f(-myBomb->w/2,myBomb->h/2 );
+        glEnd();
+        glPopMatrix();
+        cout << "boom status: " << myBomb->boom << endl;
+    } 
 
-    }
 }
 
+// Bomb Object definitions
+
+
+BombObject::BombObject(PhysWorld * in_member = NULL) : Object(in_member) 
+{
+    member = in_member;
+    h = 18;
+    w = 18;
+    objectType = BOMB;
+    if (member != NULL) {
+        member->addObject(this);
+    }
+    boom = false;
+    angle = 0.0;
+
+}
+
+BombObject::~BombObject()
+{
+
+}
+
+void BombObject::handleCollision(Object * in_object)
+{
+
+    switch(in_object->objectType)
+    {
+
+        case NON:
+            break;
+        case SHIP:
+
+
+            break;
+        case BULLET:
+            break;
+        case WALL:
+            cout << "wall touched" << endl;
+            boom = true;
+            member->remObject(this);
+            break;
+
+        case ITEMBOX:
+            break;
+        case BOMB:
+            break;
+    }
+
+}*/
