@@ -50,7 +50,14 @@ void Bomb::fireWeapon()
         myBomb->vel[0] = xdir*3;
         myBomb->vel[1] = ydir*3;
         myBomb->boom = false;
-
+        
+        for (int i = 0; i < 8; i++) {
+        cout << "removing bullet" << endl;
+        myBullet = barr[i];
+        parent->ship->remFilter(myBullet);
+        member->remObject(myBullet);
+        delete barr[i];
+        }
 
     }
 
@@ -85,8 +92,9 @@ void Bomb::physics()
                 xdir = cos(rad);
                 ydir = cos(rad);
             }
-            myBomb = NULL;
+            
             delete myBomb;
+            myBomb = NULL;
             return;
         }
 
@@ -110,7 +118,6 @@ void Bomb::render()
 {
 
     if (barr[0] != NULL) {
-        cout << "Went into boom render" << endl;
         for (int i = 0; i < 8; i++) {
             myBullet = barr[i];
             glPushMatrix();
