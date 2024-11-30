@@ -30,4 +30,19 @@ class BombObject: public Object
       float angle;
 };
 
-
+class Shotgun: public Weapon
+{
+       private:
+       Bullet * myBullet;
+       struct timespec bulletTimer;
+       public:
+       bool isBullet;
+       PhysWorld * member;
+       Shotgun(int in_rate, Player * in_parent, PhysWorld * in_member);
+       ~Shotgun();
+       //std::string getWeapon();
+       void fireWeapon();
+       void physics();
+       void render();
+       Bullet * sarr[3];
+  }; 

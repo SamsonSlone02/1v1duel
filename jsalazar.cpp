@@ -50,13 +50,13 @@ void Bomb::fireWeapon()
         myBomb->vel[0] = xdir*3;
         myBomb->vel[1] = ydir*3;
         myBomb->boom = false;
-        
+
         for (int i = 0; i < 8; i++) {
-        cout << "removing bullet" << endl;
-        myBullet = barr[i];
-        parent->ship->remFilter(myBullet);
-        member->remObject(myBullet);
-        delete barr[i];
+            cout << "removing bullet" << endl;
+            myBullet = barr[i];
+            parent->ship->remFilter(myBullet);
+            member->remObject(myBullet);
+            delete barr[i];
         }
 
     }
@@ -85,9 +85,9 @@ void Bomb::physics()
                 cout << "making a bullet member: " << myBullet << endl;
                 myBullet->pos[0] = myBomb->pos[0];
                 myBullet->pos[1] = myBomb->pos[1];
-                myBullet->vel[0] = (xdir)*3;
-                myBullet->vel[1] = (ydir)*3;
-                myBomb->angle = 90;
+                myBullet->vel[0] = (xdir)*2;
+                myBullet->vel[1] = (ydir)*2;
+                myBomb->angle += 20;
                 rad = ((myBomb->angle) / 360.0f)*PI*-2.0;
                 xdir = cos(rad);
                 ydir = cos(rad);
@@ -148,8 +148,6 @@ void Bomb::render()
 }
 
 // Bomb Object definitions
-
-
 BombObject::BombObject(PhysWorld * in_member = NULL) : Object(in_member) 
 {
     member = in_member;
@@ -196,3 +194,111 @@ void BombObject::handleCollision(Object * in_object)
     }
 
 }
+
+
+//Shotgun Definition
+Shotgun::Shotgun(int in_rate = 10, Player * in_parent = NULL , PhysWorld * in_member = NULL) : Weapon(in_rate, in_parent)
+{
+    Weapon(in_rate, in_parent);
+    member = in_member;
+    this->parent = in_parent;
+    myBullet = NULL;
+    isBullet = false;
+
+    for (int i = 0; i < 3; i++) {
+        sarr[i] = NULL;
+    }
+
+}
+
+Shotgun::~Shotgun()
+{  
+    for (int i = 0; i < 3; i++) {
+        cout << "removing bullet" << endl;
+        myBullet = sarr[i];
+        parent->ship->remFilter(myBullet);
+        member->remObject(myBullet);
+    }
+    delete myBullet;
+}
+
+void Shotgun::fireWeapon()
+{
+
+    if (isBullet) {
+        for (int i = 0; i < 3; i++) {
+            cout << "removing bullet" << endl;
+            myBullet = sarr[i];
+            parent->ship->remFilter(myBullet);
+            myBullet->clearFilter();
+            parent->ship->remFilter(myBullet);
+            member->remObject(myBullet);
+            delete sarr[i];
+        }
+        isBullet = false;
+    }
+
+    if(!isBullet) {
+        cout << "inside fireweapon bullet" << endl;
+        Flt rad = ((parent->ship->angle+90.0) / 360.0f) * PI * 2.0;
+        Flt xdir = cos(rad);
+        Flt ydir = sin(rad);
+        int shift = 70;
+        for (int i = 0; i < 3; i++) {
+            sarr[i] = new Bullet(member);    
+            myBullet = sarr[i]; 
+            myBullet->member = member;
+            myBullet->addFilter(parent->ship);
+            cout << "added to filter" << endl;
+            parent->ship->addFilter(myBullet);          
+            member->addObject(myBullet);
+            cout << "making a bullet member: " << myBullet << endl;
+            myBullet->pos[0] = parent->ship->pos[0];
+            myBullet->pos[1] = parent->ship->pos[1];
+            myBullet->vel[0] = (xdir)*2;
+            myBullet->vel[1] = (ydir)*2;
+            shift += 14;
+            rad = ((parent->ship->angle+shift) / 360.0f) * PI * 2.0; 
+            xdir = cos(rad);
+            ydir = sin(rad);
+        }
+        isBullet = true;
+    }
+}
+
+
+void Shotgun::physics()
+{
+
+    if (sarr[0] != NULL) {
+        for (int i = 0; i < 3; i++) {
+            myBullet = sarr[i];
+            myBullet->pos[0] += myBullet->vel[0] * myBullet->xBounce;
+            myBullet->pos[1] += myBullet->vel[1] * myBullet->yBounce;
+        }
+    }
+
+    
+
+}
+void Shotgun::render()
+{
+
+    if (sarr[0] != NULL) {
+        for (int i = 0; i < 3; i++) {
+            myBullet = sarr[i];
+            glPushMatrix();
+            glColor3f(0,0,0);
+            glTranslatef(myBullet->pos[0], myBullet->pos[1] , 1);
+            glBegin(GL_POLYGON);
+            glVertex2f(myBullet->w/2,myBullet->h/2);
+            glVertex2f(myBullet->w/2, -myBullet->h/2);
+            glVertex2f(  -myBullet->w/2,  -myBullet->h/2);
+            glVertex2f(-myBullet->w/2,myBullet->h/2 );
+            glEnd();
+            glPopMatrix();
+        }
+    } 
+
+}
+
