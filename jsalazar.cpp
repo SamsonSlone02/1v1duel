@@ -1,6 +1,7 @@
 #include <iostream>
 #include "sslone.h"
 #include "jsalazar.h"
+#include "rrivasnavarr.h"
 using namespace std;
 /*
    string Bomb::getWeapon()
@@ -24,13 +25,13 @@ Bomb::Bomb(int in_rate = 10, Player * in_parent = NULL , PhysWorld * in_member =
 
 Bomb::~Bomb()
 {  
-    for (int i = 0; i < 8; i++) {
-        cout << "removing bullet" << endl;
-        myBullet = barr[i];
-        parent->ship->remFilter(myBullet);
-        member->remObject(myBullet);
-    }
-    delete myBullet;
+    /*for (int i = 0; i < 8; i++) {
+      cout << "removing bullet" << endl;
+      myBullet = barr[i];
+      parent->ship->remFilter(myBullet);
+      member->remObject(myBullet);
+      }
+      delete myBullet;*/
 }
 
 void Bomb::fireWeapon()
@@ -38,7 +39,11 @@ void Bomb::fireWeapon()
     if (myBomb == NULL) {
         cout << "firing bomb!" << endl;
         myBomb = new BombObject(member);
-
+        myBomb->clearFilter();
+        for(int i = 0; i < 8;i++) {
+           barr[i] = NULL;
+        }
+         
         Flt rad = ((parent->ship->angle+90.0) / 360.0f) * PI * 2.0;
         Flt xdir = cos(rad);
         Flt ydir = sin(rad);
@@ -312,3 +317,67 @@ void Shotgun::render()
 
 }
 
+
+
+/*
+//Map 3 Definitions
+Map3::Map3()
+{
+    //float h,w;
+
+    //float wC[3] = {0,0,255};
+
+    extern PhysWorld * myPhysWorld;
+    extern Global gl;
+
+    level[0] = new Wall(myPhysWorld, 30.0f, gl.xres);
+    level[0]->pos[1] = 15;
+    myPhysWorld->addObject(level[0]);
+
+    level[1] = new Wall(myPhysWorld, 30.0f, gl.xres);
+    level[1]->pos[1] = gl.yres-15;
+    myPhysWorld->addObject(level[1]);
+
+
+    level[2] = new Wall(myPhysWorld, gl.xres, 30.0f);
+    level[2]->pos[0] = gl.xres-15;
+    myPhysWorld->addObject(level[2]);
+
+    level[3] = new Wall(myPhysWorld, gl.xres, 30.0f);
+    level[3]->pos[0] = 15;
+    myPhysWorld->addObject(level[3]);
+
+
+
+
+}
+
+void Map3::render()
+{
+    for(int i = 0; i < 4; i++) {
+
+        if (level[i] != NULL) {
+
+            Object * l = level[i];
+            glPushMatrix();
+            glColor3f(l->color[0], l->color[1], l->color[2]);
+            glTranslatef(l->pos[0], l->pos[1], 1);
+            glBegin(GL_POLYGON);
+            glVertex2f(l->w/2,l->h/2);
+            glVertex2f(l->w/2, -l->h/2);
+            glVertex2f(  -l->w/2,  -l->h/2);
+            glVertex2f(-l->w/2,l->h/2 );
+            glEnd();
+            glPopMatrix();
+
+        }
+
+
+    }
+
+}
+
+Map3::~Map3()
+{
+
+}*/

@@ -45,4 +45,15 @@ class Shotgun: public Weapon
        void physics();
        void render();
        Bullet * sarr[3];
-  }; 
+  };
+/*
+class Map3
+{
+
+    public:
+        Map3();
+        ~Map3();
+        void render();
+        Object * level[4];
+
+};*/
