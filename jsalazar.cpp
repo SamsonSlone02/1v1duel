@@ -9,7 +9,6 @@ using namespace std;
    }
    */ 
 
-
 Bomb::Bomb(int in_rate = 10, Player * in_parent = NULL , PhysWorld * in_member = NULL) : Weapon(in_rate, in_parent)
 {
     Weapon(in_rate, in_parent);
@@ -31,12 +30,11 @@ Bomb::~Bomb()
         parent->ship->remFilter(myBullet);
         member->remObject(myBullet);
     }
-
+    delete myBullet;
 }
 
 void Bomb::fireWeapon()
 {
-
     if (myBomb == NULL) {
         cout << "firing bomb!" << endl;
         myBomb = new BombObject(member);
@@ -51,14 +49,17 @@ void Bomb::fireWeapon()
         myBomb->vel[1] = ydir*4;
         myBomb->boom = false;
 
-        for (int i = 0; i < 8; i++) {
-            cout << "removing bullet" << endl;
-            myBullet = barr[i];
-            parent->ship->remFilter(myBullet);
-            member->remObject(myBullet);
-            delete barr[i];
+        if (barr[0] != NULL) {
+            for (int i = 0; i < 8; i++) {
+                cout << "removing bullet" << endl;
+                myBullet = barr[i];
+                parent->ship->remFilter(myBullet);
+                myBullet->clearFilter();
+                parent->ship->remFilter(myBullet); 
+                member->remObject(myBullet);
+                delete barr[i];
+            }
         }
-
     }
 
 }
@@ -78,10 +79,14 @@ void Bomb::physics()
             Flt rad = ((myBomb->angle) / 360.0f)*PI*2.0;
             Flt xdir = cos(rad);
             Flt ydir = sin(rad); 
-            int shift = -50;
+            int shift = -70;
             for (int i = 0; i < 8; i++) {
                 barr[i] = new Bullet(member);    
                 myBullet = barr[i]; 
+                myBullet->member = member;
+                myBullet->addFilter(parent->ship);
+                cout << "added to filter" << endl;
+                parent->ship->addFilter(myBullet); 
                 member->addObject(myBullet);
                 cout << "making a bullet member: " << myBullet << endl;
                 myBullet->pos[0] = myBomb->pos[0];
@@ -89,7 +94,7 @@ void Bomb::physics()
                 myBullet->vel[0] = (-xdir)*2;
                 myBullet->vel[1] = (-ydir)*2;
                 //myBomb->angle += 30;
-                shift += 30;
+                shift += 35;
                 //rad = ((myBomb->angle) / 360.0f)*PI*2.0;
                 rad = ((parent->ship->angle+shift) / 360.0f) * PI * 2.0;
                 xdir = cos(rad);
@@ -200,7 +205,8 @@ void BombObject::handleCollision(Object * in_object)
 
 
 //Shotgun Definition
-Shotgun::Shotgun(int in_rate = 10, Player * in_parent = NULL , PhysWorld * in_member = NULL) : Weapon(in_rate, in_parent)
+Shotgun::Shotgun(int in_rate = 10, Player * in_parent = NULL, 
+        PhysWorld * in_member = NULL) : Weapon(in_rate, in_parent)
 {
     Weapon(in_rate, in_parent);
     member = in_member;
@@ -242,7 +248,6 @@ void Shotgun::fireWeapon()
     }
 
     if(!isBullet) {
-        cout << "inside fireweapon bullet" << endl;
         Flt rad = ((parent->ship->angle+90.0) / 360.0f) * PI * 2.0;
         Flt xdir = cos(rad);
         Flt ydir = sin(rad);
@@ -281,7 +286,7 @@ void Shotgun::physics()
         }
     }
 
-    
+
 
 }
 void Shotgun::render()
@@ -291,7 +296,9 @@ void Shotgun::render()
         for (int i = 0; i < 3; i++) {
             myBullet = sarr[i];
             glPushMatrix();
-            glColor3f(parent->ship->color[0]*255.0f,parent->ship->color[1]*255.0f,parent->ship->color[2]*255.0f);
+            glColor3f(parent->ship->color[0]*255.0f,
+                    parent->ship->color[1]*255.0f,
+                    parent->ship->color[2]*255.0f);
             glTranslatef(myBullet->pos[0], myBullet->pos[1] , 1);
             glBegin(GL_POLYGON);
             glVertex2f(myBullet->w/2,myBullet->h/2);
