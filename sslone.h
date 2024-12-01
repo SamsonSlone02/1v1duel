@@ -56,9 +56,9 @@ class Object
 
 		enum Type {NON,WALL,SHIP,BULLET,ITEMBOX,BOMB};
 		Type objectType;
-		Type filterType[10];
+		Type filterType[20];
 		//things that collision should ignore
-		Object * filter[10];
+		Object * filter[20];
 		int filterSize;
 
 		Object(PhysWorld * in_member);
