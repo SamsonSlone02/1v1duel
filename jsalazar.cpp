@@ -47,8 +47,8 @@ void Bomb::fireWeapon()
 
         myBomb->pos[0] = parent->ship->pos[0];
         myBomb->pos[1] = parent->ship->pos[1];
-        myBomb->vel[0] = xdir*3;
-        myBomb->vel[1] = ydir*3;
+        myBomb->vel[0] = xdir*4;
+        myBomb->vel[1] = ydir*4;
         myBomb->boom = false;
 
         for (int i = 0; i < 8; i++) {
@@ -72,12 +72,13 @@ void Bomb::physics()
         if (myBomb->boom) {
             //myBomb = NULL;
             //delete myBomb;
+            myBomb->angle = 90;
 
             cout << "went into boom physics" << endl;
             Flt rad = ((myBomb->angle) / 360.0f)*PI*2.0;
             Flt xdir = cos(rad);
             Flt ydir = sin(rad); 
-            //int shift = 0;
+            int shift = -50;
             for (int i = 0; i < 8; i++) {
                 barr[i] = new Bullet(member);    
                 myBullet = barr[i]; 
@@ -85,10 +86,12 @@ void Bomb::physics()
                 cout << "making a bullet member: " << myBullet << endl;
                 myBullet->pos[0] = myBomb->pos[0];
                 myBullet->pos[1] = myBomb->pos[1];
-                myBullet->vel[0] = (xdir)*2;
-                myBullet->vel[1] = (ydir)*2;
-                myBomb->angle += 20;
-                rad = ((myBomb->angle) / 360.0f)*PI*-2.0;
+                myBullet->vel[0] = (-xdir)*2;
+                myBullet->vel[1] = (-ydir)*2;
+                //myBomb->angle += 30;
+                shift += 30;
+                //rad = ((myBomb->angle) / 360.0f)*PI*2.0;
+                rad = ((parent->ship->angle+shift) / 360.0f) * PI * 2.0;
                 xdir = cos(rad);
                 ydir = cos(rad);
             }
@@ -120,7 +123,7 @@ void Bomb::render()
         for (int i = 0; i < 8; i++) {
             myBullet = barr[i];
             glPushMatrix();
-            glColor3f(0,0,0);
+            glColor3f(1,3,2);
             glTranslatef(myBullet->pos[0], myBullet->pos[1] , 1);
             glBegin(GL_POLYGON);
             glVertex2f(myBullet->w/2,myBullet->h/2);
@@ -288,7 +291,7 @@ void Shotgun::render()
         for (int i = 0; i < 3; i++) {
             myBullet = sarr[i];
             glPushMatrix();
-            glColor3f(0,0,0);
+            glColor3f(parent->ship->color[0]*255.0f,parent->ship->color[1]*255.0f,parent->ship->color[2]*255.0f);
             glTranslatef(myBullet->pos[0], myBullet->pos[1] , 1);
             glBegin(GL_POLYGON);
             glVertex2f(myBullet->w/2,myBullet->h/2);
