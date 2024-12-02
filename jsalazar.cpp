@@ -94,7 +94,7 @@ void Bomb::physics()
                 myBullet = barr[i]; 
                 myBullet->member = member;
                 myBullet->addFilter(parent->ship);
-                cout << "added to filter" << endl;
+		cout << "added to filter" << endl;
                 parent->ship->addFilter(myBullet); 
                 member->addObject(myBullet);
                 cout << "making a bullet member: " << myBullet << endl;
@@ -159,7 +159,6 @@ void Bomb::render()
         glVertex2f(-myBomb->w/2,myBomb->h/2 );
         glEnd();
         glPopMatrix();
-     //   cout << "boom status: " << myBomb->boom << endl;
     } 
 
 }

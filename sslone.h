@@ -8,6 +8,7 @@
 #include <GL/glx.h>
 #include<cmath>
 #include "fonts.h"
+#include <math.h>
 class Player;
 class Bullet;
 class Global;

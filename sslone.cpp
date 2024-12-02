@@ -1,5 +1,6 @@
 #include "sslone.h"
 #include "rrivasnavarr.h"
+#include "jsalazar.h"
 using namespace std;
 
 Object::Object(PhysWorld * in_member = NULL)
@@ -277,7 +278,7 @@ void Ship::handleCollision(Object * in_object)
 
 		case ITEMBOX:
 			srand(time(NULL));
-			parent->setWeapon(rand() % 6);
+			parent->setWeapon(-1);
 
 			//	member->remObject(in_object);
 			cout << "touched itembox" << endl;
@@ -337,22 +338,11 @@ void ItemBox::handleCollision(Object * in_object)
 			y1 = gl.yres/2;
 			x2 = pos[0];
 			y2 = pos[1];
-
-			if((x2 >= (gl.xres/2) - (gl.xres / 4) && x2 <= (gl.xres/2) + (gl.xres/4)) &&
-					(y2 >= (gl.yres/2) - (gl.yres / 4) && (y2 <= (gl.yres/2) + (gl.yres/4)))
-			  )
-			{
-				pos[0] += .3 * atan2((y2-y1),(x2-x1));
-				pos[1] += .3 * atan2((y2-y1),(x2-x1));
-			}
-			else{
-
-				pos[0] -= .3 * atan2((y2-y1),(x2-x1));
-				pos[1] -= .3 * atan2((y2-y1),(x2-x1));
-
-			}
-
-
+			pos[0] -= .3 * cos(atan2((y2-y1),(x2-x1)));
+			pos[1] -= .3 * sin(atan2((y2-y1),(x2-x1)));
+			
+			if(pos[0] != gl.xres / 2)
+			if(pos[1] != gl.yres/2)
 			break;
 		case ITEMBOX:
 			break;
@@ -1199,6 +1189,68 @@ void Player::setWeapon(int input)
 	//remove current weapon
 	//set empty weapon
 	//unfinised, will eventually figure out how i want weapons to be assigned via arguments
+	if(input == -1)
+	{
+		int randWeap = rand() % 10;
+		cout << randWeap << endl;
+		switch (randWeap) {
+			case 0:
+				delete this->currentWeapon;
+				currentWeapon = new Sniper(10,this,ship->member);
+				break;
+			case 1:
+				delete this->currentWeapon;
+				currentWeapon = new Boomerang(10,this,ship->member);
+				break;
+			case 2:
+				delete this->currentWeapon;
+				currentWeapon = new Bomb(10,this,ship->member);
+				break;
+			case 3:
+				delete this->currentWeapon;
+				currentWeapon = new Shotgun(10,this,ship->member);
+				break;
+			case 4:
+			case 5:
+				delete this->currentPassive;
+				currentPassive = new Shield(this);
+				break;
+			case 6:
+			case 7:
+				delete this->currentPassive;
+				currentPassive = new Speed(this);
+				break;
+			case 8:
+				randWeap = rand() % 2;
+				if (randWeap == 0) {
+				delete this->currentPassive;
+				currentPassive = new Passive(this);
+				}
+				else {
+					setWeapon(-1);
+				}
+				break;
+			case 9:
+				randWeap = rand() % 2;
+				if (randWeap == 0) {
+				delete this->currentWeapon;
+				currentWeapon = new Weapon(10,this);
+				} else{
+					setWeapon(-1);
+				}
+				break;
+				/*
+			case 11:
+			case 12:
+			case 13:
+			case 14:
+			case 15:
+		*/
+		
+		}
+		return;
+	}
+
 
 	const char * names[] = {"NON","SNIPER","BOOMERANG","SHIELD","SPEED","BOMB"};
 	std::cout << names[input] << endl;
@@ -1273,10 +1325,10 @@ Player::Player(int in_health, double in_speed, double in_rSpeed, PhysWorld * in_
 void Player::respawn()
 {
 	extern Global gl;
-	setWeapon(0);
+	setWeapon(-1);
 	ship->pos[0] = 0;
 	ship->pos[1] = 0;
-	ship->setColor(0,0,0);
+	//ship->setColor(0,0,0);
 	ship->pos[0] = (float)(rand() % gl.xres);
 	ship->pos[1] = (float)(rand() % gl.yres);
 

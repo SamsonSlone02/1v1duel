@@ -77,8 +77,15 @@ Ship::Ship(PhysWorld * in_member = NULL, Player * in_parent = NULL) : Object(in_
 	objectType = SHIP;
 	h = 20;
 	w = 20;
+	int spawnPos[4][2] = {{50,50},{gl.xres - 50,gl.yres - 50},{gl.xres - 50, 50}, {50, gl.yres - 50}};
+	
 	pos[0] = (float)(rand() % gl.xres) ;
 	pos[1] = (float)(rand() % gl.yres) ;
+	
+	
+	pos[0] = spawnPos[rand() % 4][0];
+	pos[1] = spawnPos[rand() % 4][1];
+	
 	drawPos[0] = pos[0] - (w/2);
 	drawPos[1] = pos[1] - (h/2);
 
