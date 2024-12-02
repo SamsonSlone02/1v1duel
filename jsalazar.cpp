@@ -12,7 +12,7 @@ Bomb::Bomb(int in_rate = 10, Player * in_parent = NULL , PhysWorld * in_member =
     member = in_member;
     this->parent = in_parent;
    bulletCount = 5;
-count = 200;
+count = 250;
     for (int i = 0; i < bulletCount; i++) {
         barr[i] = NULL;
     }
@@ -25,10 +25,10 @@ string Bomb::getWeapon()
 
 Bomb::~Bomb()
 {  
-    for (int i = 0; i < 8; i++) {
+    for (int i = 0; i < bulletCount; i++) {
       cout << "removing bullet" << endl;
       myBullet = barr[i];
-      parent->ship->remFilter(myBullet);
+      //parent->ship->remFilter(myBullet);
       member->remObject(myBullet);
     delete myBullet;  
     }
@@ -36,7 +36,8 @@ Bomb::~Bomb()
 
 void Bomb::fireWeapon()
 {
-    if (myBomb == NULL && count >= 200) {
+    if (myBomb == NULL && count >= 250) 
+    {
         cout << "firing bomb!" << endl;
         member->printArr();
         myBomb = new BombObject(member);
@@ -76,15 +77,8 @@ void Bomb::physics()
     if (myBomb != NULL) {
 
         if (myBomb->boom) {
-            //myBomb = NULL;
-            //delete myBomb;
             myBomb->angle = 90;
 
-            //cout << "went into boom physics" << endl;
-            //Flt rad = (2*PI) * ((float)i/8) * ((double)(rand()*5)/1000.0);
-            //Flt xdir = cos(rad);
-            //Flt ydir = sin(rad); 
-            //int shift = -70;
             for (int i = 0; i < bulletCount; i++) {
                 Flt rad = (2*PI) * ((float)i/8) * ((double)(rand()*5)/1000.0);
             Flt xdir = cos(rad);
@@ -95,20 +89,12 @@ void Bomb::physics()
                 myBullet = barr[i]; 
                 myBullet->member = member;
                 myBullet->addFilter(parent->ship);
-		//cout << "added to filter" << endl;
                 parent->ship->addFilter(myBullet); 
                 member->addObject(myBullet);
-               // cout << "making a bullet member: " << myBullet << endl;
                 myBullet->pos[0] = myBomb->pos[0];
                 myBullet->pos[1] = myBomb->pos[1];
                 myBullet->vel[0] = (-xdir)*2;
                 myBullet->vel[1] = (-ydir)*2;
-                //myBomb->angle += 30;
-                //shift += 35;
-                //rad = ((myBomb->angle) / 360.0f)*PI*2.0;
-                //rad = ((parent->ship->angle+shift) / 360.0f) * PI * 2.0;
-                //xdir = cos(rad);
-                //ydir = cos(rad);
             }
             delete myBomb;
             myBomb = NULL;
@@ -357,8 +343,9 @@ ggprint8b(&r, 16, 0x00ff0000, type);
 
 
 
-/*
+
 //Map 3 Definitions
+/*
 Map3::Map3()
 {
     float h,w;
