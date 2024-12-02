@@ -54,6 +54,6 @@ class Map3
         Map3();
         ~Map3();
         void render();
-        Object * level[4];
+        Object * level[5];
 
 };*/

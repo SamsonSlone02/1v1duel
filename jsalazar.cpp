@@ -38,11 +38,12 @@ void Bomb::fireWeapon()
 {
     if (myBomb == NULL) {
         cout << "firing bomb!" << endl;
+        member->printArr();
         myBomb = new BombObject(member);
         myBomb->clearFilter();
-        for(int i = 0; i < 8;i++) {
-           barr[i] = NULL;
-        }
+        //for(int i = 0; i < 8;i++) {
+           //barr[i] = NULL;
+        //}
          
         Flt rad = ((parent->ship->angle+90.0) / 360.0f) * PI * 2.0;
         Flt xdir = cos(rad);
@@ -63,6 +64,7 @@ void Bomb::fireWeapon()
                 parent->ship->remFilter(myBullet); 
                 member->remObject(myBullet);
                 delete barr[i];
+                barr[i] = NULL;
             }
         }
     }
@@ -323,28 +325,30 @@ void Shotgun::render()
 //Map 3 Definitions
 Map3::Map3()
 {
-    //float h,w;
+    float h,w;
 
-    //float wC[3] = {0,0,255};
+    float wC[3] = {0,0,255};
 
     extern PhysWorld * myPhysWorld;
     extern Global gl;
 
-    level[0] = new Wall(myPhysWorld, 30.0f, gl.xres);
-    level[0]->pos[1] = 15;
-    myPhysWorld->addObject(level[0]);
+    level[0]->pos[0] = 
 
     level[1] = new Wall(myPhysWorld, 30.0f, gl.xres);
-    level[1]->pos[1] = gl.yres-15;
+    level[1]->pos[1] = 15;
+    myPhysWorld->addObject(level[0]);
+
+    level[2] = new Wall(myPhysWorld, 30.0f, gl.xres);
+    level[2]->pos[1] = gl.yres-15;
     myPhysWorld->addObject(level[1]);
 
 
-    level[2] = new Wall(myPhysWorld, gl.xres, 30.0f);
-    level[2]->pos[0] = gl.xres-15;
+    level[3] = new Wall(myPhysWorld, gl.xres, 30.0f);
+    level[3]->pos[0] = gl.xres-15;
     myPhysWorld->addObject(level[2]);
 
-    level[3] = new Wall(myPhysWorld, gl.xres, 30.0f);
-    level[3]->pos[0] = 15;
+    level[4] = new Wall(myPhysWorld, gl.xres, 30.0f);
+    level[4]->pos[0] = 15;
     myPhysWorld->addObject(level[3]);
 
 
@@ -354,7 +358,7 @@ Map3::Map3()
 
 void Map3::render()
 {
-    for(int i = 0; i < 4; i++) {
+    for(int i = 0; i < 5; i++) {
 
         if (level[i] != NULL) {
 
