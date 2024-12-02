@@ -7,16 +7,18 @@ class Bomb: public Weapon
        Bullet * myBullet;
        struct timespec bulletTimer;
        int bulletCount;
-       
+       const char * type = "Bomb";
        public:
        PhysWorld * member;
        Bomb(int in_rate, Player * in_parent, PhysWorld * in_member);
        ~Bomb();
-       //std::string getWeapon();
+       std::string getWeapon();
+       
        void fireWeapon();
        void physics();
        void render();
        BombObject * myBomb;
+       int count;
        Bullet * barr[8];
   };  
 
@@ -36,12 +38,13 @@ class Shotgun: public Weapon
        private:
        Bullet * myBullet;
        struct timespec bulletTimer;
+       const char * type = "Shotgun";
        public:
        bool isBullet;
        PhysWorld * member;
        Shotgun(int in_rate, Player * in_parent, PhysWorld * in_member);
        ~Shotgun();
-       //std::string getWeapon();
+       std::string getWeapon();
        void fireWeapon();
        void physics();
        void render();

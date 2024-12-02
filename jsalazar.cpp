@@ -3,12 +3,8 @@
 #include "jsalazar.h"
 #include "rrivasnavarr.h"
 using namespace std;
-/*
-   string Bomb::getWeapon()
-   {
-   return this->type;
-   }
-   */ 
+
+    
 
 Bomb::Bomb(int in_rate = 10, Player * in_parent = NULL , PhysWorld * in_member = NULL) : Weapon(in_rate, in_parent)
 {
@@ -16,11 +12,15 @@ Bomb::Bomb(int in_rate = 10, Player * in_parent = NULL , PhysWorld * in_member =
     member = in_member;
     this->parent = in_parent;
    bulletCount = 5;
-
+count = 200;
     for (int i = 0; i < bulletCount; i++) {
         barr[i] = NULL;
     }
 
+}
+string Bomb::getWeapon()
+{
+ return this->type;
 }
 
 Bomb::~Bomb()
@@ -36,7 +36,7 @@ Bomb::~Bomb()
 
 void Bomb::fireWeapon()
 {
-    if (myBomb == NULL) {
+    if (myBomb == NULL && count >= 200) {
         cout << "firing bomb!" << endl;
         member->printArr();
         myBomb = new BombObject(member);
@@ -64,6 +64,7 @@ void Bomb::fireWeapon()
                 barr[i] = NULL;
             }
         }
+    count = 0;
     }
 
 }
@@ -79,7 +80,7 @@ void Bomb::physics()
             //delete myBomb;
             myBomb->angle = 90;
 
-            cout << "went into boom physics" << endl;
+            //cout << "went into boom physics" << endl;
             //Flt rad = (2*PI) * ((float)i/8) * ((double)(rand()*5)/1000.0);
             //Flt xdir = cos(rad);
             //Flt ydir = sin(rad); 
@@ -94,10 +95,10 @@ void Bomb::physics()
                 myBullet = barr[i]; 
                 myBullet->member = member;
                 myBullet->addFilter(parent->ship);
-		cout << "added to filter" << endl;
+		//cout << "added to filter" << endl;
                 parent->ship->addFilter(myBullet); 
                 member->addObject(myBullet);
-                cout << "making a bullet member: " << myBullet << endl;
+               // cout << "making a bullet member: " << myBullet << endl;
                 myBullet->pos[0] = myBomb->pos[0];
                 myBullet->pos[1] = myBomb->pos[1];
                 myBullet->vel[0] = (-xdir)*2;
@@ -128,6 +129,23 @@ void Bomb::physics()
 
 
     }
+
+/*
+ if (count >= 100) {
+            for (int i = 0; i < bulletCount; i++) {
+                cout << "removing bullet" << endl;
+                myBullet = barr[i];
+                parent->ship->remFilter(myBullet);
+                myBullet->clearFilter();
+                parent->ship->remFilter(myBullet); 
+                member->remObject(myBullet);
+                delete barr[i];
+                barr[i] = NULL;
+            }
+ }*/
+    
+    count++;
+
 
 }
 void Bomb::render()
@@ -161,6 +179,11 @@ void Bomb::render()
         glPopMatrix();
     } 
 
+Rect r;
+r.bot = parent->ship->pos[1] - 35;
+r.left = parent->ship->pos[0] - 15;
+r.center = 0;
+ggprint8b(&r, 16, 0x00ff0000, type);
 }
 
 // Bomb Object definitions
@@ -213,6 +236,7 @@ void BombObject::handleCollision(Object * in_object)
 
 
 //Shotgun Definition
+
 Shotgun::Shotgun(int in_rate = 10, Player * in_parent = NULL, 
         PhysWorld * in_member = NULL) : Weapon(in_rate, in_parent)
 {
@@ -227,6 +251,11 @@ Shotgun::Shotgun(int in_rate = 10, Player * in_parent = NULL,
     }
 
 }
+
+string Shotgun::getWeapon()
+   {
+   return this->type;
+   }
 
 Shotgun::~Shotgun()
 {  
@@ -271,8 +300,8 @@ void Shotgun::fireWeapon()
             cout << "making a bullet member: " << myBullet << endl;
             myBullet->pos[0] = parent->ship->pos[0];
             myBullet->pos[1] = parent->ship->pos[1];
-            myBullet->vel[0] = (xdir)*2;
-            myBullet->vel[1] = (ydir)*2;
+            myBullet->vel[0] = (xdir)*4;
+            myBullet->vel[1] = (ydir)*4;
             shift += 14;
             rad = ((parent->ship->angle+shift) / 360.0f) * PI * 2.0; 
             xdir = cos(rad);
@@ -317,6 +346,12 @@ void Shotgun::render()
             glPopMatrix();
         }
     } 
+
+Rect r;
+r.bot = parent->ship->pos[1] - 35;
+r.left = parent->ship->pos[0] - 15;
+r.center = 0;
+ggprint8b(&r, 16, 0x00ff0000, type);
 
 }
 
