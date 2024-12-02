@@ -6,7 +6,8 @@ class Bomb: public Weapon
        private:
        Bullet * myBullet;
        struct timespec bulletTimer;
-       float space = 10;
+       int bulletCount;
+       
        public:
        PhysWorld * member;
        Bomb(int in_rate, Player * in_parent, PhysWorld * in_member);

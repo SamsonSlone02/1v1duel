@@ -15,9 +15,9 @@ Bomb::Bomb(int in_rate = 10, Player * in_parent = NULL , PhysWorld * in_member =
     Weapon(in_rate, in_parent);
     member = in_member;
     this->parent = in_parent;
+   bulletCount = 5;
 
-
-    for (int i = 0; i < 8; i++) {
+    for (int i = 0; i < bulletCount; i++) {
         barr[i] = NULL;
     }
 
@@ -25,13 +25,13 @@ Bomb::Bomb(int in_rate = 10, Player * in_parent = NULL , PhysWorld * in_member =
 
 Bomb::~Bomb()
 {  
-    /*for (int i = 0; i < 8; i++) {
+    for (int i = 0; i < 8; i++) {
       cout << "removing bullet" << endl;
       myBullet = barr[i];
       parent->ship->remFilter(myBullet);
       member->remObject(myBullet);
-      }
-      delete myBullet;*/
+    delete myBullet;  
+    }
 }
 
 void Bomb::fireWeapon()
@@ -41,9 +41,6 @@ void Bomb::fireWeapon()
         member->printArr();
         myBomb = new BombObject(member);
         myBomb->clearFilter();
-        //for(int i = 0; i < 8;i++) {
-           //barr[i] = NULL;
-        //}
          
         Flt rad = ((parent->ship->angle+90.0) / 360.0f) * PI * 2.0;
         Flt xdir = cos(rad);
@@ -56,7 +53,7 @@ void Bomb::fireWeapon()
         myBomb->boom = false;
 
         if (barr[0] != NULL) {
-            for (int i = 0; i < 8; i++) {
+            for (int i = 0; i < bulletCount; i++) {
                 cout << "removing bullet" << endl;
                 myBullet = barr[i];
                 parent->ship->remFilter(myBullet);
@@ -83,11 +80,16 @@ void Bomb::physics()
             myBomb->angle = 90;
 
             cout << "went into boom physics" << endl;
-            Flt rad = ((myBomb->angle) / 360.0f)*PI*2.0;
+            //Flt rad = (2*PI) * ((float)i/8) * ((double)(rand()*5)/1000.0);
+            //Flt xdir = cos(rad);
+            //Flt ydir = sin(rad); 
+            //int shift = -70;
+            for (int i = 0; i < bulletCount; i++) {
+                Flt rad = (2*PI) * ((float)i/8) * ((double)(rand()*5)/1000.0);
             Flt xdir = cos(rad);
-            Flt ydir = sin(rad); 
-            int shift = -70;
-            for (int i = 0; i < 8; i++) {
+            Flt ydir = sin(rad);
+                
+                
                 barr[i] = new Bullet(member);    
                 myBullet = barr[i]; 
                 myBullet->member = member;
@@ -101,11 +103,11 @@ void Bomb::physics()
                 myBullet->vel[0] = (-xdir)*2;
                 myBullet->vel[1] = (-ydir)*2;
                 //myBomb->angle += 30;
-                shift += 35;
+                //shift += 35;
                 //rad = ((myBomb->angle) / 360.0f)*PI*2.0;
-                rad = ((parent->ship->angle+shift) / 360.0f) * PI * 2.0;
-                xdir = cos(rad);
-                ydir = cos(rad);
+                //rad = ((parent->ship->angle+shift) / 360.0f) * PI * 2.0;
+                //xdir = cos(rad);
+                //ydir = cos(rad);
             }
             delete myBomb;
             myBomb = NULL;
@@ -117,7 +119,7 @@ void Bomb::physics()
     }
 
     if (barr[0] != NULL) {
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < bulletCount; i++) {
             myBullet = barr[i];
             myBullet->pos[0] += myBullet->vel[0] * myBullet->xBounce;
             myBullet->pos[1] += myBullet->vel[1] * myBullet->yBounce;
@@ -132,10 +134,10 @@ void Bomb::render()
 {
 
     if (barr[0] != NULL) {
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < bulletCount; i++) {
             myBullet = barr[i];
             glPushMatrix();
-            glColor3f(1,3,2);
+            glColor3f(parent->ship->color[0],parent->ship->color[1],parent->ship->color[2]);
             glTranslatef(myBullet->pos[0], myBullet->pos[1] , 1);
             glBegin(GL_POLYGON);
             glVertex2f(myBullet->w/2,myBullet->h/2);
@@ -157,7 +159,7 @@ void Bomb::render()
         glVertex2f(-myBomb->w/2,myBomb->h/2 );
         glEnd();
         glPopMatrix();
-        cout << "boom status: " << myBomb->boom << endl;
+     //   cout << "boom status: " << myBomb->boom << endl;
     } 
 
 }
@@ -303,9 +305,9 @@ void Shotgun::render()
         for (int i = 0; i < 3; i++) {
             myBullet = sarr[i];
             glPushMatrix();
-            glColor3f(parent->ship->color[0]*255.0f,
-                    parent->ship->color[1]*255.0f,
-                    parent->ship->color[2]*255.0f);
+            glColor3f(parent->ship->color[0],
+                    parent->ship->color[1],
+                    parent->ship->color[2]);
             glTranslatef(myBullet->pos[0], myBullet->pos[1] , 1);
             glBegin(GL_POLYGON);
             glVertex2f(myBullet->w/2,myBullet->h/2);
@@ -331,25 +333,30 @@ Map3::Map3()
 
     extern PhysWorld * myPhysWorld;
     extern Global gl;
-
-    level[0]->pos[0] = 
+    
+    w = 75.0f;
+    h = 75.0f;
+    level[0] = new Wall(myPhysWorld, h, w);  
+    level[0]->pos[0] = (int)((float)gl.xres *.2f); 
+    level[0]->pos[1] = (int)((float)gl.xres *.75f);  
+    myPhysWorld-> addObject(level[0]);
 
     level[1] = new Wall(myPhysWorld, 30.0f, gl.xres);
     level[1]->pos[1] = 15;
-    myPhysWorld->addObject(level[0]);
+    myPhysWorld->addObject(level[1]);
 
     level[2] = new Wall(myPhysWorld, 30.0f, gl.xres);
     level[2]->pos[1] = gl.yres-15;
-    myPhysWorld->addObject(level[1]);
+    myPhysWorld->addObject(level[2]);
 
 
     level[3] = new Wall(myPhysWorld, gl.xres, 30.0f);
     level[3]->pos[0] = gl.xres-15;
-    myPhysWorld->addObject(level[2]);
+    myPhysWorld->addObject(level[3]);
 
     level[4] = new Wall(myPhysWorld, gl.xres, 30.0f);
     level[4]->pos[0] = 15;
-    myPhysWorld->addObject(level[3]);
+    myPhysWorld->addObject(level[4]);
 
 
 
