@@ -77,15 +77,13 @@ Ship::Ship(PhysWorld * in_member = NULL, Player * in_parent = NULL) : Object(in_
 	objectType = SHIP;
 	h = 20;
 	w = 20;
+	/*
 	int spawnPos[4][2] = {{50,50},{gl.xres - 50,gl.yres - 50},{gl.xres - 50, 50}, {50, gl.yres - 50}};
-	
 	pos[0] = (float)(rand() % gl.xres) ;
 	pos[1] = (float)(rand() % gl.yres) ;
-	
-	
 	pos[0] = spawnPos[rand() % 4][0];
 	pos[1] = spawnPos[rand() % 4][1];
-	
+	*/
 	drawPos[0] = pos[0] - (w/2);
 	drawPos[1] = pos[1] - (h/2);
 
@@ -109,7 +107,7 @@ class Game {
 		Player *players[2];
 		struct timespec mouseThrustTimer;
 		bool mouseThrustOn;
-		Map2 * mapp;
+		BaseMap * mapp;
 		Hud * myHud;
 	public:
 		Game() {
@@ -119,7 +117,10 @@ class Game {
 			mouseThrustOn = false;
 			players[0]->opponent = players[1];
 			players[1]->opponent = players[0];
-	
+			players[0]->ship->pos[0] = gl.xres - 50;
+			players[0]->ship->pos[1] = 50;
+			players[1]->ship->pos[0] = 50;
+			players[1]->ship->pos[1] = gl.yres - 50;
 
 
 			//temporary, setting passive and weapons for both players for testing
@@ -127,20 +128,24 @@ class Game {
 	//		players[1]->currentPassive = new Shield(players[1]);
 			players[0]->currentWeapon = new Boomerang(10,players[0],myPhysWorld);		
 			//players[1]->currentWeapon = new Boomerang(10,players[1],myPhysWorld);		
-			players[1]->currentWeapon = new Bomb(10,players[1],myPhysWorld);
+			//players[1]->currentWeapon = new Bomb(10,players[1],myPhysWorld);
 			//players[1]->currentWeapon = new Shotgun(10,players[1],myPhysWorld);
-            //players[1]->currentWeapon = new Sniper(10,players[1],myPhysWorld);
+            		players[1]->currentWeapon = new Sniper(10,players[1],myPhysWorld);
 			myPhysWorld->addObject(players[0]->ship);
 			myPhysWorld->addObject(players[1]->ship);
 
 
-			players[1]->ship->setColor(100,90,240);
-			players[1]->ship->setColor(100,90,240);
+			players[0]->ship->setColor(0,255,0);
+			players[1]->ship->setColor(255,0,255);
 
 			// creates level map
 			myHud = new Hud(players[0],players[1]);
-			mapp = new Map2();
-
+			int r = rand() % 2;
+			if(r == 0)
+				mapp = new Map2();
+			if(r==1)
+				mapp = new Map3();
+				
 		}
 		~Game() {
 
@@ -421,9 +426,20 @@ void physics()
 	//	Flt d0,d1,dist;
 	if(!gl.isPaused)
 	{
+
 		myBoxWorld->update();
 		for(int i = 0; i < 2; i++)
 		{
+			if(g.players[0]->lives ==0)
+			{
+				cout << "p2 Won" << endl;
+				exit(1);
+			}
+			if(g.players[1]->lives ==0)
+			{
+				cout << "p1 Won" << endl;
+				exit(1);
+			}
 			//Update ship position
 			g.players[i]->ship->pos[0] += g.players[i]->ship->vel[0];
 			g.players[i]->ship->pos[1] += g.players[i]->ship->vel[1];
@@ -449,6 +465,7 @@ void physics()
 			g.players[i]->currentPassive->update();
 			//g.players[i]->ship->Object::testCollision();
 			//cout << "Position Updated" << endl;
+
 		}
 		//---------------------------------------------------
 		//check keys pressed now
@@ -547,26 +564,27 @@ void physics()
 
 	//how we would implement gamemodes
 	/*
-	arr gameMode[3] = {points, elims}
-	
-	gameMode->update();
+	   arr gameMode[3] = {points, elims}
 
-	if(gameMode->winCondition)
-	{
-		done = false;
-	
-	}
-	*/
+	   gameMode->update();
+
+	   if(gameMode->winCondition)
+	   {
+	   done = false;
+
+	   }
+	   */
 
 }
 
 void render()
 {
-	Rect r;
 	glClear(GL_COLOR_BUFFER_BIT);
-	r.bot = gl.yres - 20;
+	Rect r;
+	r.bot = (gl.yres/2) - 50;
 	r.left = gl.xres/2;
 	r.center = 1;
+
 
 	//--draws background
 	glColor3f(128/255.0,128/255.0,128/255.0);
@@ -577,33 +595,37 @@ void render()
 	glVertex2i(0,gl.yres);
 	glEnd();
 	//--
+	g.mapp->render();
+	g.myHud->render();
 
 	glColor3ub(0,0,0);
 	/*
-	glPushMatrix();
-	glTranslatef((gl.xres/2)-50, (gl.yres/2)-50, 1);
-	glBegin(GL_POLYGON);
-	glVertex2f(0.0f, 100.0f);
-	glVertex2f(  0.0f,  0.0f);
-	glVertex2f(  100.0f,  0.0f);
-	glVertex2f(100.0f, 100.0f);
-	glEnd();
-	glPopMatrix();
-	*/
+	   glPushMatrix();
+	   glTranslatef((gl.xres/2)-50, (gl.yres/2)-50, 1);
+	   glBegin(GL_POLYGON);
+	   glVertex2f(0.0f, 100.0f);
+	   glVertex2f(  0.0f,  0.0f);
+	   glVertex2f(  100.0f,  0.0f);
+	   glVertex2f(100.0f, 100.0f);
+	   glEnd();
+	   glPopMatrix();
+	   */
 	//g.players[0]->ship->drawHitbox();
 	//g.players[1]->ship->drawHitbox();
-	
+
 	//Draw the ship
 	for(int i =0; i < 2; i++)
 	{
 
 		float tempX = g.players[i]->ship->pos[0];
 		float tempY = g.players[i]->ship->pos[1];
-
+		//g.players[i]->ship->drawHitbox();
 		glColor3fv(g.players[i]->ship->color);
 		glPushMatrix();
 		glTranslatef(tempX, tempY, g.players[i]->ship->pos[2]);
 		glRotatef(g.players[i]->ship->angle, 0.0f, 0.0f, 1.0f);
+		
+		/*
 		glBegin(GL_TRIANGLES);
 		glVertex2f(-12.0f, -10.0f);
 		glVertex2f(  0.0f,  20.0f);
@@ -611,8 +633,39 @@ void render()
 		glVertex2f(  0.0f,  -6.0f);
 		glVertex2f(  0.0f,  20.0f);
 		glVertex2f( 12.0f, -10.0f);
+		*/
+
+		int w1 = 5;
+		int h1 = 7;
+		int w2 = 10;
+		int h2 = 10;
+		glColor3ub(0,0,0);
+		glBegin(GL_POLYGON);
+		glVertex2f(-w1 - 10,-h1+5);
+		glVertex2f(-w1 - 10,h1+5);
+		glVertex2f(w1 - 10,h1+5);
+		glVertex2f(w1 - 10,-h1+5);
+		glEnd();
+		glBegin(GL_POLYGON);
+		glVertex2f(-w1 + 10,-h1+5);
+		glVertex2f(-w1 + 10,h1+5);
+		glVertex2f(w1 + 10,h1+5);
+		glVertex2f(w1 + 10,-h1+5);
+		glEnd();
+		glColor3fv(g.players[i]->ship->color);
+		glBegin(GL_POLYGON);
+		glVertex2f(-w2,-h2);
+		glVertex2f(-w2,h2);
+		glVertex2f(w2,h2);
+		glVertex2f(w2,-h2);
 		glEnd();
 		glPopMatrix();
+		/*
+		glVertex2f(-w1,-h1);
+		glVertex2f(-w1,h1);
+		glVertex2f(w1,h1);
+		glVertex2f(w1,-h1);
+*/
 	}
 
 
@@ -624,12 +677,10 @@ void render()
 	}
 
 	// render Map
-	g.mapp->render();
-
 	//render itemBox (testing, will remove)
 	//g.myBox->render();
 
-	
+
 	for(int i = 0; i < BOXCAP;i++)
 	{
 		if(myBoxWorld->currentBoxes[i] != NULL)
@@ -639,11 +690,7 @@ void render()
 	}
 
 
-	//g.myHud->render();
-	
-	ggprint8b(&r, 16, 0x00ff0000, "Player 1 - w a s d space");
-	ggprint8b(&r, 16, 0x00ff0000, "Player 2 - up down left right enter");
-	ggprint8b(&r, 16, 0x00ff0000, "PAUSE : 'P'");
+
 
 	if(gl.isPaused)
 	{
@@ -651,6 +698,19 @@ void render()
 		//glEnable     (GL_BLEND);
 		//glClearColor(0.0,0.0,0.0,0.0);
 		//glEnable     (GL_COLOR_MATERIAL);
+		glPushMatrix();
+		glColor3ub(0,0,0);
+		glBegin(GL_POLYGON);
+		int w = 150;
+		int h = 100;
+		glVertex2f((gl.xres/2) + w,(gl.yres/2) + h);
+		glVertex2f((gl.xres/2) + w,(gl.yres/2) - h);
+		glVertex2f((gl.xres/2) - w,(gl.yres/2) - h);
+		glVertex2f((gl.xres/2) - w,(gl.yres/2) + h);
+		glEnd();
+		ggprint8b(&r, 16, 0x00ff0000, "Player 1 - w a s d space");
+		ggprint8b(&r, 16, 0x00ff0000, "Player 2 - up down left right enter");
+		ggprint8b(&r, 16, 0x00ff0000, "PAUSE : 'P'");
 		Rect p;
 		p.bot = gl.yres / 2;
 		p.left = gl.xres/2;

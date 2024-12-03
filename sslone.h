@@ -149,7 +149,7 @@ class Passive
 		virtual ~Passive();
 		virtual void update();
 		virtual void render();
-
+		virtual std::string getPassive();
 };
 
 class Shield: public Passive
@@ -172,6 +172,7 @@ class Shield: public Passive
 		Shield(Player * in_parent);
 		void update();
 		void render();
+		std::string getPassive();
 		~Shield();
 };
 class Speed: public Passive
@@ -183,6 +184,7 @@ class Speed: public Passive
 		Speed(Player * in_parent);
 		void update();
 		void render();
+		std::string getPassive();
 		~Speed();
 };
 
@@ -217,6 +219,9 @@ class Player
 	public:
 		int up,down,left,right,attack;
 		bool isThrust;
+		
+		int lives;
+		
 		Player * opponent;
 		Passive * currentPassive;
 		Weapon * currentWeapon;		
@@ -325,13 +330,33 @@ class Hud {
 		
 };
 
-class Map2
+class  BaseMap
+{
+	public:
+		BaseMap();
+		~BaseMap();
+		virtual void render();
+		Object * arr[50];
+};
+
+
+class Map2: public BaseMap
 {
 	public:
 		Map2();
 		~Map2();
 		void render();
 		Object * level[50];
+
+};
+class Map3;
+
+class MapHandler
+{
+	MapHandler();
+	~MapHandler();
+	BaseMap * currentMap;
+	void switchMap();
 
 };
 

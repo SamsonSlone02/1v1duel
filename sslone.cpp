@@ -15,14 +15,14 @@ void Object::drawHitbox()
 {
 	glPushMatrix();
 	glColor3ub(0,0,0);
-        glTranslatef(pos[0], pos[1] , 1);
-        glBegin(GL_POLYGON);
-        glVertex2f(w/2,h/2);
-        glVertex2f(w/2, -h/2);
-        glVertex2f(  -w/2,  -h/2);
-        glVertex2f(-w/2,h/2 );
-        glEnd();
-        glPopMatrix();
+	glTranslatef(pos[0], pos[1] , 1);
+	glBegin(GL_POLYGON);
+	glVertex2f(w/2,h/2);
+	glVertex2f(w/2, -h/2);
+	glVertex2f(  -w/2,  -h/2);
+	glVertex2f(-w/2,h/2 );
+	glEnd();
+	glPopMatrix();
 }
 
 Object::~Object(){}
@@ -45,12 +45,12 @@ bool Object::testCollision()
 		objectH = member->objectArr[i]->h;
 		//AABB collision detection
 		if ( 
-			this->pos[0] - w/2 < member->objectArr[i]->pos[0] + objectW/2 &&
-			this->pos[0] + w/2 > member->objectArr[i]->pos[0] - objectW/2 &&
-			this->pos[1] - h/2 < member->objectArr[i]->pos[1] + objectH/2 &&
-			this->pos[1] + h/2 > member->objectArr[i]->pos[1] - objectH/2
+				this->pos[0] - w/2 < member->objectArr[i]->pos[0] + objectW/2 &&
+				this->pos[0] + w/2 > member->objectArr[i]->pos[0] - objectW/2 &&
+				this->pos[1] - h/2 < member->objectArr[i]->pos[1] + objectH/2 &&
+				this->pos[1] + h/2 > member->objectArr[i]->pos[1] - objectH/2
 
-		) {
+		   ) {
 
 
 			for (int j = 0; j < filterSize;j++) {
@@ -102,7 +102,7 @@ void Object::clearFilter()
 	for (int i = 0; i < filterSize; i++) {
 		filter[i] = NULL;
 	}
-		
+
 
 }
 
@@ -132,7 +132,7 @@ void Object::clearFilterType()
 	for (int i = 0; i < filterSize; i++) {
 		filterType[i] = NON;
 	}
-		
+
 
 }
 
@@ -153,7 +153,7 @@ void Object::setColor(float r,float g,float b)
 
 PhysWorld::PhysWorld()
 {
-	
+
 	arrSize = 50;
 	for (int i = 0; i < arrSize;i++) {
 		objectArr[i] = NULL;
@@ -261,6 +261,7 @@ void Ship::handleCollision(Object * in_object)
 				   pos[0] = (float)(rand() % gl.xres);
 				   pos[1] = (float)(rand() % gl.yres);
 				   */
+				parent->lives--;
 				parent->respawn();
 			}
 
@@ -340,10 +341,10 @@ void ItemBox::handleCollision(Object * in_object)
 			y2 = pos[1];
 			pos[0] -= .3 * cos(atan2((y2-y1),(x2-x1)));
 			pos[1] -= .3 * sin(atan2((y2-y1),(x2-x1)));
-			
+
 			if(pos[0] != gl.xres / 2)
-			if(pos[1] != gl.yres/2)
-			break;
+				if(pos[1] != gl.yres/2)
+					break;
 		case ITEMBOX:
 			break;
 		case BOMB:
@@ -561,6 +562,12 @@ Passive::~Passive(){}
 void Passive::update(){}
 void Passive::render(){}
 
+string Passive::getPassive()
+{
+	return this->type;
+
+}
+
 Shield::Shield(Player * in_parent= NULL)
 {
 	Passive();
@@ -586,6 +593,11 @@ Shield::Shield(Player * in_parent= NULL)
 Shield::~Shield()
 {
 	parent->setHealth(1);
+}
+string Shield::getPassive()
+{
+	return this->type;
+
 }
 
 void Shield::update()
@@ -733,6 +745,11 @@ Speed::~Speed()
 {
 
 	parent->setSpeed(2);
+}
+string Speed::getPassive()
+{
+	return this->type;
+
 }
 void Speed::update(){}
 void Speed::render()
@@ -1003,6 +1020,7 @@ Sniper::Sniper(int in_rate = 10, Player * in_parent = NULL, PhysWorld * in_membe
 {
 	Weapon(in_rate, in_parent);
 	this->parent = in_parent;
+	parent->setRSpeed(2.5);
 	member = in_member;
 	canFire = true;
 	tts = 3;
@@ -1114,9 +1132,10 @@ void Sniper::render()
 {
 	int debug = 0;
 
+	Flt rad = ((parent->ship->angle+90.0) / 360.0f) * PI * 2.0;
 	if(debug) {
 		for (int i = 0; i < iterations; i++) {
-			Flt rad = ((parent->ship->angle+90.0) / 360.0f) * PI * 2.0;
+			rad = ((parent->ship->angle+90.0) / 360.0f) * PI * 2.0;
 			Object objectArr[200];
 			float xdir = cos(rad);
 			float ydir = sin(rad);
@@ -1132,6 +1151,7 @@ void Sniper::render()
 		}
 	}
 
+	glPushMatrix();
 	glBegin(GL_LINES);
 	glColor3ub(0, 0, 0);
 	glVertex2f(startPosL[0],startPosL[1]);
@@ -1141,17 +1161,29 @@ void Sniper::render()
 	glVertex2f(startPosC[0],startPosC[1]);
 	glVertex2f(endPosC[0],endPosC[1]);
 	glEnd();
-
+	glPopMatrix();
 	Rect r;
 	r.bot = parent->ship->pos[1] - 35;
 	r.left = parent->ship->pos[0] - 15;
 	r.center = 0;
 	ggprint8b(&r, 16, 0x00ff0000, type);
 
+	glPushMatrix();
+	glTranslatef(parent->ship->pos[0] + (400 *cos(rad)),parent->ship->pos[1] +(400* sin(rad)),1);
+	glColor3ub(255,0,0);
+	glBegin(GL_POLYGON);
+	glVertex2f(-5,5);
+	glVertex2f(-5,-5);
+	glVertex2f(5,-5);
+	glVertex2f(5,5);
+	glEnd();
+	glPopMatrix();
+
 };
 Sniper::~Sniper()
 {
 
+	parent->setRSpeed(6);
 }
 
 double Player::getRSpeed()
@@ -1195,58 +1227,92 @@ void Player::setWeapon(int input)
 		cout << randWeap << endl;
 		switch (randWeap) {
 			case 0:
+				if(currentWeapon->getWeapon() == "Sniper")
+				{
+					setWeapon(-1);
+					break;
+				}
 				delete this->currentWeapon;
 				currentWeapon = new Sniper(10,this,ship->member);
 				break;
 			case 1:
+				if(currentWeapon->getWeapon() == "Boomerang")
+				{
+					setWeapon(-1);
+					break;
+				}
 				delete this->currentWeapon;
 				currentWeapon = new Boomerang(10,this,ship->member);
 				break;
 			case 2:
+				if(currentWeapon->getWeapon() == "Bomb")
+				{
+					setWeapon(-1);
+					break;
+				}
 				delete this->currentWeapon;
 				currentWeapon = new Bomb(10,this,ship->member);
 				break;
 			case 3:
+				if(currentWeapon->getWeapon() == "Shotgun")
+				{
+					setWeapon(-1);
+					break;
+				}
 				delete this->currentWeapon;
 				currentWeapon = new Shotgun(10,this,ship->member);
 				break;
 			case 4:
 			case 5:
+				cout << currentPassive->getPassive() << endl;
+				if(currentPassive->getPassive() == "Shield")
+				{
+					setWeapon(-1);
+					break;
+				}
 				delete this->currentPassive;
 				currentPassive = new Shield(this);
 				break;
 			case 6:
 			case 7:
+				cout << currentPassive->getPassive() << endl;
+				if(currentPassive->getPassive() == "Speed")
+				{
+					setWeapon(-1);
+					break;
+				}
 				delete this->currentPassive;
 				currentPassive = new Speed(this);
 				break;
 			case 8:
-				randWeap = rand() % 2;
-				if (randWeap == 0) {
-				delete this->currentPassive;
-				currentPassive = new Passive(this);
+				randWeap = rand() % 4;
+				cout << randWeap << "out of 4, need 3 to remove" << endl;
+				if (randWeap == 3) {
+					delete this->currentPassive;
+					currentPassive = new Passive(this);
 				}
 				else {
 					setWeapon(-1);
 				}
 				break;
 			case 9:
-				randWeap = rand() % 2;
-				if (randWeap == 0) {
-				delete this->currentWeapon;
-				currentWeapon = new Weapon(10,this);
+				randWeap = rand() % 4;
+				cout << randWeap << "out of 4, need 3 to remove" << endl;
+				if (randWeap == 3) {
+					delete this->currentWeapon;
+					currentWeapon = new Weapon(10,this);
 				} else{
 					setWeapon(-1);
 				}
 				break;
 				/*
-			case 11:
-			case 12:
-			case 13:
-			case 14:
-			case 15:
-		*/
-		
+				   case 11:
+				   case 12:
+				   case 13:
+				   case 14:
+				   case 15:
+				   */
+
 		}
 		return;
 	}
@@ -1320,17 +1386,28 @@ Player::Player(int in_health, double in_speed, double in_rSpeed, PhysWorld * in_
 	currentWeapon = new Weapon(10,this);
 	currentPassive = new Passive(this);
 	ship = new Ship(member,this);
+
+	lives = 4;
 }
 
 void Player::respawn()
 {
 	extern Global gl;
 	setWeapon(-1);
+
 	ship->pos[0] = 0;
 	ship->pos[1] = 0;
 	//ship->setColor(0,0,0);
-	ship->pos[0] = (float)(rand() % gl.xres);
-	ship->pos[1] = (float)(rand() % gl.yres);
+
+
+	int spawnPos[5][2] = {{50,50},{gl.xres - 50,gl.yres - 50},{gl.xres - 50, 50}, {50, gl.yres - 50},{gl.xres/2,gl.yres/2}};
+
+	ship->pos[0] = (float)(rand() % gl.xres) ;
+	ship->pos[1] = (float)(rand() % gl.yres) ;
+
+
+	ship->pos[0] = spawnPos[rand() % 5][0];
+	ship->pos[1] = spawnPos[rand() % 5][1];
 
 
 }
@@ -1382,6 +1459,47 @@ void Hud::render()
 	glEnd();
 	glPopMatrix();
 
+	Rect r;
+	r.bot = (gl.yres - h/2);
+	r.left = w/2;
+	r.center = 0;
+
+	glPushMatrix();
+	glTranslatef(r.left,r.bot,1);
+	glColor3ub(255,0,0);
+	if(p1->lives > 1)
+		glColor3ub(0,0,0);
+	glBegin(GL_POLYGON);
+	glVertex2f(-5,-5);
+	glVertex2f(5,-5);
+	glVertex2f(5,5);
+	glVertex2f(-5,5);
+	glEnd();
+	glPopMatrix();
+	glPushMatrix();
+	glTranslatef(r.left - 30,r.bot,1);
+	glColor3ub(255,0,0);
+	if(p1->lives > 2)
+		glColor3ub(0,0,0);
+	glBegin(GL_POLYGON);
+	glVertex2f(-5,-5);
+	glVertex2f(5,-5);
+	glVertex2f(5,5);
+	glVertex2f(-5,5);
+	glEnd();
+	glPopMatrix();
+	glPushMatrix();
+	glTranslatef(r.left - 60,r.bot,1);
+	glColor3ub(255,0,0);
+	if(p1->lives > 3)
+		glColor3ub(0,0,0);
+	glBegin(GL_POLYGON);
+	glVertex2f(-5,-5);
+	glVertex2f(5,-5);
+	glVertex2f(5,5);
+	glVertex2f(-5,5);
+	glEnd();
+	glPopMatrix();
 
 	//right box
 	glPushMatrix();
@@ -1392,6 +1510,47 @@ void Hud::render()
 	glVertex2f(0.0f,0.0f);
 	glVertex2f(w,0.0f);
 	glVertex2f(w,h);
+	glEnd();
+	glPopMatrix();
+	
+	r.bot = (gl.yres - h/2);
+	r.left = gl.xres - w/2;
+	r.center = 0;
+
+	glPushMatrix();
+	glTranslatef(r.left,r.bot,1);
+	glColor3ub(255,255,255);
+	if(p2->lives > 1)
+		glColor3ub(0,0,0);
+	glBegin(GL_POLYGON);
+	glVertex2f(-5,-5);
+	glVertex2f(5,-5);
+	glVertex2f(5,5);
+	glVertex2f(-5,5);
+	glEnd();
+	glPopMatrix();
+	glPushMatrix();
+	glTranslatef(r.left + 30,r.bot,1);
+	glColor3ub(255,255,255);
+	if(p2->lives > 2)
+		glColor3ub(0,0,0);
+	glBegin(GL_POLYGON);
+	glVertex2f(-5,-5);
+	glVertex2f(5,-5);
+	glVertex2f(5,5);
+	glVertex2f(-5,5);
+	glEnd();
+	glPopMatrix();
+	glPushMatrix();
+	glTranslatef(r.left + 60,r.bot,1);
+	glColor3ub(255,255,255);
+	if(p2->lives > 3)
+		glColor3ub(0,0,0);
+	glBegin(GL_POLYGON);
+	glVertex2f(-5,-5);
+	glVertex2f(5,-5);
+	glVertex2f(5,5);
+	glVertex2f(-5,5);
 	glEnd();
 	glPopMatrix();
 
@@ -1406,6 +1565,10 @@ void Hud::render()
 	glVertex2f(midW,h);
 	glEnd();
 	glPopMatrix();
+	r.bot = (gl.yres - h/2);
+	r.left = gl.xres/2;
+	r.center = 1;
+	ggprint8b(&r, 16, 0x00000000, "1V1DUEL");
 
 	//bottom bar
 	glPushMatrix();
@@ -1483,9 +1646,12 @@ void Hud::render()
 	glPopMatrix();
 
 
+
 }
 
-
+BaseMap::BaseMap(){}
+BaseMap::~BaseMap(){}
+void BaseMap::render(){}
 Map2::Map2()
 {
 	float h,w;
@@ -1639,5 +1805,13 @@ void Map2::render()
 }
 
 Map2::~Map2()
-{}
+{
+	for(int i = 0; i < 15;i++)
+	{
+	
+	
+	}
+
+
+}
 

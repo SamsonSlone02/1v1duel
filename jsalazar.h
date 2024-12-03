@@ -52,7 +52,7 @@ class Shotgun: public Weapon
        Bullet * sarr[3];
   };
 
-class Map3
+class Map3 : public BaseMap
 {
 
     public:
@@ -62,4 +62,5 @@ class Map3
         void render();
         Object * level[50];
         int levelCount;
+
 };
