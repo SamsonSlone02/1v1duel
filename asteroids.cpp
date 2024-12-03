@@ -507,10 +507,10 @@ void check_mouse(XEvent *e)
         static int savey = 0;
         //
 
-        if (e->xbutton.x > gl.xres/4.1 
-                && e->xbutton.x < (gl.xres/2.1)
-                && e->xbutton.y > (gl.yres/2 + gl.yres/70)
-                && e->xbutton.y < (gl.yres - gl.yres/2.5)) {
+        if (e->xbutton.x > gl.xres/3 
+                && e->xbutton.x < (2*gl.xres/3)
+                && e->xbutton.y > (4.6*gl.yres/8)
+                && e->xbutton.y < (5.6*gl.yres/8)) {
             gl.hoverButton = 1;
         } else {
             gl.hoverButton = 0;
@@ -521,10 +521,10 @@ void check_mouse(XEvent *e)
         }
         if (e->type == ButtonPress) {
                 if (e->xbutton.button==1) {
-                    if (e->xbutton.x > gl.xres/4.1
-                            && e->xbutton.x < gl.xres/2.1
-                            && e->xbutton.y > gl.yres/2 + gl.yres/70
-                            && e->xbutton.y < gl.yres - gl.yres/2.5) {
+                    if (e->xbutton.x > (gl.xres/3)
+                            && e->xbutton.x < (2*gl.xres/3)
+                            && e->xbutton.y > (4.6*gl.yres/8)
+                            && e->xbutton.y < (5.6*gl.yres/8)) {
                         gl.showMenu = 0;
                     }
                     //Left button is down
