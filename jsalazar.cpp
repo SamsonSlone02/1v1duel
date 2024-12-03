@@ -29,7 +29,7 @@ Bomb::~Bomb()
     for (int i = 0; i < bulletCount; i++) {
         cout << "removing bullet" << endl;
         myBullet = barr[i];
-        //parent->ship->remFilter(myBullet);
+        parent->ship->remFilter(myBullet);
         member->remObject(myBullet);
         delete myBullet;  
     }
@@ -70,7 +70,6 @@ void Bomb::fireWeapon()
     }
 
 }
-
 
 void Bomb::physics()
 {
@@ -113,22 +112,7 @@ void Bomb::physics()
         }
     }
 
-    /*
-       if (count >= 100) {
-       for (int i = 0; i < bulletCount; i++) {
-       cout << "removing bullet" << endl;
-       myBullet = barr[i];
-       parent->ship->remFilter(myBullet);
-       myBullet->clearFilter();
-       parent->ship->remFilter(myBullet); 
-       member->remObject(myBullet);
-       delete barr[i];
-       barr[i] = NULL;
-       }
-       }*/
-
     count++;
-
 
 }
 void Bomb::render()
@@ -137,7 +121,8 @@ void Bomb::render()
         for (int i = 0; i < bulletCount; i++) {
             myBullet = barr[i];
             glPushMatrix();
-            glColor3f(parent->ship->color[0],parent->ship->color[1],parent->ship->color[2]);
+            glColor3f(parent->ship->color[0],parent->ship->color[1],
+                      parent->ship->color[2]);
             glTranslatef(myBullet->pos[0], myBullet->pos[1] , 1);
             glBegin(GL_POLYGON);
             glVertex2f(myBullet->w/2,myBullet->h/2);
