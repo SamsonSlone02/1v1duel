@@ -63,7 +63,7 @@ class Object
 		int filterSize;
 
 		Object(PhysWorld * in_member);
-		~Object();
+		virtual ~Object();
 		bool testCollision();
 		void addFilter(Object *in_object);
 		void remFilter(Object *in_object);
@@ -334,11 +334,19 @@ class  BaseMap
 {
 	public:
 		BaseMap();
-		~BaseMap();
+		virtual ~BaseMap();
 		virtual void render();
 		Object * arr[50];
 };
 
+class Map4: public BaseMap
+{
+	public:
+		Map4();
+		~Map4();
+		void render();
+		Object * level[50];
+};
 
 class Map2: public BaseMap
 {
@@ -353,11 +361,12 @@ class Map3;
 
 class MapHandler
 {
-	MapHandler();
-	~MapHandler();
-	BaseMap * currentMap;
-	void switchMap();
-
+	public:
+		MapHandler();
+		~MapHandler();
+		BaseMap * currentMap;
+		void switchMaps();
+		int nMap;
 };
 
 #endif //SSLONE_H

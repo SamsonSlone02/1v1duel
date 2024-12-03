@@ -102,12 +102,12 @@ Ship::Ship(PhysWorld * in_member = NULL, Player * in_parent = NULL) : Object(in_
 Global gl;
 PhysWorld * myPhysWorld = new PhysWorld();
 BoxWorld * myBoxWorld = new BoxWorld(myPhysWorld);
+MapHandler * myMapHandler = new MapHandler();
 class Game {
 	public:
 		Player *players[2];
 		struct timespec mouseThrustTimer;
 		bool mouseThrustOn;
-		BaseMap * mapp;
 		Hud * myHud;
 	public:
 		Game() {
@@ -117,10 +117,10 @@ class Game {
 			mouseThrustOn = false;
 			players[0]->opponent = players[1];
 			players[1]->opponent = players[0];
-			players[0]->ship->pos[0] = gl.xres - 50;
-			players[0]->ship->pos[1] = 50;
-			players[1]->ship->pos[0] = 50;
-			players[1]->ship->pos[1] = gl.yres - 50;
+			players[0]->ship->pos[0] = gl.xres - 100;
+			players[0]->ship->pos[1] = 100;
+			players[1]->ship->pos[0] = 100;
+			players[1]->ship->pos[1] = gl.yres - 100;
 
 
 			//temporary, setting passive and weapons for both players for testing
@@ -129,8 +129,8 @@ class Game {
 			players[0]->currentWeapon = new Boomerang(10,players[0],myPhysWorld);		
 			//players[1]->currentWeapon = new Boomerang(10,players[1],myPhysWorld);		
 			//players[1]->currentWeapon = new Bomb(10,players[1],myPhysWorld);
-			//players[1]->currentWeapon = new Shotgun(10,players[1],myPhysWorld);
-            		players[1]->currentWeapon = new Sniper(10,players[1],myPhysWorld);
+			players[1]->currentWeapon = new Shotgun(10,players[1],myPhysWorld);
+            		//players[1]->currentWeapon = new Sniper(10,players[1],myPhysWorld);
 			myPhysWorld->addObject(players[0]->ship);
 			myPhysWorld->addObject(players[1]->ship);
 
@@ -140,11 +140,6 @@ class Game {
 
 			// creates level map
 			myHud = new Hud(players[0],players[1]);
-			int r = rand() % 2;
-			if(r == 0)
-				mapp = new Map2();
-			if(r==1)
-				mapp = new Map3();
 				
 		}
 		~Game() {
@@ -595,7 +590,7 @@ void render()
 	glVertex2i(0,gl.yres);
 	glEnd();
 	//--
-	g.mapp->render();
+	myMapHandler->currentMap->render();
 	g.myHud->render();
 
 	glColor3ub(0,0,0);

@@ -261,8 +261,11 @@ void Ship::handleCollision(Object * in_object)
 				   pos[0] = (float)(rand() % gl.xres);
 				   pos[1] = (float)(rand() % gl.yres);
 				   */
+				extern MapHandler * myMapHandler;
+				myMapHandler->switchMaps();
 				parent->lives--;
 				parent->respawn();
+				parent->opponent->respawn();
 			}
 
 			break;
@@ -1400,7 +1403,7 @@ void Player::respawn()
 	//ship->setColor(0,0,0);
 
 
-	int spawnPos[5][2] = {{50,50},{gl.xres - 50,gl.yres - 50},{gl.xres - 50, 50}, {50, gl.yres - 50},{gl.xres/2,gl.yres/2}};
+	int spawnPos[5][2] = {{50,100},{gl.xres - 50,gl.yres - 100},{gl.xres - 50, 100}, {50, gl.yres - 100},{gl.xres/2,gl.yres/2}};
 
 	ship->pos[0] = (float)(rand() % gl.xres) ;
 	ship->pos[1] = (float)(rand() % gl.yres) ;
@@ -1648,12 +1651,46 @@ void Hud::render()
 
 
 }
+MapHandler::MapHandler(){
+	srand(time(NULL));
+	nMap = rand() % 2;
+	if(nMap == 0)
+	{
+		currentMap = new Map2();
+	}else
+	{
+		currentMap = new Map4();
+	}
 
+};
+MapHandler::~MapHandler(){
+delete currentMap;
+
+};
+void MapHandler::switchMaps(){
+	nMap = (nMap+1) % 2;
+	if(nMap == 0)
+	{
+		delete currentMap;
+		currentMap = new Map2();
+	}
+	if(nMap ==1)
+	{
+		delete currentMap;
+		currentMap = new Map4();
+	}
+
+
+};
 BaseMap::BaseMap(){}
 BaseMap::~BaseMap(){}
 void BaseMap::render(){}
 Map2::Map2()
 {
+	for(int i = 0; i < 50; i++)
+	{
+		level[i] = NULL;
+	}
 	float h,w;
 	//woodColor
 	float wC[3] = {161,102,47};
@@ -1806,12 +1843,83 @@ void Map2::render()
 
 Map2::~Map2()
 {
-	for(int i = 0; i < 15;i++)
+	extern PhysWorld * myPhysWorld;
+	for(int i = 0; i < 50;i++)
 	{
-	
-	
+			myPhysWorld->remObject(level[i]);
+			delete level[i];
 	}
 
 
 }
 
+Map4::Map4(){
+
+	for(int i = 0; i < 50; i++)
+	{
+		level[i] = NULL;
+	}
+	extern PhysWorld * myPhysWorld;
+	extern Global gl;
+	level[0] = new Wall(myPhysWorld, 30.0f, gl.xres);
+	level[0]->pos[1] = 15;
+	myPhysWorld->addObject(level[0]);
+
+	level[1] = new Wall(myPhysWorld, 30.0f, gl.xres);
+	level[1]->pos[1] = gl.yres-15;
+	myPhysWorld->addObject(level[1]);
+
+	level[2] = new Wall(myPhysWorld, gl.xres, 30.f);
+	level[2]->pos[0] = gl.xres-15;
+	myPhysWorld->addObject(level[2]);
+
+	level[3] = new Wall(myPhysWorld, gl.xres, 30.f);
+	level[3]->pos[0] = 15;
+	myPhysWorld->addObject(level[3]);
+	
+	float h = gl.yres / 3;
+	float w = 150;
+
+	level[4] = new Wall(myPhysWorld, h, w);
+	level[4]->pos[0] = gl.xres/3;
+	level[4]->pos[1] = gl.yres/2;
+	myPhysWorld->addObject(level[4]);
+
+	level[5] = new Wall(myPhysWorld, h, w);
+	level[5]->pos[0] = (2 *gl.xres)/3;
+	level[5]->pos[1] = gl.yres/2;
+	myPhysWorld->addObject(level[5]);
+}
+Map4::~Map4(){
+	extern PhysWorld * myPhysWorld;
+	for(int i = 0; i < 50;i++)
+	{
+		myPhysWorld->remObject(level[i]);
+		delete level[i];
+	}
+
+}
+void Map4::render(){
+
+	for(int i = 0; i < 50; i++)
+	{
+		if(level[i] != NULL)
+		{
+			Object * l = level[i];
+			glPushMatrix();
+			glColor3ub(l->color[0],l->color[1],l->color[2]);
+			glTranslatef(l->pos[0], l->pos[1] , 1);
+			glBegin(GL_POLYGON);
+			glVertex2f(l->w/2,l->h/2);
+			glVertex2f(l->w/2, -l->h/2);
+			glVertex2f(  -l->w/2,  -l->h/2);
+			glVertex2f(-l->w/2,l->h/2 );
+			glEnd();
+			glPopMatrix();
+		}	
+	}
+
+
+	
+
+};
