@@ -41,6 +41,7 @@ class Shotgun: public Weapon
        const char * type = "Shotgun";
        public:
        bool isBullet;
+       int h, w;
        PhysWorld * member;
        Shotgun(int in_rate, Player * in_parent, PhysWorld * in_member);
        ~Shotgun();
@@ -50,14 +51,15 @@ class Shotgun: public Weapon
        void render();
        Bullet * sarr[3];
   };
-/*
+
 class Map3
 {
 
     public:
         Map3();
         ~Map3();
+        //int h, w; 
         void render();
-        Object * level[5];
-
-};*/
+        Object * level[50];
+        int levelCount;
+};
