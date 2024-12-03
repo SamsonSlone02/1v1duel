@@ -42,7 +42,7 @@ class Global {
 		int xres, yres;
 		char keys[65536];
 		bool isPaused;
-		
+		int debug;		
 		Global();
 };
 class PhysWorld;
@@ -274,7 +274,7 @@ class Boomerang: public Weapon
 		Bullet * barr[MAX_BULLETS];
 		struct timespec bulletTimer;
 		int nbullets;
-		const char * type = "boomerang";
+		const char * type = "Boomerang";
 
 	public:
 		PhysWorld * member;

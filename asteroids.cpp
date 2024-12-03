@@ -63,6 +63,7 @@ Global::Global() {
 	//yres = 480;
 	//xres = 960;
 	//yres = 540;
+	debug = 0;
 	xres = 1440;
 	yres = 810;
 	memset(keys, 0, 65536);
@@ -124,12 +125,13 @@ class Game {
 
 
 			//temporary, setting passive and weapons for both players for testing
-			players[0]->currentPassive = new Speed(players[0]);
+			//players[0]->currentPassive = new Speed(players[0]);
 	//		players[1]->currentPassive = new Shield(players[1]);
 			players[0]->currentWeapon = new Boomerang(10,players[0],myPhysWorld);		
+			players[1]->currentWeapon = new Boomerang(10,players[1],myPhysWorld);		
 			//players[1]->currentWeapon = new Boomerang(10,players[1],myPhysWorld);		
 			//players[1]->currentWeapon = new Bomb(10,players[1],myPhysWorld);
-			players[1]->currentWeapon = new Shotgun(10,players[1],myPhysWorld);
+			//players[1]->currentWeapon = new Shotgun(10,players[1],myPhysWorld);
             		//players[1]->currentWeapon = new Sniper(10,players[1],myPhysWorld);
 			myPhysWorld->addObject(players[0]->ship);
 			myPhysWorld->addObject(players[1]->ship);
@@ -412,6 +414,16 @@ int check_keys(XEvent *e)
 			break;
 		case XK_p:
 			gl.isPaused = !gl.isPaused;
+			break;
+		case XK_1:
+			static int count = 0;
+			count +=1;
+			count = count % 7;
+			g.players[0]->setWeapon(count);
+			break;
+		case XK_2:
+			gl.debug += 1;
+			gl.debug = gl.debug % 2;
 			break;
 	}
 	return 0;

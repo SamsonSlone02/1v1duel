@@ -265,6 +265,8 @@ void Ship::handleCollision(Object * in_object)
 				myMapHandler->switchMaps();
 				parent->lives--;
 				parent->respawn();
+				//parent->setWeapon(2);
+				//parent->opponent->setWeapon(2);
 				parent->opponent->respawn();
 			}
 
@@ -1136,15 +1138,19 @@ void Sniper::render()
 	int debug = 0;
 
 	Flt rad = ((parent->ship->angle+90.0) / 360.0f) * PI * 2.0;
-	if(debug) {
-		for (int i = 0; i < iterations; i++) {
+	extern Global gl;
+	if(gl.debug) {
+		int a = 20;
+		int b = 50;
+		for (int i = 0; i < b; i++) {
 			rad = ((parent->ship->angle+90.0) / 360.0f) * PI * 2.0;
 			Object objectArr[200];
 			float xdir = cos(rad);
 			float ydir = sin(rad);
-			int x = startPosC[0] + (i * step * xdir) + (40 * xdir);
-			int y = startPosC[1] +  (i * step * ydir) + (40 * ydir);
+			int x = startPosC[0] + (i * a * xdir) + (40 * xdir);
+			int y = startPosC[1] +  (i * a * ydir) + (40 * ydir);
 			glPushMatrix();
+			objectArr[i].setColor(0,255,0);
 			objectArr[i].pos[0] = x;
 			objectArr[i].pos[1] = y;
 			objectArr[i].h = 20;
@@ -1357,6 +1363,16 @@ void Player::setWeapon(int input)
 			delete this->currentPassive;
 			currentPassive = new Speed(this);
 			break;
+		case 5:
+			delete this->currentWeapon;
+			currentWeapon = new Bomb(10,this,ship->member);
+			cout << "post" << endl;
+			break;
+		case 6:
+			delete this->currentWeapon;
+			currentWeapon = new Shotgun(10,this,ship->member);
+			cout << "post" << endl;
+			break;
 
 	}
 
@@ -1389,14 +1405,13 @@ Player::Player(int in_health, double in_speed, double in_rSpeed, PhysWorld * in_
 	currentWeapon = new Weapon(10,this);
 	currentPassive = new Passive(this);
 	ship = new Ship(member,this);
-
 	lives = 4;
 }
 
 void Player::respawn()
 {
 	extern Global gl;
-	setWeapon(-1);
+	//setWeapon(-1);
 
 	ship->pos[0] = 0;
 	ship->pos[1] = 0;
