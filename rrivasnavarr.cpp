@@ -4,15 +4,6 @@ using namespace std;
 
 extern Global gl;
 
-/*Wall::Wall()
-{
-    extern Global gl;
-    w = 5.0f;
-    l = 4000.0f;//gl.xres;
-    x = 0.0f;
-    y = 0.0f;
-}
-*/
 Wall::~Wall(){}
 
 Wall::Wall(PhysWorld * in_member = NULL, float height = 100.0f, float width = 100.0f) : Object(in_member)
@@ -23,7 +14,6 @@ Wall::Wall(PhysWorld * in_member = NULL, float height = 100.0f, float width = 10
     pos[1] = gl.yres / 2;
     h = height;
     w = width;
-    //pos[1] = h / 2; 
 }
 
 void Wall::render()
@@ -65,7 +55,15 @@ Map::Map()
     myPhysWorld->addObject(mWall); 
 }
 
-Map::~Map(){}
+Map::~Map()
+{
+    extern PhysWorld * myPhysWorld;
+    myPhysWorld->remObject(dWall);
+    myPhysWorld->remObject(uWall);
+    myPhysWorld->remObject(lWall);
+    myPhysWorld->remObject(rWall);
+    myPhysWorld->remObject(mWall);
+}
 
 void Map::render()
 {
@@ -74,5 +72,40 @@ void Map::render()
     lWall->render();
     rWall->render();
     mWall->render();
+}
+
+Menu::~Menu(){}
+
+Menu::Menu(){}
+
+void Menu::render()
+{
+    // draws background
+    glColor3f(255/255.0, 255/255.0, 255/255.0);
+    glBegin(GL_POLYGON);
+    glVertex2i(0, 0);
+    glVertex2i(gl.xres, 0);
+    glVertex2i(gl.xres, gl.yres);
+    glVertex2i(0, gl.yres);
+    glEnd();
+
+    glBindTexture(GL_TEXTURE_2D, gl.menu);
+    glBegin(GL_QUADS);
+    glTexCoord2f(0.0f, 1.0f); glVertex2i(0, 0);
+    glTexCoord2f(0.0f, 0.0f); glVertex2i(0, gl.yres);
+    glTexCoord2f(1.0f, 0.0f); glVertex2i(gl.xres, gl.yres);
+    glTexCoord2f(1.0f, 1.0f); glVertex2i(gl.xres, 0);
+    glEnd();
+
+    if (gl.hoverButton) {
+        glBindTexture(GL_TEXTURE_2D, gl.button1);
+        glBegin(GL_QUADS);
+        glTexCoord2f(0.0f, 1.0f); glVertex2i(gl.xres/2 - gl.xres/6.3, gl.yres/2 - gl.yres/5);
+        glTexCoord2f(0.0f, 0.0f); glVertex2i(gl.xres/2 - gl.xres/6.3, gl.yres/2 - gl.yres/10);
+        glTexCoord2f(1.0f, 0.0f); glVertex2i(gl.xres/2 + gl.xres/6.3, gl.yres/2 - gl.yres/10);
+        glTexCoord2f(1.0f, 1.0f); glVertex2i(gl.xres/2 + gl.xres/6.3, gl.yres/2 - gl.yres/5);
+        glEnd();
+    }
+    glPopMatrix();
 }
 

@@ -42,7 +42,15 @@ class Global {
 		int xres, yres;
 		char keys[65536];
 		bool isPaused;
-		int debug;		
+		int debug;
+        bool showMenu;
+        GLuint menu;
+        GLuint button1;
+        GLuint button2;
+        GLuint button3;
+        GLuint button4;
+        bool hoverButton;
+
 		Global();
 };
 class PhysWorld;

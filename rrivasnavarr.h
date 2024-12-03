@@ -20,11 +20,21 @@ class Wall:public Object
         void render();
 };
 
-class Map
+class Map: public BaseMap
 {
     public:
         Map();
         ~Map();
         void render();
 };
+
+class Menu
+{
+    public:
+        Menu();
+        ~Menu();
+        void render();
+};
+
+
 #endif

@@ -58,6 +58,68 @@ extern double physicsCountdown;
 extern double timeSpan;
 extern double timeDiff(struct timespec *start, struct timespec *end);
 extern void timeCopy(struct timespec *dest, struct timespec *source);
+
+class Image {
+public:
+        int width, height;
+        unsigned char *data;
+        ~Image() { delete [] data; }
+        Image(const char *fname) {
+                if (fname[0] == '\0')
+                        return;
+                //printf("fname **%s**\n", fname);
+                int ppmFlag = 0;
+                char name[40];
+                strcpy(name, fname);
+                int slen = strlen(name);
+                char ppmname[80];
+                if (strncmp(name+(slen-4), ".ppm", 4) == 0)
+                        ppmFlag = 1;
+                if (ppmFlag) {
+                        strcpy(ppmname, name);
+                } else {
+                        name[slen-4] = '\0';
+                        //printf("name **%s**\n", name);
+                        sprintf(ppmname,"%s.ppm", name);
+                        //printf("ppmname **%s**\n", ppmname);
+                        char ts[100];
+                        //system("convert eball.jpg eball.ppm");
+                        sprintf(ts, "convert %s %s", fname, ppmname);
+                        system(ts);
+                }
+                //sprintf(ts, "%s", name);
+                //sprintf(ts, "%s", name);
+                FILE *fpi = fopen(ppmname, "r");
+                if (fpi) {
+                        char line[200];
+                        fgets(line, 200, fpi);
+                        fgets(line, 200, fpi);
+                        //skip comments and blank lines
+                        while (line[0] == '#' || strlen(line) < 2)
+                                fgets(line, 200, fpi);
+                        sscanf(line, "%i %i", &width, &height);
+                        fgets(line, 200, fpi);
+                        //get pixel data
+                        int n = width * height * 3;
+                        data = new unsigned char[n];
+                        for (int i=0; i<n; i++)
+                                data[i] = fgetc(fpi);
+                        fclose(fpi);
+                } else {
+                        printf("ERROR opening image: %s\n",ppmname);
+                        exit(0);
+                }
+                if (!ppmFlag)
+                        unlink(ppmname);
+        }
+};
+Image img[5] = {
+"./images/menu.png",
+"./images/button1.png",
+"./images/button2.png",
+"./images/button3.png",
+"./images/button4.png" };
+
 Global::Global() {
 	//xres = 640;
 	//yres = 480;
@@ -68,6 +130,7 @@ Global::Global() {
 	yres = 810;
 	memset(keys, 0, 65536);
 	isPaused = false;
+    showMenu = false;
 };
 Ship::Ship(PhysWorld * in_member = NULL, Player * in_parent = NULL) : Object(in_member)
 {
@@ -205,7 +268,7 @@ class X11_wrapper {
 			set_title();
 			glc = glXCreateContext(dpy, vi, NULL, GL_TRUE);
 			glXMakeCurrent(dpy, win, glc);
-			show_mouse_cursor(0);
+			show_mouse_cursor(1);
 		}
 		~X11_wrapper() {
 			XDestroyWindow(dpy, win);
@@ -288,6 +351,8 @@ int check_keys(XEvent *e);
 void physics();
 void render();
 
+Menu * menu = new Menu();
+
 //==========================================================================
 // M A I N
 //==========================================================================
@@ -312,7 +377,7 @@ int main()
 		while (x11.getXPending()) {
 			XEvent e = x11.getXNextEvent();
 			x11.check_resize(&e);
-			//	check_mouse(&e);
+			check_mouse(&e);
 			done = check_keys(&e);
 		}
 
@@ -321,12 +386,17 @@ int main()
 		timeSpan = timeDiff(&timeStart, &timeCurrent);
 		timeCopy(&timeStart, &timeCurrent);
 		physicsCountdown += timeSpan;
-		while (physicsCountdown >= physicsRate) {
-			physics();
-			physicsCountdown -= physicsRate;
-		}
 
-		render();
+        if (!gl.showMenu) {
+            while (physicsCountdown >= physicsRate) {
+                physics();
+                physicsCountdown -= physicsRate;
+            }
+            render();
+        } else {
+            menu->render();
+        }
+
 
 		x11.swapBuffers();
 	}
@@ -356,6 +426,64 @@ void init_opengl(void)
 	//Do this to allow fonts
 	glEnable(GL_TEXTURE_2D);
 	initialize_fonts();
+
+    // load image files
+    glGenTextures(1, &gl.menu);
+    glGenTextures(1, &gl.button1);
+    glGenTextures(1, &gl.button2);
+    glGenTextures(1, &gl.button3);
+    glGenTextures(1, &gl.button4);
+
+    //menu
+    //
+    glBindTexture(GL_TEXTURE_2D, gl.menu);
+    //
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, img[0].width, img[0].height, 0,
+            GL_RGB, GL_UNSIGNED_BYTE, img[0].data);
+
+    //button1
+    //
+    glBindTexture(GL_TEXTURE_2D, gl.button1);
+    //
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, img[1].width, img[1].height, 0,
+            GL_RGB, GL_UNSIGNED_BYTE, img[1].data);
+
+    //button2
+    //
+    glBindTexture(GL_TEXTURE_2D, gl.button2);
+    //
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, img[2].width, img[2].height, 0,
+            GL_RGB, GL_UNSIGNED_BYTE, img[2].data);
+
+    //button3
+    //
+    glBindTexture(GL_TEXTURE_2D, gl.button3);
+    //
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, img[3].width, img[3].height, 0,
+            GL_RGB, GL_UNSIGNED_BYTE, img[3].data);
+
+    //button4
+    //
+    glBindTexture(GL_TEXTURE_2D, gl.button4);
+    //
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, img[4].width, img[4].height, 0,
+            GL_RGB, GL_UNSIGNED_BYTE, img[4].data);
+
 }
 
 void normalize2d(Vec v)
@@ -370,6 +498,49 @@ void normalize2d(Vec v)
 	v[0] *= len;
 	v[1] *= len;
 }
+
+void check_mouse(XEvent *e)
+{
+        //Did the mouse move?
+        //Was a mouse button clicked?
+        static int savex = 0;
+        static int savey = 0;
+        //
+
+        if (e->xbutton.x > gl.xres/4.1 
+                && e->xbutton.x < (gl.xres/2.1)
+                && e->xbutton.y > (gl.yres/2 + gl.yres/70)
+                && e->xbutton.y < (gl.yres - gl.yres/2.5)) {
+            gl.hoverButton = 1;
+        } else {
+            gl.hoverButton = 0;
+        }
+
+        if (e->type == ButtonRelease) {
+                return;
+        }
+        if (e->type == ButtonPress) {
+                if (e->xbutton.button==1) {
+                    if (e->xbutton.x > gl.xres/4.1
+                            && e->xbutton.x < gl.xres/2.1
+                            && e->xbutton.y > gl.yres/2 + gl.yres/70
+                            && e->xbutton.y < gl.yres - gl.yres/2.5) {
+                        gl.showMenu = 0;
+                    }
+                    //Left button is down
+                }
+                if (e->xbutton.button==3) {
+                        //Right button is down
+                }
+        }
+        if (savex != e->xbutton.x || savey != e->xbutton.y) {
+                //Mouse moved
+                savex = e->xbutton.x;
+                savey = e->xbutton.y;
+        }
+}
+
+
 int check_keys(XEvent *e)
 {
 	static int shift=0;
@@ -404,13 +575,25 @@ int check_keys(XEvent *e)
 		case XK_r:
 			myPhysWorld->printArr();
 			break;
-		case XK_s:
+		case XK_e:
+            g.players[1]->ship->pos[0] = (float)(rand() % gl.xres) ;
+            g.players[1]->ship->pos[1] = (float)(rand() % gl.yres) ;
+            g.players[0]->ship->pos[0] = (float)(rand() % gl.xres) ;
+            g.players[0]->ship->pos[1] = (float)(rand() % gl.yres) ;
+            g.players[1]->ship->color[0] = (float)(rand() % 100) / 100;
+            g.players[1]->ship->color[1] = (float)(rand() % 100) / 100;
+            g.players[1]->ship->color[2] = (float)(rand() % 100) / 100;
+            g.players[0]->ship->color[0] = (float)(rand() % 100) / 100;
+            g.players[0]->ship->color[1] = (float)(rand() % 100) / 100;
+            g.players[0]->ship->color[2] = (float)(rand() % 100) / 100;
 			break;
 		case XK_Down:
 			break;
-		case XK_equal:
+		case XK_q:
+
 			break;
-		case XK_minus:
+		case XK_m:
+            gl.showMenu ^= 1;
 			break;
 		case XK_p:
 			gl.isPaused = !gl.isPaused;
