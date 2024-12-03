@@ -1135,7 +1135,6 @@ void Sniper::physics(){
 };
 void Sniper::render()
 {
-	int debug = 0;
 
 	Flt rad = ((parent->ship->angle+90.0) / 360.0f) * PI * 2.0;
 	extern Global gl;
