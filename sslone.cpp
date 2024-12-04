@@ -8,6 +8,7 @@ Object::Object(PhysWorld * in_member = NULL)
 	setColor(0,0,0);
 	member = in_member;
 	filterSize = 20;
+	clearFilter();
 	//addFilter();
 }
 
@@ -303,11 +304,11 @@ ItemBox::ItemBox(PhysWorld * in_member = NULL)
 	srand(time(NULL));
 	boxContent = rand() % 4;
 	clearFilter();
-	h = (upperBound + lowerBound) /2;
-	w = (upperBound + lowerBound) / 2;
 
 	upperBound = 20;
 	lowerBound = 15;
+	h = (upperBound + lowerBound) /2;
+	w = (upperBound + lowerBound) / 2;
 	isGrowing = true;
 	objectType = ITEMBOX;
 	count = 0;
@@ -433,9 +434,9 @@ BoxWorld::BoxWorld(PhysWorld * in_member = NULL)
 	}
 
 	boxCount = 0;
-	timeTillSpawn = 0;
+	timeTillSpawn = 10;
 	startTime = time(NULL);
-	currentTime = time(NULL) + timeTillSpawn;
+	currentTime = time(NULL);
 }
 
 bool BoxWorld::remObject(ItemBox * in_box)
@@ -1536,7 +1537,7 @@ void Hud::render()
 
 	glPushMatrix();
 	glTranslatef(r.left,r.bot,1);
-	glColor3ub(255,255,255);
+	glColor3ub(255,0,0);
 	if(p2->lives > 1)
 		glColor3ub(0,0,0);
 	glBegin(GL_POLYGON);
@@ -1548,7 +1549,7 @@ void Hud::render()
 	glPopMatrix();
 	glPushMatrix();
 	glTranslatef(r.left + 30,r.bot,1);
-	glColor3ub(255,255,255);
+	glColor3ub(255,0,0);
 	if(p2->lives > 2)
 		glColor3ub(0,0,0);
 	glBegin(GL_POLYGON);
@@ -1560,7 +1561,7 @@ void Hud::render()
 	glPopMatrix();
 	glPushMatrix();
 	glTranslatef(r.left + 60,r.bot,1);
-	glColor3ub(255,255,255);
+	glColor3ub(255,0,0);
 	if(p2->lives > 3)
 		glColor3ub(0,0,0);
 	glBegin(GL_POLYGON);
@@ -1667,13 +1668,22 @@ void Hud::render()
 }
 MapHandler::MapHandler(){
 	srand(time(NULL));
-	nMap = rand() % 2;
+	nMap = rand() % 4;
 	if(nMap == 0)
 	{
 		currentMap = new Map2();
-	}else
+	}
+	if(nMap ==1)
 	{
 		currentMap = new Map4();
+	}
+	if(nMap == 2)
+	{
+		currentMap = new Map3();
+	}
+	if(nMap == 3)
+	{
+		currentMap = new Map();
 	}
 
 };
@@ -1682,7 +1692,7 @@ delete currentMap;
 
 };
 void MapHandler::switchMaps(){
-	nMap = (nMap+1) % 2;
+	nMap = (nMap+1) % 4;
 	if(nMap == 0)
 	{
 		delete currentMap;
@@ -1693,6 +1703,17 @@ void MapHandler::switchMaps(){
 		delete currentMap;
 		currentMap = new Map4();
 	}
+	if(nMap == 2)
+	{
+		delete currentMap;
+		currentMap = new Map3();
+	}
+	if(nMap == 3)
+	{
+		delete currentMap;
+		currentMap = new Map();
+	}
+
 
 
 };
@@ -1805,9 +1826,9 @@ Map2::Map2()
 	level[15]->pos[0] =(int)((float)gl.xres * .75f) + w;
 	level[15]->pos[1] = (int)((float)gl.yres * .2f) + h;
 	myPhysWorld->addObject(level[15]);
-	/*
-
-
+	
+/*
+   )
 	   level[0] = new Wall(myPhysWorld, 20.0f, gl.xres);
 	   level[0]->pos[1] = 50;
 	   myPhysWorld->addObject(level[0]);
@@ -1934,6 +1955,6 @@ void Map4::render(){
 	}
 
 
-	
+
 
 };

@@ -50,7 +50,7 @@ class Global {
         GLuint button3;
         GLuint button4;
         bool hoverButton;
-
+		int wepNum;
 		Global();
 };
 class PhysWorld;

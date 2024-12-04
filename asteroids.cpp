@@ -130,7 +130,8 @@ Global::Global() {
 	yres = 810;
 	memset(keys, 0, 65536);
 	isPaused = false;
-    showMenu = false;
+    showMenu = true;
+	wepNum = 0;
 };
 Ship::Ship(PhysWorld * in_member = NULL, Player * in_parent = NULL) : Object(in_member)
 {
@@ -150,6 +151,7 @@ Ship::Ship(PhysWorld * in_member = NULL, Player * in_parent = NULL) : Object(in_
 	*/
 	drawPos[0] = pos[0] - (w/2);
 	drawPos[1] = pos[1] - (h/2);
+	clearFilter();
 
 	//       pos[2] = 0.0f;
 	member = in_member;
@@ -351,13 +353,24 @@ int check_keys(XEvent *e);
 void physics();
 void render();
 
+char * args[]  = {(char*)"",(char*)"",NULL};
+char * path;
 Menu * menu = new Menu();
 
 //==========================================================================
 // M A I N
 //==========================================================================
-int main()
+int main(int argc, char *argv[])
 {
+	path = argv[0];
+	if(argc >1)
+	{
+	printf("%s \n",(char *)argv[1]);
+	printf("%s \n",(char *)argv[0]);
+	cout << atoi(args[1]) << endl;
+	}
+	
+	
 	srand(time(NULL));
 	logOpen();
 	init_opengl();
@@ -394,11 +407,35 @@ int main()
             }
             render();
         } else {
-            menu->render();
-        }
+	    
+           	 menu->render();
+		Rect r;
+		r.bot = (gl.yres/2) - 50;
+		r.left = gl.xres/2;
+		r.center = 1;
+		if(argc > 1)
+		{
+
+			int a = atoi(argv[a]);
+			printf("%d",a);
+			fflush(stdout);
+			if(atoi(argv[1]) ==1)
+			{
+				ggprint8b(&r, 16, 0x00ff0000, "Player 1 Wins!!");
+
+			}
+			if(atoi(argv[1]) == 0)
+			{
+				ggprint8b(&r, 16, 0x00ff0000, "Player 2 Wins!!");
+
+			}
 
 
-		x11.swapBuffers();
+		}
+	}
+
+
+	x11.swapBuffers();
 	}
 
 	cleanup_fonts();
@@ -427,62 +464,62 @@ void init_opengl(void)
 	glEnable(GL_TEXTURE_2D);
 	initialize_fonts();
 
-    // load image files
-    glGenTextures(1, &gl.menu);
-    glGenTextures(1, &gl.button1);
-    glGenTextures(1, &gl.button2);
-    glGenTextures(1, &gl.button3);
-    glGenTextures(1, &gl.button4);
+	// load image files
+	glGenTextures(1, &gl.menu);
+	glGenTextures(1, &gl.button1);
+	glGenTextures(1, &gl.button2);
+	glGenTextures(1, &gl.button3);
+	glGenTextures(1, &gl.button4);
 
-    //menu
-    //
-    glBindTexture(GL_TEXTURE_2D, gl.menu);
-    //
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	//menu
+	//
+	glBindTexture(GL_TEXTURE_2D, gl.menu);
+	//
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, 3, img[0].width, img[0].height, 0,
-            GL_RGB, GL_UNSIGNED_BYTE, img[0].data);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, img[0].width, img[0].height, 0,
+			GL_RGB, GL_UNSIGNED_BYTE, img[0].data);
 
-    //button1
-    //
-    glBindTexture(GL_TEXTURE_2D, gl.button1);
-    //
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	//button1
+	//
+	glBindTexture(GL_TEXTURE_2D, gl.button1);
+	//
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, 3, img[1].width, img[1].height, 0,
-            GL_RGB, GL_UNSIGNED_BYTE, img[1].data);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, img[1].width, img[1].height, 0,
+			GL_RGB, GL_UNSIGNED_BYTE, img[1].data);
 
-    //button2
-    //
-    glBindTexture(GL_TEXTURE_2D, gl.button2);
-    //
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	//button2
+	//
+	glBindTexture(GL_TEXTURE_2D, gl.button2);
+	//
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, 3, img[2].width, img[2].height, 0,
-            GL_RGB, GL_UNSIGNED_BYTE, img[2].data);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, img[2].width, img[2].height, 0,
+			GL_RGB, GL_UNSIGNED_BYTE, img[2].data);
 
-    //button3
-    //
-    glBindTexture(GL_TEXTURE_2D, gl.button3);
-    //
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	//button3
+	//
+	glBindTexture(GL_TEXTURE_2D, gl.button3);
+	//
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, 3, img[3].width, img[3].height, 0,
-            GL_RGB, GL_UNSIGNED_BYTE, img[3].data);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, img[3].width, img[3].height, 0,
+			GL_RGB, GL_UNSIGNED_BYTE, img[3].data);
 
-    //button4
-    //
-    glBindTexture(GL_TEXTURE_2D, gl.button4);
-    //
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	//button4
+	//
+	glBindTexture(GL_TEXTURE_2D, gl.button4);
+	//
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, 3, img[4].width, img[4].height, 0,
-            GL_RGB, GL_UNSIGNED_BYTE, img[4].data);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, img[4].width, img[4].height, 0,
+			GL_RGB, GL_UNSIGNED_BYTE, img[4].data);
 
 }
 
@@ -501,43 +538,43 @@ void normalize2d(Vec v)
 
 void check_mouse(XEvent *e)
 {
-        //Did the mouse move?
-        //Was a mouse button clicked?
-        static int savex = 0;
-        static int savey = 0;
-        //
+	//Did the mouse move?
+	//Was a mouse button clicked?
+	static int savex = 0;
+	static int savey = 0;
+	//
 
-        if (e->xbutton.x > gl.xres/3 
-                && e->xbutton.x < (2*gl.xres/3)
-                && e->xbutton.y > (4.6*gl.yres/8)
-                && e->xbutton.y < (5.6*gl.yres/8)) {
-            gl.hoverButton = 1;
-        } else {
-            gl.hoverButton = 0;
-        }
+	if (e->xbutton.x > gl.xres/3 
+			&& e->xbutton.x < (2*gl.xres/3)
+			&& e->xbutton.y > (4.6*gl.yres/8)
+			&& e->xbutton.y < (5.6*gl.yres/8)) {
+		gl.hoverButton = 1;
+	} else {
+		gl.hoverButton = 0;
+	}
 
-        if (e->type == ButtonRelease) {
-                return;
-        }
-        if (e->type == ButtonPress) {
-                if (e->xbutton.button==1) {
-                    if (e->xbutton.x > (gl.xres/3)
-                            && e->xbutton.x < (2*gl.xres/3)
-                            && e->xbutton.y > (4.6*gl.yres/8)
-                            && e->xbutton.y < (5.6*gl.yres/8)) {
-                        gl.showMenu = 0;
-                    }
-                    //Left button is down
-                }
-                if (e->xbutton.button==3) {
-                        //Right button is down
-                }
-        }
-        if (savex != e->xbutton.x || savey != e->xbutton.y) {
-                //Mouse moved
-                savex = e->xbutton.x;
-                savey = e->xbutton.y;
-        }
+	if (e->type == ButtonRelease) {
+		return;
+	}
+	if (e->type == ButtonPress) {
+		if (e->xbutton.button==1) {
+			if (e->xbutton.x > (gl.xres/3)
+					&& e->xbutton.x < (2*gl.xres/3)
+					&& e->xbutton.y > (4.6*gl.yres/8)
+					&& e->xbutton.y < (5.6*gl.yres/8)) {
+				gl.showMenu = 0;
+			}
+			//Left button is down
+		}
+		if (e->xbutton.button==3) {
+			//Right button is down
+		}
+	}
+	if (savex != e->xbutton.x || savey != e->xbutton.y) {
+		//Mouse moved
+		savex = e->xbutton.x;
+		savey = e->xbutton.y;
+	}
 }
 
 
@@ -576,16 +613,16 @@ int check_keys(XEvent *e)
 			myPhysWorld->printArr();
 			break;
 		case XK_e:
-            g.players[1]->ship->pos[0] = (float)(rand() % gl.xres) ;
-            g.players[1]->ship->pos[1] = (float)(rand() % gl.yres) ;
-            g.players[0]->ship->pos[0] = (float)(rand() % gl.xres) ;
-            g.players[0]->ship->pos[1] = (float)(rand() % gl.yres) ;
-            g.players[1]->ship->color[0] = (float)(rand() % 100) / 100;
-            g.players[1]->ship->color[1] = (float)(rand() % 100) / 100;
-            g.players[1]->ship->color[2] = (float)(rand() % 100) / 100;
-            g.players[0]->ship->color[0] = (float)(rand() % 100) / 100;
-            g.players[0]->ship->color[1] = (float)(rand() % 100) / 100;
-            g.players[0]->ship->color[2] = (float)(rand() % 100) / 100;
+			g.players[1]->ship->pos[0] = (float)(rand() % gl.xres) ;
+			g.players[1]->ship->pos[1] = (float)(rand() % gl.yres) ;
+			g.players[0]->ship->pos[0] = (float)(rand() % gl.xres) ;
+			g.players[0]->ship->pos[1] = (float)(rand() % gl.yres) ;
+			g.players[1]->ship->color[0] = (float)(rand() % 100) / 100;
+			g.players[1]->ship->color[1] = (float)(rand() % 100) / 100;
+			g.players[1]->ship->color[2] = (float)(rand() % 100) / 100;
+			g.players[0]->ship->color[0] = (float)(rand() % 100) / 100;
+			g.players[0]->ship->color[1] = (float)(rand() % 100) / 100;
+			g.players[0]->ship->color[2] = (float)(rand() % 100) / 100;
 			break;
 		case XK_Down:
 			break;
@@ -593,16 +630,16 @@ int check_keys(XEvent *e)
 
 			break;
 		case XK_m:
-            gl.showMenu ^= 1;
+			gl.showMenu ^= 1;
 			break;
 		case XK_p:
 			gl.isPaused = !gl.isPaused;
 			break;
 		case XK_1:
-			static int count = 0;
-			count +=1;
-			count = count % 7;
-			g.players[0]->setWeapon(count);
+			gl.wepNum +=1;
+			gl.wepNum = gl.wepNum % 7;
+			cout << gl.wepNum << endl;
+			g.players[0]->setWeapon(gl.wepNum);
 			break;
 		case XK_2:
 			gl.debug += 1;
@@ -620,15 +657,17 @@ void physics()
 		myBoxWorld->update();
 		for(int i = 0; i < 2; i++)
 		{
-			if(g.players[0]->lives ==0)
+			if(g.players[0]->lives == 0)
 			{
-				cout << "p2 Won" << endl;
-				exit(1);
+				args[0] = (char *)"0";
+				execvp(path,args);
+				//exit(1);
 			}
-			if(g.players[1]->lives ==0)
+			if(g.players[1]->lives == 0)
 			{
-				cout << "p1 Won" << endl;
-				exit(1);
+				args[0] = (char *)"1";;
+				execvp(path,args);
+				//exit(1);
 			}
 			//Update ship position
 			g.players[i]->ship->pos[0] += g.players[i]->ship->vel[0];
@@ -812,18 +851,18 @@ void render()
 		//g.players[i]->ship->drawHitbox();
 		glColor3fv(g.players[i]->ship->color);
 		glPushMatrix();
-		glTranslatef(tempX, tempY, g.players[i]->ship->pos[2]);
+		glTranslatef(tempX, tempY, 1);
 		glRotatef(g.players[i]->ship->angle, 0.0f, 0.0f, 1.0f);
-		
+
 		/*
-		glBegin(GL_TRIANGLES);
-		glVertex2f(-12.0f, -10.0f);
-		glVertex2f(  0.0f,  20.0f);
-		glVertex2f(  0.0f,  -6.0f);
-		glVertex2f(  0.0f,  -6.0f);
-		glVertex2f(  0.0f,  20.0f);
-		glVertex2f( 12.0f, -10.0f);
-		*/
+		   glBegin(GL_TRIANGLES);
+		   glVertex2f(-12.0f, -10.0f);
+		   glVertex2f(  0.0f,  20.0f);
+		   glVertex2f(  0.0f,  -6.0f);
+		   glVertex2f(  0.0f,  -6.0f);
+		   glVertex2f(  0.0f,  20.0f);
+		   glVertex2f( 12.0f, -10.0f);
+		   */
 
 		int w1 = 5;
 		int h1 = 7;
@@ -851,11 +890,11 @@ void render()
 		glEnd();
 		glPopMatrix();
 		/*
-		glVertex2f(-w1,-h1);
-		glVertex2f(-w1,h1);
-		glVertex2f(w1,h1);
-		glVertex2f(w1,-h1);
-*/
+		   glVertex2f(-w1,-h1);
+		   glVertex2f(-w1,h1);
+		   glVertex2f(w1,h1);
+		   glVertex2f(w1,-h1);
+		   */
 	}
 
 
