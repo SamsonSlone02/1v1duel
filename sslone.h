@@ -88,7 +88,7 @@ class PhysWorld
 {
 	private:
 	public:
-		Object * objectArr[50];
+		Object * objectArr[60];
 		int arrSize;
 		PhysWorld();
 		~PhysWorld();

@@ -155,7 +155,7 @@ void Object::setColor(float r,float g,float b)
 PhysWorld::PhysWorld()
 {
 
-	arrSize = 50;
+	arrSize = 60;
 	for (int i = 0; i < arrSize;i++) {
 		objectArr[i] = NULL;
 	}

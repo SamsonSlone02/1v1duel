@@ -616,8 +616,8 @@ void Map3::render()
 Map3::~Map3()
 {
 
-extern PhysWorld * myPhysWorld;
-	for(int i = 0; i < 50;i++)
+	extern PhysWorld * myPhysWorld;
+	for(int i = 0; i < 30;i++)
 	{
 		myPhysWorld->remObject(level[i]);
 		delete level[i];
