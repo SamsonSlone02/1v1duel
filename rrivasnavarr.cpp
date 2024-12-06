@@ -105,7 +105,74 @@ void Map::render()
 // Menu functions for Main Menu to display images
 Menu::~Menu(){}
 
-Menu::Menu(){}
+Menu::Menu()
+{
+    Image img[5] = {
+        "./images/menu.png",
+        "./images/button1.png",
+        "./images/button2.png",
+        "./images/button3.png",
+        "./images/button4.png" 
+    };
+
+    
+    // load image files
+    glGenTextures(1, &gl.menu);
+    glGenTextures(1, &gl.button1);
+    glGenTextures(1, &gl.button2);
+    glGenTextures(1, &gl.button3);
+    glGenTextures(1, &gl.button4);
+
+    //menu
+    //
+    glBindTexture(GL_TEXTURE_2D, gl.menu);
+    //
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, img[0].width, img[0].height, 0,
+            GL_RGB, GL_UNSIGNED_BYTE, img[0].data);
+
+    //button1
+    //
+    glBindTexture(GL_TEXTURE_2D, gl.button1);
+    //
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, img[1].width, img[1].height, 0,
+            GL_RGB, GL_UNSIGNED_BYTE, img[1].data);
+
+    //button2
+    //
+    glBindTexture(GL_TEXTURE_2D, gl.button2);
+    //
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, img[2].width, img[2].height, 0,
+            GL_RGB, GL_UNSIGNED_BYTE, img[2].data);
+
+    //button3
+    //
+    glBindTexture(GL_TEXTURE_2D, gl.button3);
+    //
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, img[3].width, img[3].height, 0,
+            GL_RGB, GL_UNSIGNED_BYTE, img[3].data);
+
+    //button4
+    //
+    glBindTexture(GL_TEXTURE_2D, gl.button4);
+    //
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, img[4].width, img[4].height, 0,
+            GL_RGB, GL_UNSIGNED_BYTE, img[4].data);
+}
 
 void Menu::render()
 {

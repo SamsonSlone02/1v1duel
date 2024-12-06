@@ -59,67 +59,6 @@ extern double timeSpan;
 extern double timeDiff(struct timespec *start, struct timespec *end);
 extern void timeCopy(struct timespec *dest, struct timespec *source);
 
-class Image {
-public:
-        int width, height;
-        unsigned char *data;
-        ~Image() { delete [] data; }
-        Image(const char *fname) {
-                if (fname[0] == '\0')
-                        return;
-                //printf("fname **%s**\n", fname);
-                int ppmFlag = 0;
-                char name[40];
-                strcpy(name, fname);
-                int slen = strlen(name);
-                char ppmname[80];
-                if (strncmp(name+(slen-4), ".ppm", 4) == 0)
-                        ppmFlag = 1;
-                if (ppmFlag) {
-                        strcpy(ppmname, name);
-                } else {
-                        name[slen-4] = '\0';
-                        //printf("name **%s**\n", name);
-                        sprintf(ppmname,"%s.ppm", name);
-                        //printf("ppmname **%s**\n", ppmname);
-                        char ts[100];
-                        //system("convert eball.jpg eball.ppm");
-                        sprintf(ts, "convert %s %s", fname, ppmname);
-                        system(ts);
-                }
-                //sprintf(ts, "%s", name);
-                //sprintf(ts, "%s", name);
-                FILE *fpi = fopen(ppmname, "r");
-                if (fpi) {
-                        char line[200];
-                        fgets(line, 200, fpi);
-                        fgets(line, 200, fpi);
-                        //skip comments and blank lines
-                        while (line[0] == '#' || strlen(line) < 2)
-                                fgets(line, 200, fpi);
-                        sscanf(line, "%i %i", &width, &height);
-                        fgets(line, 200, fpi);
-                        //get pixel data
-                        int n = width * height * 3;
-                        data = new unsigned char[n];
-                        for (int i=0; i<n; i++)
-                                data[i] = fgetc(fpi);
-                        fclose(fpi);
-                } else {
-                        printf("ERROR opening image: %s\n",ppmname);
-                        exit(0);
-                }
-                if (!ppmFlag)
-                        unlink(ppmname);
-        }
-};
-Image img[5] = {
-"./images/menu.png",
-"./images/button1.png",
-"./images/button2.png",
-"./images/button3.png",
-"./images/button4.png" };
-
 Global::Global() {
 	//xres = 640;
 	//yres = 480;
@@ -133,17 +72,21 @@ Global::Global() {
     showMenu = true;
 	wepNum = 0;
 };
-Ship::Ship(PhysWorld * in_member = NULL, Player * in_parent = NULL) : Object(in_member)
+
+Ship::Ship(PhysWorld * in_member = NULL, Player * in_parent = NULL) : 
+    Object(in_member)
 {
 	parent = in_parent;
 	//Object(in_member);
 	Global gl;
-	//added rand to have every new player spawn randomly within the region of the arena
+	//added rand to have every new player spawn randomly within the region 
+    //  of the arena
 	objectType = SHIP;
 	h = 20;
 	w = 20;
 	/*
-	int spawnPos[4][2] = {{50,50},{gl.xres - 50,gl.yres - 50},{gl.xres - 50, 50}, {50, gl.yres - 50}};
+	int spawnPos[4][2] = {{50,50},{gl.xres - 50,gl.yres - 50},
+        {gl.xres - 50, 50}, {50, gl.yres - 50}};
 	pos[0] = (float)(rand() % gl.xres) ;
 	pos[1] = (float)(rand() % gl.yres) ;
 	pos[0] = spawnPos[rand() % 4][0];
@@ -169,6 +112,7 @@ Global gl;
 PhysWorld * myPhysWorld = new PhysWorld();
 BoxWorld * myBoxWorld = new BoxWorld(myPhysWorld);
 MapHandler * myMapHandler = new MapHandler();
+
 class Game {
 	public:
 		Player *players[2];
@@ -191,13 +135,13 @@ class Game {
 
 			//temporary, setting passive and weapons for both players for testing
 			//players[0]->currentPassive = new Speed(players[0]);
-	//		players[1]->currentPassive = new Shield(players[1]);
+	        //players[1]->currentPassive = new Shield(players[1]);
 			players[0]->currentWeapon = new Boomerang(10,players[0],myPhysWorld);		
 			players[1]->currentWeapon = new Boomerang(10,players[1],myPhysWorld);		
 			//players[1]->currentWeapon = new Boomerang(10,players[1],myPhysWorld);		
 			//players[1]->currentWeapon = new Bomb(10,players[1],myPhysWorld);
 			//players[1]->currentWeapon = new Shotgun(10,players[1],myPhysWorld);
-            		//players[1]->currentWeapon = new Sniper(10,players[1],myPhysWorld);
+            //players[1]->currentWeapon = new Sniper(10,players[1],myPhysWorld);
 			myPhysWorld->addObject(players[0]->ship);
 			myPhysWorld->addObject(players[1]->ship);
 
@@ -463,64 +407,6 @@ void init_opengl(void)
 	//Do this to allow fonts
 	glEnable(GL_TEXTURE_2D);
 	initialize_fonts();
-
-	// load image files
-	glGenTextures(1, &gl.menu);
-	glGenTextures(1, &gl.button1);
-	glGenTextures(1, &gl.button2);
-	glGenTextures(1, &gl.button3);
-	glGenTextures(1, &gl.button4);
-
-	//menu
-	//
-	glBindTexture(GL_TEXTURE_2D, gl.menu);
-	//
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, 3, img[0].width, img[0].height, 0,
-			GL_RGB, GL_UNSIGNED_BYTE, img[0].data);
-
-	//button1
-	//
-	glBindTexture(GL_TEXTURE_2D, gl.button1);
-	//
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, 3, img[1].width, img[1].height, 0,
-			GL_RGB, GL_UNSIGNED_BYTE, img[1].data);
-
-	//button2
-	//
-	glBindTexture(GL_TEXTURE_2D, gl.button2);
-	//
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, 3, img[2].width, img[2].height, 0,
-			GL_RGB, GL_UNSIGNED_BYTE, img[2].data);
-
-	//button3
-	//
-	glBindTexture(GL_TEXTURE_2D, gl.button3);
-	//
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, 3, img[3].width, img[3].height, 0,
-			GL_RGB, GL_UNSIGNED_BYTE, img[3].data);
-
-	//button4
-	//
-	glBindTexture(GL_TEXTURE_2D, gl.button4);
-	//
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, 3, img[4].width, img[4].height, 0,
-			GL_RGB, GL_UNSIGNED_BYTE, img[4].data);
-
 }
 
 void normalize2d(Vec v)
@@ -606,8 +492,10 @@ int check_keys(XEvent *e)
 		case XK_Escape:
 			return 1;
 		case XK_f:
-			cout << g.players[0]->ship->pos[0] << ", " << g.players[0]->ship->pos[1] << endl;
-			cout << g.players[1]->ship->pos[0] << ", " << g.players[1]->ship->pos[1] << endl;
+			cout << g.players[0]->ship->pos[0] << ", " 
+                << g.players[0]->ship->pos[1] << endl;
+			cout << g.players[1]->ship->pos[0] << ", " 
+                << g.players[1]->ship->pos[1] << endl;
 			break;
 		case XK_r:
 			myPhysWorld->printArr();
@@ -726,7 +614,8 @@ void physics()
 				//g.ship.vel[1] += ydir*0.02f;
 				g.players[i]->ship->vel[0] += xdir * g.players[i]->getSpeed();
 				g.players[i]->ship->vel[1] += ydir * g.players[i]->getSpeed();
-				Flt speed = sqrt(g.players[i]->ship->vel[0]*g.players[i]->ship->vel[0]+
+				Flt speed = 
+                    sqrt(g.players[i]->ship->vel[0]*g.players[i]->ship->vel[0]+
 						g.players[i]->ship->vel[1]*g.players[i]->ship->vel[1]);
 				if (speed > g.players[i]->getSpeed()) {
 					speed = g.players[i]->getSpeed();
@@ -747,7 +636,8 @@ void physics()
 				// 
 				g.players[i]->ship->vel[0] -= xdir * g.players[i]->getSpeed();
 				g.players[i]->ship->vel[1] -= ydir * g.players[i]->getSpeed();
-				Flt speed = sqrt(g.players[i]->ship->vel[0]*g.players[i]->ship->vel[0]+
+				Flt speed = 
+                    sqrt(g.players[i]->ship->vel[0]*g.players[i]->ship->vel[0]+
 						g.players[i]->ship->vel[1]*g.players[i]->ship->vel[1]);
 				if (speed > g.players[i]->getSpeed()) {
 					speed = g.players[i]->getSpeed();
