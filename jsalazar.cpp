@@ -271,8 +271,8 @@ void Shotgun::fireWeapon()
             cout << "making a bullet member: " << myBullet << endl;
             myBullet->pos[0] = parent->ship->pos[0];
             myBullet->pos[1] = parent->ship->pos[1];
-            myBullet->vel[0] = (xdir)*3;
-            myBullet->vel[1] = (ydir)*3;
+            myBullet->vel[0] = (xdir)*2.5;
+            myBullet->vel[1] = (ydir)*2.5;
             shift += 14;
             rad = ((parent->ship->angle+shift) / 360.0f) * PI * 2.0; 
             xdir = cos(rad);
@@ -313,10 +313,10 @@ void Shotgun::render()
             //glVertex2f(myBullet->w/2, -myBullet->h/2);
             //glVertex2f(  -myBullet->w/2,  -myBullet->h/2);
             //glVertex2f(-myBullet->w/2,myBullet->h/2 );
-            glVertex2f(4,4);
-            glVertex2f(4, -4);
-            glVertex2f(  -4,  -4);
-            glVertex2f(-4,4);
+            glVertex2f(3.5,3.5);
+            glVertex2f(3.5, -3.5);
+            glVertex2f(  -3.5,  -3.5);
+            glVertex2f(-3.5,3.5);
            
             glEnd();
             glPopMatrix();
@@ -344,7 +344,7 @@ Map3::Map3()
 
 	extern PhysWorld * myPhysWorld;
 	extern Global gl;
-	levelCount = 24;
+	levelCount = 30;
 
 	//Borders
 	level[0] = new Wall(myPhysWorld, 30.0f, gl.xres);
@@ -381,42 +381,42 @@ Map3::Map3()
 	level[5]->pos[1] = (int)((float)gl.yres * .853f);
 	myPhysWorld->addObject(level[5]);
 
-	// Universal Distance/width/height = 20; 
 	//top check
 	w = 20.0f;
 	h = 100.0f;
 	level[6] = new Wall(myPhysWorld, h, w);
 	level[6]->setColor(wC[0],wC[1],wC[2]);
 	level[6]->pos[0] = (int)((float)gl.xres * .439f);
-	level[6]->pos[1] = (int)((float)gl.yres * .902f);//.776f);
+	level[6]->pos[1] = (int)((float)gl.yres * .902f);
 	myPhysWorld->addObject(level[6]);   
 
 	//Restricted area
-	w = 50.0f;
-	h = 50.0f;
+	w = 1.0f;
+	h = 1.0f;
 	//wC[3] = {255,255,0};
 	level[7] = new Wall(myPhysWorld, h, w);
 	level[7]->setColor(wC[0],wC[1],wC[2]);
-	level[7]->pos[0] = (int)((float)gl.xres * .50f);
-	level[7]->pos[1] = (int)((float)gl.yres * .50f);
+	level[7]->pos[0] = (int)((float)gl.xres * .001f);
+	level[7]->pos[1] = (int)((float)gl.yres * .001f);
 	myPhysWorld->addObject(level[7]);
 
+    //using last time
 	w = 20.0f;
-	h = 297.0f;
+	h = 217.0f;
 	level[8] = new Wall(myPhysWorld, h, w);
 	level[8]->setColor(wC[0],wC[1],wC[2]);
-	level[8]->pos[0] = (int)((float)gl.xres * .908f);
-	level[8]->pos[1] = (int)((float)gl.yres * .90f);
+	level[8]->pos[0] = (int)((float)gl.xres * .903f);
+	level[8]->pos[1] = (int)((float)gl.yres * .999f);
 	myPhysWorld->addObject(level[8]);
 
 
-	//right check
-	w = 100.0f;
+	//right check rn!!
+	w = 144.0f;
 	h = 20.0f;
 	level[9] = new Wall(myPhysWorld, h, w);
 	level[9]->setColor(wC[0],wC[1],wC[2]);
-	level[9]->pos[0] = (int)((float)gl.xres * .945f);
-	level[9]->pos[1] = (int)((float)gl.yres * .2f);
+	level[9]->pos[0] = (int)((float)gl.xres * .582f);
+	level[9]->pos[1] = (int)((float)gl.yres * .457f);
 	myPhysWorld->addObject(level[9]);
 
 
@@ -426,7 +426,7 @@ Map3::Map3()
 	level[10] = new Wall(myPhysWorld, h, w);
 	level[10]->setColor(wC[0],wC[1],wC[2]);
 	level[10]->pos[0] = (int)((float)gl.xres * .05f);
-	level[10]->pos[1] = (int)((float)gl.yres * .721f);
+	level[10]->pos[1] = (int)((float)gl.yres * .3f);
 	myPhysWorld->addObject(level[10]);
 
 	//down check
@@ -481,13 +481,12 @@ Map3::Map3()
 	level[16]->pos[1] = (int)((float)gl.yres * .556f);
 	myPhysWorld->addObject(level[16]);
 
-	//using rn
 	w = 100.0f;
 	h = 20.0f;
 	level[17] = new Wall(myPhysWorld, h, w);
 	level[17]->setColor(wC[0],wC[1],wC[2]);
-	level[17]->pos[0] = (int)((float)gl.xres * .484f);
-	level[17]->pos[1] = (int)((float)gl.yres * .1f);//.557f);
+	level[17]->pos[0] = (int)((float)gl.xres * .134f);
+	level[17]->pos[1] = (int)((float)gl.yres * .3f);
 	myPhysWorld->addObject(level[17]);
 
 	w = 20.0f;
@@ -502,10 +501,10 @@ Map3::Map3()
 	h = 100.0f;
 	level[19] = new Wall(myPhysWorld, h, w);
 	level[19]->setColor(wC[0],wC[1],wC[2]);
-	level[19]->pos[0] = (int)((float)gl.xres * .80f);
-	level[19]->pos[1] = (int)((float)gl.yres * .3f);
+	level[19]->pos[0] = (int)((float)gl.xres * .999f);
+	level[19]->pos[1] = (int)((float)gl.yres * .999f);
 	myPhysWorld->addObject(level[19]);
-
+    
 	w = 20.0f;
 	h = 200.0f;
 	level[20] = new Wall(myPhysWorld, h, w);
@@ -530,33 +529,66 @@ Map3::Map3()
 	level[22]->pos[1] = (int)((float)gl.yres * .729f);
 	myPhysWorld->addObject(level[22]);
 
-
 	w = 20.0f;
-	h = 380.0f;
+	h = 350.0f;
 	level[23] = new Wall(myPhysWorld, h, w);
 	level[23]->setColor(wC[0],wC[1],wC[2]);
-	level[23]->pos[0] = (int)((float)gl.xres * .2f);
-	level[23]->pos[1] = (int)((float)gl.yres * .386f);
+	level[23]->pos[0] = (int)((float)gl.xres * .092f);
+	level[23]->pos[1] = (int)((float)gl.yres * .377f);
 	myPhysWorld->addObject(level[23]);
 
+    w = 144.0f;
+	h = 20.0f;
+	level[24] = new Wall(myPhysWorld, h, w);
+	level[24]->setColor(wC[0],wC[1],wC[2]);
+	level[24]->pos[0] = (int)((float)gl.xres * .582f);
+	level[24]->pos[1] = (int)((float)gl.yres * .312f);
+	myPhysWorld->addObject(level[24]);
+
+    w = 20.0f;
+	h = 200.0f;
+	level[25] = new Wall(myPhysWorld, h, w);
+	level[25]->setColor(wC[0],wC[1],wC[2]);
+	level[25]->pos[0] = (int)((float)gl.xres * .245f);
+	level[25]->pos[1] = (int)((float)gl.yres * .124f);
+	myPhysWorld->addObject(level[25]);
+
+    w = 564.0f;
+	h = 20.0f;
+	level[26] = new Wall(myPhysWorld, h, w);
+	level[26]->setColor(wC[0],wC[1],wC[2]);
+	level[26]->pos[0] = (int)((float)gl.xres * .714f);
+	level[26]->pos[1] = (int)((float)gl.yres * .606f);
+	myPhysWorld->addObject(level[26]);
+
+    w = 20.0f;
+	h = 122.0f;
+	level[27] = new Wall(myPhysWorld, h, w);
+	level[27]->setColor(wC[0],wC[1],wC[2]);
+	level[27]->pos[0] = (int)((float)gl.xres * .903f);
+	level[27]->pos[1] = (int)((float)gl.yres * .53f);
+	myPhysWorld->addObject(level[27]);
+
+    w = 20.0f;
+	h = 132.0f;
+	level[28] = new Wall(myPhysWorld, h, w);
+	level[28]->setColor(wC[0],wC[1],wC[2]);
+	level[28]->pos[0] = (int)((float)gl.xres * .903f);
+	level[28]->pos[1] = (int)((float)gl.yres * .257f);
+	myPhysWorld->addObject(level[28]);
+
+    w = 20.0f;
+	h = 137.01f;
+	level[29] = new Wall(myPhysWorld, h, w);
+	level[29]->setColor(wC[0],wC[1],wC[2]);
+	level[29]->pos[0] = (int)((float)gl.xres * .5251f);
+	level[29]->pos[1] = (int)((float)gl.yres * .385f);
+	myPhysWorld->addObject(level[29]);
 
 
 }
-
 void Map3::render()
 {
-	//extern Global gl;
-
-
-	/*
-	   glColor3f(0,0,0);
-	   glBegin(GL_POLYGON);
-	   glVertex2i(0,0);
-	   glVertex2i(gl.xres,0);
-	   glVertex2i(gl.xres,gl.yres);
-	   glVertex2i(0,gl.yres);
-	   glEnd();
-	   */
 
 	for(int i = 0; i < levelCount; i++) {
 
@@ -583,5 +615,12 @@ void Map3::render()
 
 Map3::~Map3()
 {
+
+extern PhysWorld * myPhysWorld;
+	for(int i = 0; i < 50;i++)
+	{
+		myPhysWorld->remObject(level[i]);
+		delete level[i];
+	}
 
 }
