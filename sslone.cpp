@@ -523,6 +523,8 @@ void Bullet::handleCollision(Object * in_object)
 		case SHIP:
 			//addFilter(in_object);
 			//cout << "tooche" << endl;
+			h=0;
+			w=0;
 			member->remObject(this);
 			break;
 		case BULLET:

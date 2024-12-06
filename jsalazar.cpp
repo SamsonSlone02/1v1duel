@@ -309,14 +309,14 @@ void Shotgun::render()
                     parent->ship->color[2]);
             glTranslatef(myBullet->pos[0], myBullet->pos[1] , 1);
             glBegin(GL_POLYGON);
-            //glVertex2f(myBullet->w/2,myBullet->h/2);
-            //glVertex2f(myBullet->w/2, -myBullet->h/2);
-            //glVertex2f(  -myBullet->w/2,  -myBullet->h/2);
-            //glVertex2f(-myBullet->w/2,myBullet->h/2 );
-            glVertex2f(3.5,3.5);
-            glVertex2f(3.5, -3.5);
-            glVertex2f(  -3.5,  -3.5);
-            glVertex2f(-3.5,3.5);
+            glVertex2f(myBullet->w/2,myBullet->h/2);
+            glVertex2f(myBullet->w/2, -myBullet->h/2);
+            glVertex2f(  -myBullet->w/2,  -myBullet->h/2);
+            glVertex2f(-myBullet->w/2,myBullet->h/2 );
+            //glVertex2f(3.5,3.5);
+            //glVertex2f(3.5, -3.5);
+            //glVertex2f(  -3.5,  -3.5);
+            //glVertex2f(-3.5,3.5);
            
             glEnd();
             glPopMatrix();
